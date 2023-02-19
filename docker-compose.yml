@@ -1,6 +1,9 @@
 services:
   prestashop:
     image: prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}
+    depends_on:
+      mysql:
+        condition: service_healthy
     environment:
       - PORT=8000
 
@@ -23,6 +26,6 @@ services:
       interval: 5s
       timeout: 10s
       retries: 5
-      start_period: 5s
+      start_period: 2s
     ports:
       - ${HOST_PORT_BIND_MARIADB:?See .env.dist}:3306

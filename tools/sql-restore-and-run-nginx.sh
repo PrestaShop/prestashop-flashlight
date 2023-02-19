@@ -2,12 +2,8 @@
 set -e -o pipefail
 
 echo "Restoring MySQL dump..."
-mysql -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} < /dump.sql
+mysql -u ${MYSQL_USER} --host=${MYSQL_HOST} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /dump.sql
 echo "Dump restored!"
 
 echo "Starting Prestashop..."
-EXPOSE 8000
-
-STOPSIGNAL SIGQUIT
-
-CMD ["nginx", "-g", "daemon off;"]
+nginx -g "daemon off;"

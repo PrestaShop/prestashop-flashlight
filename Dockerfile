@@ -61,14 +61,21 @@ RUN echo "net.ipv6.conf.all.disable_ipv6 = 1" | tee /etc/sysctl.conf
 ENV MYSQL_HOST=mysql
 ENV MYSQL_USER=prestashop
 ENV MYSQL_PASSWORD=prestashop
-ENV MYSQL_ROOT_PASSWORD=prestashop
 ENV MYSQL_PORT=3306
 ENV MYSQL_DATABASE=prestashop
+
+# Instal mysql tools
+RUN apk add -U mysql-client
 
 # Ship the dump within the image
 ADD ./dump-${PS_VERSION}-${PHP_VERSION}.sql /dump.sql
 
+##@TODO: transform PS_DOMAIN in dump.sql
+##@TODO: make it configurable in a ./transform directory
+
 # The new default runner
 ADD ./tools/sql-restore-and-run-nginx.sh /run.sh
 
+EXPOSE 8000
+STOPSIGNAL SIGQUIT
 ENTRYPOINT ["/run.sh"]
