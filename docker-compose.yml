@@ -1,0 +1,28 @@
+services:
+  prestashop:
+    image: prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}
+    environment:
+      - PORT=8000
+
+  mysql:
+    image: mariadb:${DOCKER_VERSION_MARIADB:?See .env.dist}
+    env_file:
+      - .env
+    environment:
+      - TZ=UTC
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "--host=localhost",
+          "--user=root",
+          "--password=prestashop",
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    ports:
+      - ${HOST_PORT_BIND_MARIADB:?See .env.dist}:3306

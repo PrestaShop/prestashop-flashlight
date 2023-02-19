@@ -1,0 +1,22 @@
+# EditorConfig is awesome: https://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# Unix-style newlines with a newline ending every file
+[*]
+end_of_line = lf
+charset = utf-8
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+# this is good for diff and version control systems
+insert_final_newline = true
+
+[*.md]
+trim_trailing_whitespace = false
+
+[{Makefile,makefile,**.mk}]
+indent_style = tab
+indent_size = 4
+
