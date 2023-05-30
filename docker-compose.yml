@@ -1,14 +1,19 @@
 services:
   prestashop:
     image: prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}
+    container_name: prestashop
     depends_on:
       mysql:
         condition: service_healthy
     environment:
+      - PS_DOMAIN=localhost:8000
       - PORT=8000
+    ports:
+      - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:8000
 
   mysql:
     image: mariadb:${DOCKER_VERSION_MARIADB:?See .env.dist}
+    container_name: mysql
     env_file:
       - .env
     environment:

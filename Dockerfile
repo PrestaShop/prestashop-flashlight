@@ -1,9 +1,9 @@
 ARG PS_VERSION
 ARG PHP_VERSION
 
-# -------------------------
-# Flashlight builder image
-# -------------------------
+# ----------------------
+# Flashlight base image
+# ----------------------
 FROM php:${PHP_VERSION}-fpm-alpine AS base-prestashop
 ARG PS_VERSION
 ARG PS_FOLDER=/var/www/html
@@ -31,11 +31,24 @@ RUN apk add -U $GD_DEPS $ZIP_DEPS $INTL_DEPS \
 ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 
 # Extract the souces
-ADD ./tools/ps-zip-extractor.sh /ps-zip-extractor.sh
-RUN mkdir -p ${PS_FOLDER} \
-  && unzip -q /tmp/prestashop.zip -d ${PS_FOLDER}/ \
-  && bash /ps-zip-extractor.sh ${PS_FOLDER} www-data \
-  && rm -rf /tmp/prestashop.zip /ps-zip-extractor.sh
+RUN mkdir -p $PS_FOLDER \
+  && unzip -n -q /tmp/prestashop.zip -d $PS_FOLDER \
+  && mv $PS_FOLDER/prestashop.zip /tmp/prestashop.zip \
+  && unzip -n -q /tmp/prestashop.zip -d $PS_FOLDER \
+  && chown www-data:www-data -R $PS_FOLDER \
+  && rm -rf /tmp/prestashop.zip
+
+# --------------------
+# Flashlight dump SQL
+# --------------------
+FROM base-prestashop as sql-dump
+ARG PS_VERSION
+ARG PHP_VERSION
+ARG PS_FOLDER=/var/www/html
+
+ENV DUMP_FILE="/dump.sql"
+ADD ./tools/auto-install-and-dump.sh /auto-install-and-dump.sh
+RUN sh /auto-install-and-dump.sh
 
 # -----------------------
 # Flashlight final image
@@ -44,7 +57,7 @@ FROM base-prestashop as optimize-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PS_FOLDER=/var/www/html
-WORKDIR ${PS_FOLDER}
+WORKDIR $PS_FOLDER
 
 # @TODO check opcache
 # RUN echo '\
@@ -68,10 +81,7 @@ ENV MYSQL_DATABASE=prestashop
 RUN apk add -U mysql-client
 
 # Ship the dump within the image
-ADD ./dump-${PS_VERSION}-${PHP_VERSION}.sql /dump.sql
-
-##@TODO: transform PS_DOMAIN in dump.sql
-##@TODO: make it configurable in a ./transform directory
+COPY --chown=node:node --from=sql-dump /dump.sql /dump.sql
 
 # The new default runner
 ADD ./tools/sql-restore-and-run-nginx.sh /run.sh

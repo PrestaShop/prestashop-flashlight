@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e -o pipefail
+set -euo pipefail
 
 # 0. Configuration
 export PS_DOMAIN="replace-me.com" \
@@ -77,8 +77,7 @@ runuser -g www-data -u www-data -- \
 echo "✅ PrestaShop installed"
 
 # 6. Make a database dump
-mkdir -p $(dirname ${DUMP_PATH});
-mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_PATH};
+mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
 echo "✅ MySQL dump performed"
 
 # 7. Tear down mysql

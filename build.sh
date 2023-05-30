@@ -1,43 +1,40 @@
 #!/bin/sh
-set -e -o pipefail
+set -euo pipefail
 cd $(dirname "$0")
 
+function error {
+  echo -e "\e[1;31m${1:-Unknown error}\e[0m"
+  exit "${2:-1}"
+}
+
+function get_latest_prestashop_version {
+  curl --silent --location --request GET \
+    'https://api.github.com/repos/prestashop/prestashop/releases/latest' | jq -r '.tag_name'
+}
+
+function get_recommended_php_version {
+  PS_VERSION=$1; RECOMMENDED_VERSION=
+  REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
+  while IFS= read -r regExp; do
+    if [[ $PS_VERSION =~ $regExp ]]; then
+      RECOMMENDED_VERSION=$(jq -r '."'"${regExp}"'".php.recommended' <prestashop-versions.json)
+      break;
+    fi
+  done <<<"$REGEXP_LIST"
+  echo "$RECOMMENDED_VERSION";
+}
+
 # Configuration
-PS_VERSION="${PS_VERSION:-8.0.1}"
-PHP_VERSION="${PHP_VERSION:-8.2.2}"
+PS_VERSION="${PS_VERSION:-$(get_latest_prestashop_version)}"
+RECOMMENDED_VERSION=$(get_recommended_php_version "$PS_VERSION")
+PHP_VERSION="${PHP_VERSION:-$RECOMMENDED_VERSION}"
+if [[ -z $PHP_VERSION ]]; then
+  error "Could not find a recommended PHP version for ${PS_VERSION}" 2
+fi
 PS_FOLDER="/var/www/html"
-BUILDER_IMAGE="prestashop/flashlight-builder:latest"
-BUILDER_CONTAINER="flashlight-builder"
 FLASHLIGHT_IMAGE="prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"
-DUMP_FILE="dump-${PS_VERSION}-${PHP_VERSION}.sql"
-DUMP_PATH="/var/backup/${DUMP_FILE}"
 
 # Build builder common docker image
-docker build \
-  -f ./Dockerfile \
-  --target base-prestashop \
-  --build-arg PS_VERSION=${PS_VERSION} \
-  --build-arg PHP_VERSION=${PHP_VERSION} \
-  --build-arg PS_FOLDER=${PS_FOLDER} \
-  -t ${BUILDER_IMAGE} \
-  .
-
-# Run the auto-install
-docker rm --force ${BUILDER_CONTAINER} 2> /dev/null
-docker run \
-  --name ${BUILDER_CONTAINER} \
-  --volume $(pwd)/tools/auto-install-and-dump.sh:/run.sh:ro \
-  --entrypoint /run.sh \
-  --env DUMP_PATH=${DUMP_PATH} \
-  --env PS_FOLDER=${PS_FOLDER} \
-  ${BUILDER_IMAGE}
-
-# Extract the dump
-DEST_FILE="./${DUMP_FILE}";
-docker cp ${BUILDER_CONTAINER}:${DUMP_PATH} ${DEST_FILE}
-docker rm --force ${BUILDER_CONTAINER}
-
-# Build PrestaShop Flashlight image
 docker build \
   -f ./Dockerfile \
   --build-arg PS_VERSION=${PS_VERSION} \
