@@ -4,11 +4,30 @@ set -euo pipefail
 echo "Applying PS_DOMAIN ($PS_DOMAIN) to the dump"
 sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
 
-##@TODO: make it configurable in a ./transform directory
+# Configure the DBO parameters
+sed -i \
+    -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
+    -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
+    -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
+    -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
+    -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
+  $PS_FOLDER/app/config/parameters.php
 
-echo "Restoring MySQL dump..."
+
+# Restoring MySQL dump
 mysql -u ${MYSQL_USER} --host=${MYSQL_HOST} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /dump.sql
-echo "Dump restored!"
+echo "MySQL dump restored!"
+
+# Restoring extra MySQL dump if any
+if [ -n "$MYSQL_EXTRA_DUMP" ]; then
+  mysql -u ${MYSQL_USER} --host=${MYSQL_HOST} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < $MYSQL_EXTRA_DUMP
+  echo "MySQL EXTRA dump restored!"
+fi
+
+# Debug mode if enabled
+if [ "$DEBUG_MODE" == "true" ] || [ "$DEBUG_MODE" == "1" ]; then
+  sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
+fi;
 
 echo "Starting php-fpm..."
 # su www-data -s /usr/local/sbin/php-fpm -c '-D'

@@ -82,3 +82,8 @@ echo "✅ MySQL dump performed"
 
 # 7. Tear down mysql
 killall mysqld;
+
+# 8. Some clean up
+rm -rf \
+  ${PS_FOLDER:-nope}/var/cache/dev/* \
+  ${PS_FOLDER:-nope}/var/cache/prod/*

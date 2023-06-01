@@ -7,6 +7,7 @@ services:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
+      - DEBUG_MODE=false
     ports:
       - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:80
 
@@ -27,7 +28,7 @@ services:
           "--user=root",
           "--password=prestashop",
         ]
-      interval: 5s
+      interval: 10s
       timeout: 10s
       retries: 5
       start_period: 2s
@@ -41,7 +42,7 @@ services:
       - .env
     healthcheck:
       test: ["CMD", "curl", "-Ss", "http://localhost/robots.txt"]
-      interval: 10s
+      interval: 120s
       timeout: 10s
       retries: 5
       start_period: 5s
