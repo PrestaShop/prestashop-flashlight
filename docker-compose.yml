@@ -1,15 +1,14 @@
 services:
   prestashop:
-    image: prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}
+    image: prestashop/flashlight:8.0.4-8.1
     container_name: prestashop
     depends_on:
       mysql:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
-      - PORT=8000
     ports:
-      - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:8000
+      - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:80
 
   mysql:
     image: mariadb:${DOCKER_VERSION_MARIADB:?See .env.dist}
@@ -34,3 +33,17 @@ services:
       start_period: 2s
     ports:
       - ${HOST_PORT_BIND_MARIADB:?See .env.dist}:3306
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    env_file:
+      - .env
+    healthcheck:
+      test: ["CMD", "curl", "-Ss", "http://localhost/robots.txt"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    ports:
+      - ${HOST_PORT_BIND_PHP_MY_ADMIN:?See .env.dist}:80
