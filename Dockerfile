@@ -49,12 +49,11 @@ ARG PS_FOLDER=/var/www/html
 ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 
 # Extract the souces
-RUN mkdir -p $PS_FOLDER \
-  && unzip -n -q /tmp/prestashop.zip -d $PS_FOLDER \
-  && mv $PS_FOLDER/prestashop.zip /tmp/prestashop.zip \
-  && unzip -n -q /tmp/prestashop.zip -d $PS_FOLDER \
+RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
+  && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
+  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d $PS_FOLDER \
   && chown www-data:www-data -R $PS_FOLDER \
-  && rm -rf /tmp/prestashop.zip
+  && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 ENV DUMP_FILE="/dump.sql"
 ADD ./tools/auto-install-and-dump.sh /auto-install-and-dump.sh

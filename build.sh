@@ -35,7 +35,7 @@ PS_FOLDER="/var/www/html"
 FLASHLIGHT_IMAGE="prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"
 
 # Build builder common docker image
-docker build --no-cache \
+docker build \
   -f ./Dockerfile \
   --build-arg PS_VERSION=${PS_VERSION} \
   --build-arg PHP_VERSION=${PHP_VERSION} \
