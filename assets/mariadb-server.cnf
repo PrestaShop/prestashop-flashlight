@@ -1,0 +1,5 @@
+[server]
+[mysqld]
+bind-address = 127.0.0.1
+skip-networking = 0
+datadir = /var/lib/mysql/

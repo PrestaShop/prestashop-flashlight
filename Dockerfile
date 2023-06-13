@@ -45,6 +45,11 @@ ARG PS_VERSION
 ARG PHP_VERSION
 ARG PS_FOLDER=/var/www/html
 
+# Install and configure MariaDB
+RUN adduser --system mysql; \
+  apk add --update-cache --no-commit-hooks --no-scripts runuser mariadb-client mariadb;
+ADD ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
+
 # Get PrestaShop source code
 ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 

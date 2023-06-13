@@ -1,7 +1,7 @@
 #!/bin/sh
 set -euo pipefail
 
-# 0. Configuration
+# 1. ENV vars configuration
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 export PS_DOMAIN="replace-me.com" \
   DB_SERVER=127.0.0.1 \
@@ -22,21 +22,7 @@ export PS_DOMAIN="replace-me.com" \
   PS_FOLDER_ADMIN=ps-admin \
   PS_FOLDER_INSTALL=${PS_FOLDER}/install
 
-# 1. Install MySQL
-apk add -U \
-  runuser \
-  mysql \
-  mysql-client
-
 # 2. Start a MySQL server
-# enable a socket + ip configuration
-cat <<EOT >> /etc/my.cnf.d/mariadb-server.cnf
-[server]
-[mysqld]
-bind-address = 127.0.0.1
-skip-networking = 0
-datadir = /var/lib/mysql/
-EOT
 mysql_install_db \
   --user=mysql \
   --ldata=/var/lib/mysql/ > /dev/null;
@@ -81,11 +67,11 @@ echo "✅ PrestaShop installed"
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
 echo "✅ MySQL dump performed"
 
-# 7. Tear down mysql
-killall mysqld;
-
-# 8. Cache clear
+# 7. Cache clear
 php -d memory_limit=-1 bin/console cache:clear
+
+# 8. Tear down mysql
+killall mysqld;
 
 # 9. Some clean up
 mv ${PS_FOLDER}/admin ${PS_FOLDER}/${PS_FOLDER_ADMIN}
