@@ -2,6 +2,7 @@
 set -euo pipefail
 
 # 0. Configuration
+PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 export PS_DOMAIN="replace-me.com" \
   DB_SERVER=127.0.0.1 \
   DB_PORT=3306 \
@@ -83,7 +84,8 @@ echo "✅ MySQL dump performed"
 # 7. Tear down mysql
 killall mysqld;
 
-# 8. Some clean up
-rm -rf \
-  ${PS_FOLDER:-nope}/var/cache/dev/* \
-  ${PS_FOLDER:-nope}/var/cache/prod/*
+# 8. Cache clear
+php -d memory_limit=-1 bin/console cache:clear
+
+# 9. Some clean up
+mv ${PS_FOLDER}/admin ${PS_FOLDER}/${PS_FOLDER_ADMIN}
