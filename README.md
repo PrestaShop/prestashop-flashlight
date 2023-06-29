@@ -24,9 +24,9 @@ On a Mac M1 (_linux/arm64_) computer:
 ❯ docker compose up -d
 [+] Building 0.0s (0/0)
 [+] Running 3/3
- ✔ Container phpmyadmin  Running                                                                              0.0s
- ✔ Container mysql       Healthy                                                                             10.8s
- ✔ Container prestashop  Started                                                                             11.1s
+ ✔ Container phpmyadmin  Running            0.0s
+ ✔ Container mysql       Healthy           10.8s
+ ✔ Container prestashop  Started           11.1s
 ```
 
 VS the official production image (_linux/amd64_ only) with `AUTO_INSTALL=1`: 2mn 15s.
