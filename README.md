@@ -18,17 +18,18 @@ The resulting image is based on this tech stack:
 
 ## How fast is it?
 
-On a Mac M1 computer:
-xxxx
-xxx
-xxx
+On a Mac M1 (_linux/arm64_) computer:
 
-VS the official image with AUTO_INSTALL=1:
+```
+❯ docker compose up -d
+[+] Building 0.0s (0/0)
+[+] Running 3/3
+ ✔ Container phpmyadmin  Running                                                                              0.0s
+ ✔ Container mysql       Healthy                                                                             10.8s
+ ✔ Container prestashop  Started                                                                             11.1s
+```
 
-On a Mac M1 computer:
-xxxx
-xxx
-xxx
+VS the official production image (_linux/amd64_ only) with `AUTO_INSTALL=1`: 2mn 15s.
 
 ## Where do I find pre-built images?
 
