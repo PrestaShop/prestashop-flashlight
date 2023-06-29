@@ -2,6 +2,12 @@ services:
   prestashop:
     image: prestashop/flashlight:8.1.0-8.1
     container_name: prestashop
+    healthcheck:
+      test: ["CMD-SHELL", "curl -Isf http://localhost:80/robots.txt || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 10
+      start_period: 5s
     depends_on:
       mysql:
         condition: service_healthy
@@ -42,7 +48,7 @@ services:
       - .env
     healthcheck:
       test: ["CMD", "curl", "-Ss", "http://localhost/robots.txt"]
-      interval: 120s
+      interval: 30s
       timeout: 10s
       retries: 5
       start_period: 5s
