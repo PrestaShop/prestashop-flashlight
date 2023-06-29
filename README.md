@@ -54,7 +54,8 @@ Run your tests
 
 ```sh
 cd ./test-examples
-yarn && yarn test
+pnpm i
+pnpm test
 ```
 
 ## Credits

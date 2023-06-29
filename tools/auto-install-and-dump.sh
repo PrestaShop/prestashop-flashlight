@@ -9,18 +9,11 @@ export PS_DOMAIN="replace-me.com" \
   DB_NAME=prestashop \
   DB_USER=root \
   DB_PASSWD=prestashop \
-  DB_PREFIX=ps_ \
   ADMIN_MAIL=admin@prestashop.com \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
   PS_COUNTRY=GB \
-  PS_ALL_LANGUAGES=0 \
-  PS_INSTALL_AUTO=1 \
-  PS_ERASE_DB=1 \
-  PS_INSTALL_DB=1 \
-  PS_ENABLE_SSL=0 \
-  PS_FOLDER_ADMIN=ps-admin \
-  PS_FOLDER_INSTALL=${PS_FOLDER}/install
+  PS_FOLDER_ADMIN=ps-admin
 
 # 2. Start a MySQL server
 mysql_install_db \
@@ -43,24 +36,24 @@ echo "✅ PHP PDO connectivity test"
 # 5. Run the PrestaShop installer
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
 runuser -g www-data -u www-data -- \
-  php -d memory_limit=-1 $PS_FOLDER_INSTALL/index_cli.php \
+  php -d memory_limit=-1 ${PS_FOLDER}/install/index_cli.php \
   --domain=$PS_DOMAIN \
   --db_create=1 \
   --db_server=$DB_SERVER \
   --db_name=$DB_NAME \
   --db_user=$DB_USER \
   --db_password=$DB_PASSWD \
-  --prefix=$DB_PREFIX \
+  --prefix=_ps \
   --firstname=Admin \
   --lastname=PrestaShop \
   --password=$ADMIN_PASSWD \
   --email=$ADMIN_MAIL \
   --language=$PS_LANGUAGE \
   --country=$PS_COUNTRY \
-  --all_languages=$PS_ALL_LANGUAGES \
+  --all_languages=0 \
   --newsletter=0 \
   --send_email=0 \
-  --ssl=$PS_ENABLE_SSL;
+  --ssl=0
 echo "✅ PrestaShop installed"
 
 # 6. Make a database dump

@@ -41,9 +41,15 @@
       "compatible": ["7.2", "7.3", "7.4", "8.0", "8.1"]
     }
   },
+  "^8.1": {
+    "php": {
+      "recommended": "8.1",
+      "compatible": ["7.2", "7.3", "7.4", "8.0", "8.1"]
+    }
+  },
   "nightly": {
     "php": {
-      "recommended": "8.2"
+      "recommended": "8.1"
     }
   }
 }

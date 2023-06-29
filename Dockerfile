@@ -57,7 +57,7 @@ ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/pre
 RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
   && unzip -n -q /tmp/unzip-ps/prestashop.zip -d $PS_FOLDER \
-  && chown www-data:www-data -R $PS_FOLDER \
+  && chown -R www-data:www-data $PS_FOLDER \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 ENV DUMP_FILE="/dump.sql"

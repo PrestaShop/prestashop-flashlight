@@ -1,6 +1,6 @@
 services:
   prestashop:
-    image: prestashop/flashlight:8.0.4-8.1
+    image: prestashop/flashlight:8.1.0-8.1
     container_name: prestashop
     depends_on:
       mysql:
