@@ -51,12 +51,14 @@ edit .env
 docker compose up
 ```
 
-Run your tests
+Add init scripts
 
-```sh
-cd ./test-examples
-pnpm i
-pnpm test
+```yaml
+services:
+  prestashop:
+    image: prestashop/flashlight:8.1.0-8.1
+    volumes:
+      - ./init-scripts:/tmp/init-scripts:ro
 ```
 
 ## Credits
