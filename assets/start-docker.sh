@@ -51,16 +51,6 @@ if [ "$DEBUG_MODE" == "true" ] || [ "$DEBUG_MODE" == "1" ]; then
   sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
 fi;
 
-# Init scripts
-if [ -d /tmp/init-scripts/ ]; then
-  echo "* Running init script(s)..."
-  for i in `ls /tmp/init-scripts/`;do
-    /tmp/init-scripts/$i
-  done
-else
-  echo "* No init script found, let's continue..."
-fi
-
 # Eventually install some modules
 if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
   INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
@@ -73,6 +63,16 @@ if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
     php $INSTALL_COMMAND ${module}
   done;
   chown -R www-data:www-data /var/www/html/modules
+fi
+
+# Init scripts
+if [ -d /tmp/init-scripts/ ]; then
+  echo "* Running init script(s)..."
+  for i in `ls /tmp/init-scripts/`;do
+    /tmp/init-scripts/$i
+  done
+else
+  echo "* No init script found, let's continue..."
 fi
 
 echo "* Starting php-fpm..."
