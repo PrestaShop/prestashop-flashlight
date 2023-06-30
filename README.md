@@ -38,7 +38,7 @@ Here: https://hub.docker.com/r/prestashop/flashlight
 ## Build
 
 ```sh
-PS_VERSION=8.0.1 ./build.sh
+PS_VERSION=8.1.0 ./build.sh
 ```
 
 ## Use

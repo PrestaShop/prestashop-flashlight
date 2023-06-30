@@ -1,5 +1,5 @@
 {
-  "name": "test-examples",
+  "name": "@prestashop-flashlight/test-examples",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -11,5 +11,9 @@
   "license": "ISC",
   "dependencies": {
     "jest": "^29.5.0"
+  },
+  "engines": {
+    "node": ">=18",
+    "pnpm": ">=8"
   }
 }
