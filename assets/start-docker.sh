@@ -26,7 +26,7 @@ else
   sleep 3
   exit 2
 fi
-export -f PS_DOMAIN
+export PS_DOMAIN=$PS_DOMAIN
 
 # Configure the DBO parameters
 sed -i \
