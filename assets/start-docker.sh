@@ -3,16 +3,19 @@ set -euo pipefail
 
 # Check if a tunnel autodetection mechanism should be involded
 if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
-  echo "* Auto-detecting Ngrok on ${NGROK_TUNNEL_AUTO_DETECT}..."
-  PS_DOMAIN=$(curl -s "${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels" \
-    | jq -r .tunnels[0].public_url \
-    | sed 's/https\?:\/\///')
+  echo "* Auto-detecting domain with ngrok client api on ${NGROK_TUNNEL_AUTO_DETECT}..."
+  TUNNEL_API="${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels"
+  until $(curl --output /dev/null --max-time 5 --silent --head --fail ${TUNNEL_API}); do
+    echo "* retrying in 5s..."
+    sleep 5
+  done
+  PS_DOMAIN=$(curl -s ${TUNNEL_API} | jq -r .tunnels[0].public_url | sed 's/https\?:\/\///')
   if [ -z "$PS_DOMAIN" ]; then
     echo "Error: cannot guess ngrok domain. Exiting"
-    sleep 1
+    sleep 3
     exit 2
   else
-    echo "* ngrok tunnel running on ${$PS_DOMAIN}"
+    echo "* ngrok tunnel found running on ${PS_DOMAIN}"
   fi
 # Static PS_DOMAIN assignment
 elif [ -n "${PS_DOMAIN+x}" ]; then
@@ -20,9 +23,10 @@ elif [ -n "${PS_DOMAIN+x}" ]; then
   sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
 else
   echo "Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT variable. Exiting"
-  sleep 1
+  sleep 3
   exit 2
 fi
+export $PS_DOMAIN
 
 # Configure the DBO parameters
 sed -i \
@@ -48,16 +52,6 @@ if [ "$DEBUG_MODE" == "true" ] || [ "$DEBUG_MODE" == "1" ]; then
   sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
 fi;
 
-# Init scripts
-if [ -d /tmp/init-scripts/ ]; then
-  echo "* Running init script(s)..."
-  for i in `ls /tmp/init-scripts/`;do
-    /tmp/init-scripts/$i
-  done
-else
-  echo "* No init script found, let's continue..."
-fi
-
 # Eventually install some modules
 if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
   INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
@@ -70,6 +64,16 @@ if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
     php $INSTALL_COMMAND ${module}
   done;
   chown -R www-data:www-data /var/www/html/modules
+fi
+
+# Init scripts
+if [ -d /tmp/init-scripts/ ]; then
+  echo "* Running init script(s)..."
+  for i in `ls /tmp/init-scripts/`;do
+    /tmp/init-scripts/$i
+  done
+else
+  echo "* No init script found, let's continue..."
 fi
 
 echo "* Starting php-fpm..."

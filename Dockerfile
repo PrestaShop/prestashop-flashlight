@@ -106,6 +106,9 @@ RUN apk add -U mysql-client curl jq
 # Ship the dump within the image
 COPY --chown=www-data:www-data --from=build-and-dump /dump.sql /dump.sql
 
+# Increase the memory limits
+ADD ./assets/php.ini /usr/local/etc/php/php.ini
+
 # The new default runner
 ADD ./assets/start-docker.sh /run.sh
 
