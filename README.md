@@ -61,6 +61,24 @@ services:
       - ./init-scripts:/tmp/init-scripts:ro
 ```
 
+## Container environment variables
+
+- **`PS_DOMAIN`**
+  - Description: the public domain (and port) to reach your PrestaShop instance
+  - Mandatory if you do not use `NGROK_TUNNEL_AUTO_DETECT`
+  - Example: `localhost:8000`
+- **`NGROK_TUNNEL_AUTO_DETECT`**
+  - Description: the ngrok agent base API url, to guess the tunnel domain of your shop
+  - Mandatory if you do not use `PS_DOMAIN`
+  - Example: `http://ngrok:4040`
+- **`DEBUG_MODE`**
+  - Whether you want to enable the Debug mode on PrestaShop or not
+  - Default to false
+  - Example: `true`
+- **`INSTALL_MODULES_DIR`**
+  - A module directory containing zips to be installed with the PrestaShop CLI
+  - Example: `/ps-modules`
+
 ## Credits
 
 - https://github.com/PrestaShop/PrestaShop
