@@ -12,8 +12,10 @@ services:
       mysql:
         condition: service_healthy
     environment:
-      - PS_DOMAIN=localhost:8000
+      # - PS_DOMAIN=localhost:8000
+      - NGROK_TUNNEL_AUTO_DETECT=ngrok:4040
       - DEBUG_MODE=false
+      - INSTALL_MODULES_DIR=/ps-modules
     ports:
       - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:80
 

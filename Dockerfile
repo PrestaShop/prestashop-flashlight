@@ -61,8 +61,8 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 ENV DUMP_FILE="/dump.sql"
-ADD ./tools/auto-install-and-dump.sh /auto-install-and-dump.sh
-RUN sh /auto-install-and-dump.sh
+ADD ./assets/provision-docker.sh /provision-docker.sh
+RUN sh /provision-docker.sh
 
 # Clean up install files
 RUN rm -rf ${PS_FOLDER}/install ${PS_FOLDER}/Install_PrestaShop.html
@@ -100,14 +100,14 @@ ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
-# Instal mysql tools
-RUN apk add -U mysql-client
+# Instal MySQL client and other handy tools
+RUN apk add -U mysql-client curl jq
 
 # Ship the dump within the image
 COPY --chown=www-data:www-data --from=build-and-dump /dump.sql /dump.sql
 
 # The new default runner
-ADD ./tools/sql-restore-and-run-nginx.sh /run.sh
+ADD ./assets/start-docker.sh /run.sh
 
 EXPOSE 80
 STOPSIGNAL SIGQUIT

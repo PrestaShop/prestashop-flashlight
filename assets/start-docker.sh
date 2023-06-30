@@ -1,8 +1,28 @@
 #!/bin/sh
 set -euo pipefail
 
-echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump"
-sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
+# Check if a tunnel autodetection mechanism should be involded
+if [ ! -z "$NGROK_TUNNEL_AUTO_DETECT" ]; then
+  echo "* Auto-detecting Ngrok on ${NGROK_TUNNEL_AUTO_DETECT}..."
+  PS_DOMAIN=$( \
+    curl -s 'http://ngrok:4040/api/tunnels' \
+    | jq -r .tunnels[0].public_url \
+    | sed 's/https\?:\/\///' \
+  )
+  if [ -z "$PS_DOMAIN" ]; then
+    echo "Error: cannot guess ngrok domain. Exiting" && exit 2;
+  else
+    echo "* ngrok tunnel running on ${$PS_DOMAIN}"
+  fi
+# Static PS_DOMAIN assignment
+else if [[ ! -z "$PS_DOMAIN" ]]; then
+  echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump"
+  sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
+else
+  echo "Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT variable. Exiting"
+  sleep 1
+  exit 2
+fi
 
 # Configure the DBO parameters
 sed -i \
@@ -36,6 +56,20 @@ if [ -d /tmp/init-scripts/ ]; then
   done
 else
   echo "* No init script found, let's continue..."
+fi
+
+# Eventually install some modules
+if [ ! -z "$INSTALL_MODULES_DIR" ]; then
+  INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
+  for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
+    module=$(basename ${file} | tr "-" "\n" | head -n 1);
+    echo "--> unzipping ${module} from ${file}...";
+    rm -rf "/var/www/html/modules/${module:-something-at-least}"
+    unzip -qq ${file} -d /var/www/html/modules
+    echo "--> installing ${module}...";
+    php $INSTALL_COMMAND ${module}
+  done;
+  chown -R www-data:www-data /var/www/html/modules
 fi
 
 echo "* Starting php-fpm..."
