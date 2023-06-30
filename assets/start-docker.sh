@@ -3,16 +3,19 @@ set -euo pipefail
 
 # Check if a tunnel autodetection mechanism should be involded
 if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
-  echo "* Auto-detecting Ngrok on ${NGROK_TUNNEL_AUTO_DETECT}..."
-  PS_DOMAIN=$(curl -s "${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels" \
-    | jq -r .tunnels[0].public_url \
-    | sed 's/https\?:\/\///')
+  echo "* Auto-detecting domain with ngrok client api on ${NGROK_TUNNEL_AUTO_DETECT}..."
+  TUNNEL_API="${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels"
+  until $(curl --output /dev/null --max-time 5 --silent --head --fail ${TUNNEL_API}); do
+    echo "* retrying in 5s..."
+    sleep 5
+  done
+  PS_DOMAIN=$(curl -s ${TUNNEL_API} | jq -r .tunnels[0].public_url | sed 's/https\?:\/\///')
   if [ -z "$PS_DOMAIN" ]; then
     echo "Error: cannot guess ngrok domain. Exiting"
-    sleep 1
+    sleep 3
     exit 2
   else
-    echo "* ngrok tunnel running on ${$PS_DOMAIN}"
+    echo "* ngrok tunnel found running on ${PS_DOMAIN}"
   fi
 # Static PS_DOMAIN assignment
 elif [ -n "${PS_DOMAIN+x}" ]; then
@@ -20,7 +23,7 @@ elif [ -n "${PS_DOMAIN+x}" ]; then
   sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
 else
   echo "Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT variable. Exiting"
-  sleep 1
+  sleep 3
   exit 2
 fi
 
