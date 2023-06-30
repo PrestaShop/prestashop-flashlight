@@ -43,7 +43,7 @@ runuser -g www-data -u www-data -- \
   --db_name=$DB_NAME \
   --db_user=$DB_USER \
   --db_password=$DB_PASSWD \
-  --prefix=_ps \
+  --prefix=ps_ \
   --firstname=Admin \
   --lastname=PrestaShop \
   --password=$ADMIN_PASSWD \
