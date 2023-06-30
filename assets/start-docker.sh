@@ -2,20 +2,20 @@
 set -euo pipefail
 
 # Check if a tunnel autodetection mechanism should be involded
-if [ ! -z "$NGROK_TUNNEL_AUTO_DETECT" ]; then
+if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
   echo "* Auto-detecting Ngrok on ${NGROK_TUNNEL_AUTO_DETECT}..."
-  PS_DOMAIN=$( \
-    curl -s 'http://ngrok:4040/api/tunnels' \
+  PS_DOMAIN=$(curl -s "${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels" \
     | jq -r .tunnels[0].public_url \
-    | sed 's/https\?:\/\///' \
-  )
+    | sed 's/https\?:\/\///')
   if [ -z "$PS_DOMAIN" ]; then
-    echo "Error: cannot guess ngrok domain. Exiting" && exit 2;
+    echo "Error: cannot guess ngrok domain. Exiting"
+    sleep 1
+    exit 2
   else
     echo "* ngrok tunnel running on ${$PS_DOMAIN}"
   fi
 # Static PS_DOMAIN assignment
-else if [[ ! -z "$PS_DOMAIN" ]]; then
+elif [ -n "${PS_DOMAIN+x}" ]; then
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump"
   sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
 else
@@ -59,7 +59,7 @@ else
 fi
 
 # Eventually install some modules
-if [ ! -z "$INSTALL_MODULES_DIR" ]; then
+if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
   INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
   for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
     module=$(basename ${file} | tr "-" "\n" | head -n 1);

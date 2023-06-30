@@ -68,9 +68,9 @@ services:
   - Mandatory if you do not use `NGROK_TUNNEL_AUTO_DETECT`
   - Example: `localhost:8000`
 - **`NGROK_TUNNEL_AUTO_DETECT`**
-  - Description: the domain name of the ngrok agent you would like to use to configure your Domain
+  - Description: the ngrok agent base API url, to guess the tunnel domain of your shop
   - Mandatory if you do not use `PS_DOMAIN`
-  - Example: `ngrok:4040`
+  - Example: `http://ngrok:4040`
 - **`DEBUG_MODE`**
   - Whether you want to enable the Debug mode on PrestaShop or not
   - Default to false

@@ -1,27 +1,24 @@
 services:
   prestashop:
     image: prestashop/flashlight:8.1.0-8.1
-    container_name: prestashop
     healthcheck:
       test: ["CMD-SHELL", "curl -Isf http://localhost:80/robots.txt || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 10
-      start_period: 5s
     depends_on:
       mysql:
         condition: service_healthy
     environment:
-      # - PS_DOMAIN=localhost:8000
-      - NGROK_TUNNEL_AUTO_DETECT=ngrok:4040
+      # - NGROK_TUNNEL_AUTO_DETECT=http://ngrok:4040
+      # - INSTALL_MODULES_DIR=/ps-modules
+      - PS_DOMAIN=localhost:8000
       - DEBUG_MODE=false
-      - INSTALL_MODULES_DIR=/ps-modules
     ports:
       - ${HOST_PORT_BIND_PRESTASHOP:?See .env.dist}:80
 
   mysql:
     image: mariadb:${DOCKER_VERSION_MARIADB:?See .env.dist}
-    container_name: mysql
     env_file:
       - .env
     environment:
@@ -39,13 +36,11 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
-      start_period: 2s
     ports:
       - ${HOST_PORT_BIND_MARIADB:?See .env.dist}:3306
 
   phpmyadmin:
     image: phpmyadmin:latest
-    container_name: phpmyadmin
     env_file:
       - .env
     healthcheck:
@@ -53,6 +48,5 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
-      start_period: 5s
     ports:
       - ${HOST_PORT_BIND_PHP_MY_ADMIN:?See .env.dist}:80
