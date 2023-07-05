@@ -67,6 +67,9 @@ RUN sh /provision-docker.sh
 # Clean up install files
 RUN rm -rf ${PS_FOLDER}/install ${PS_FOLDER}/Install_PrestaShop.html
 
+# Create cache directories
+RUN mkdir -p ${PS_FOLDER}/var/cache/prod ${PS_FOLDER}/var/cache/dev
+
 # -----------------------
 # Flashlight final image
 # -----------------------
