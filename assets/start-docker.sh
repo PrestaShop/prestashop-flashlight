@@ -29,12 +29,14 @@ fi
 export PS_DOMAIN=$PS_DOMAIN
 
 # Configure the DBO parameters
+MYSQL_VERSION=${MYSQL_VERSION:-5.7}
 sed -i \
     -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
     -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
     -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
     -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
     -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
+    -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
   $PS_FOLDER/app/config/parameters.php
 
 # Restoring MySQL dump
