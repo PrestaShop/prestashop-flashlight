@@ -58,6 +58,8 @@ echo "✅ PrestaShop installed"
 
 # 6. Make a database dump
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
+### TODO zip the dump and support both plain and zipped outputs from restoration
+#### do allow overrides
 echo "✅ MySQL dump performed"
 
 # 7. Cache clear
