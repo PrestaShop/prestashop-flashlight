@@ -5,13 +5,15 @@ DEBUG_MODE=${DEBUG_MODE:-false}
 INIT_ON_RESTART=${INIT_ON_RESTART:-false}
 DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
 INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
+INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
 MODULES_INSTALLED_LOCK=flashlight-modules-installed.lock
+INIT_SCRIPTS_LOCK=flashlight-init-scripts.lock
 
-if [ ! -f $INIT_LOCK ]; then
-  if [ -z "$PS_DOMAIN" || -z "$NGROK_TUNNEL_AUTO_DETECT" ]; then
+if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
+  if [ -z "$PS_DOMAIN" ] || [ -z "$NGROK_TUNNEL_AUTO_DETECT" ]; then
     echo "Missing PS_DOMAIN or NGROK_TUNNEL_AUTO_DETECT. Exiting"
     sleep 3
     exit 2
@@ -51,7 +53,7 @@ if [ ! -f $INIT_LOCK ]; then
     $PS_FOLDER/app/config/parameters.php
 
   # If debug mode is enabled
-  if [ "$DEBUG_MODE" == "true" ] || [ "$DEBUG_MODE" == "1" ]; then
+  if [ "$DEBUG_MODE" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
   fi
   touch $INIT_LOCK
@@ -60,7 +62,7 @@ else
 fi
 
 # Restoring MySQL dump and extras dumps if any
-if [ ! -f $DUMP_LOCK ]; then
+if [ ! -f $DUMP_LOCK ] || [ "$DUMP_ON_RESTART" == "true" ]; then
   mysql -u ${MYSQL_USER} --host=${MYSQL_HOST} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /dump.sql
   echo "* MySQL dump restored!"
   if [ -n "$MYSQL_EXTRA_DUMP" ]; then
@@ -73,7 +75,7 @@ else
 fi
 
 # Eventually install some modules
-if [ ! -f $MODULES_INSTALLED_LOCK ]; then
+if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" ]; then
   if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
     INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
     for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
@@ -92,13 +94,18 @@ else
 fi
 
 # Custom init scripts
-if [ -d /tmp/init-scripts/ ]; then
-  echo "* Running init script(s)..."
-  for i in `ls /tmp/init-scripts/`;do
-    /tmp/init-scripts/$i
-  done
+if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" == "true" ]; then
+  if [ -d /tmp/init-scripts/ ]; then
+    echo "* Running init script(s)..."
+    for i in `ls /tmp/init-scripts/`;do
+      /tmp/init-scripts/$i
+    done
+  else
+    echo "* No init script found, let's continue..."
+  fi
+  touch $INIT_SCRIPTS_LOCK
 else
-  echo "* No init script found, let's continue..."
+  echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
 fi
 
 echo "* Starting php-fpm..."
