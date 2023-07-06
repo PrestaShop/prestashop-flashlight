@@ -93,7 +93,7 @@ else
 fi
 
 # Eventually install some modules
-if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" ]; then
+if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" == "true" ]; then
   if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
     INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
     for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
