@@ -6,6 +6,7 @@ INIT_ON_RESTART=${INIT_ON_RESTART:-false}
 DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
 INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
+SSL_REDIRECT=${SSL_REDIRECT:-false}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
@@ -27,7 +28,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
       echo "* retrying in 5s..."
       sleep 5
     done
-    PS_DOMAIN=$(curl -s ${TUNNEL_API} | jq -r .tunnels[0].public_url | sed 's/https\?:\/\///')
+    PUBLIC_URL=$(curl -s ${TUNNEL_API} | jq -r .tunnels[0].public_url)
+    PS_DOMAIN=$(echo $PUBLIC_URL | sed 's/https\?:\/\///')
+    case $PUBLIC_URL in https*)
+      SSL_REDIRECT="true"
+    esac
     if [ -z "${PS_DOMAIN:-}" ]; then
       echo "Error: cannot guess ngrok domain. Exiting"
       sleep 3
@@ -37,9 +42,15 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     fi
   fi
 
-  echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump"
-  sed -i s/replace-me.com/$PS_DOMAIN/g /dump.sql
+  echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
+  sed -i "s/replace-me.com/$PS_DOMAIN/g" /dump.sql
   export PS_DOMAIN=$PS_DOMAIN
+
+  if [ "$SSL_REDIRECT" == "true" ]; then
+    echo "* Enabling SSL redirect to the dump..."
+    sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
+    sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
+  fi
 
   # Configure the DBO parameters
   MYSQL_VERSION=${MYSQL_VERSION:-5.7}
@@ -53,9 +64,15 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     $PS_FOLDER/app/config/parameters.php
 
   # If debug mode is enabled
+  CACHE_DIR=/var/www/html/var/cache
   if [ "$DEBUG_MODE" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
+    CACHE_DIR=${CACHE_DIR}/dev
+  else
+    CACHE_DIR=${CACHE_DIR}/prod
   fi
+  mkdir -p ${CACHE_DIR} && chown -R www-data:www-data ${CACHE_DIR}
+
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
@@ -63,6 +80,7 @@ fi
 
 # Restoring MySQL dump and extras dumps if any
 if [ ! -f $DUMP_LOCK ] || [ "$DUMP_ON_RESTART" == "true" ]; then
+  echo "* Restoring MySQL dump..."
   mysql -u ${MYSQL_USER} --host=${MYSQL_HOST} --password=${MYSQL_PASSWORD} ${MYSQL_DATABASE} < /dump.sql
   echo "* MySQL dump restored!"
   if [ -n "$MYSQL_EXTRA_DUMP" ]; then
@@ -80,13 +98,12 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" ]; then
     INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
     for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
       module=$(basename ${file} | tr "-" "\n" | head -n 1)
-      echo "--> unzipping ${module} from ${file}..."
+      echo "--> unzipping and installing ${module} from ${file}..."
       rm -rf "/var/www/html/modules/${module:-something-at-least}"
       unzip -qq ${file} -d /var/www/html/modules
-      echo "--> installing ${module}..."
       php $INSTALL_COMMAND ${module}
     done;
-    chown -R www-data:www-data /var/www/html/modules
+    chown -R www-data:www-data /var/www/html/modules /var/www/html/var/cache
   fi
   touch $MODULES_INSTALLED_LOCK
 else
@@ -109,8 +126,7 @@ else
 fi
 
 echo "* Starting php-fpm..."
-# su www-data -s /usr/local/sbin/php-fpm -c '-D'
-php-fpm -D --allow-to-run-as-root
+su www-data -s /usr/local/sbin/php-fpm -c '-D'
 
 echo "* Starting nginx..."
 nginx -g "daemon off;"

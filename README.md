@@ -71,6 +71,9 @@ services:
   - Description: the ngrok agent base API url, to guess the tunnel domain of your shop
   - Mandatory if you do not use `PS_DOMAIN`
   - Example: `http://ngrok:4040`
+- **`SSL_REDIRECT`**
+  - If set to `true` PrestaShop will be told to redirect all inbound traffic to https://$PS_DOMAIN
+  - Default to `false` (or automatically guessed if using NGROK_TUNNEL_AUTO_DETECT)
 - **`DEBUG_MODE`**
   - If set to `true` the Debug mode will be enabled on PrestaShop
   - Default to `false`
