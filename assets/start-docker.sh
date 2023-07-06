@@ -13,7 +13,7 @@ MODULES_INSTALLED_LOCK=flashlight-modules-installed.lock
 INIT_SCRIPTS_LOCK=flashlight-init-scripts.lock
 
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
-  if [ -z "${PS_DOMAIN:-}" ] || [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
+  if [ -z "${PS_DOMAIN:-}" ] && [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
     echo "Missing PS_DOMAIN or NGROK_TUNNEL_AUTO_DETECT. Exiting"
     sleep 3
     exit 2
