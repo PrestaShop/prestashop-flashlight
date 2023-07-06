@@ -72,12 +72,23 @@ services:
   - Mandatory if you do not use `PS_DOMAIN`
   - Example: `http://ngrok:4040`
 - **`DEBUG_MODE`**
-  - Whether you want to enable the Debug mode on PrestaShop or not
-  - Default to false
-  - Example: `true`
+  - If set to `true` the Debug mode will be enabled on PrestaShop
+  - Default to `false`
 - **`INSTALL_MODULES_DIR`**
   - A module directory containing zips to be installed with the PrestaShop CLI
   - Example: `/ps-modules`
+- **`INIT_ON_RESTART`**
+  - If set to `true` the PS_DOMAIN auto search and dump fix will be replayed on container restart
+  - Default to `false`
+- **`DUMP_ON_RESTART`**
+  - If set to `true` the dump restoration replayed on container restart
+  - Default to `false`
+- **`INSTALL_MODULES_ON_RESTART`**
+  - If set to `true` zip modules will be reinstalled on container restart
+  - Default to `false`
+- **`INIT_SCRIPTS_ON_RESTART`**
+  - If set to `true` custom init scripts will be replayed on container restart
+  - Default to `false`
 
 ## Credits
 
