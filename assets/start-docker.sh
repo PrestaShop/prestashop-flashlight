@@ -7,6 +7,7 @@ DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
 INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
+ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
@@ -71,7 +72,8 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
   else
     CACHE_DIR=${CACHE_DIR}/prod
   fi
-  mkdir -p ${CACHE_DIR} && chown -R www-data:www-data ${CACHE_DIR}
+  mkdir -p ${CACHE_DIR}
+  chown -R www-data:www-data ${CACHE_DIR}
 
   touch $INIT_LOCK
 else
@@ -98,12 +100,11 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" == "true"
     INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
     for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
       module=$(basename ${file} | tr "-" "\n" | head -n 1)
-      echo "--> unzipping and installing ${module} from ${file}..."
+      echo "--> Unzipping and installing ${module} from ${file}..."
       rm -rf "/var/www/html/modules/${module:-something-at-least}"
-      unzip -qq ${file} -d /var/www/html/modules
-      php $INSTALL_COMMAND ${module}
+      su www-data -s /bin/sh -c "unzip -qq ${file} -d /var/www/html/modules"
+      su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
     done;
-    chown -R www-data:www-data /var/www/html/modules /var/www/html/var/cache
   fi
   touch $MODULES_INSTALLED_LOCK
 else
@@ -114,8 +115,13 @@ fi
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" == "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
     echo "* Running init script(s)..."
-    for i in `ls /tmp/init-scripts/`;do
-      /tmp/init-scripts/$i
+    for i in `ls /tmp/init-scripts/`; do
+      echo "--> Running $i..."
+      if [ "$ON_INIT_SCRIPT_FAILURE" == "continue" ]; then
+        ( /tmp/init-scripts/$i ) || { echo "x Init script $i execution failed. Skipping."; }
+      else
+        /tmp/init-scripts/$i
+      fi
     done
   else
     echo "* No init script found, let's continue..."
