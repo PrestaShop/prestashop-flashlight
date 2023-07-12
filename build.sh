@@ -31,7 +31,7 @@ PHP_VERSION="${PHP_VERSION:-$RECOMMENDED_VERSION}"
 if [[ -z $PHP_VERSION ]]; then
   error "Could not find a recommended PHP version for ${PS_VERSION}" 2
 fi
-PS_FOLDER="/var/www/html"
+
 FLASHLIGHT_IMAGE="prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"
 
 # Build builder common docker image
@@ -39,6 +39,5 @@ docker build \
   -f ./Dockerfile \
   --build-arg PS_VERSION=${PS_VERSION} \
   --build-arg PHP_VERSION=${PHP_VERSION} \
-  --build-arg PS_FOLDER=${PS_FOLDER} \
   -t ${FLASHLIGHT_IMAGE} \
   .
