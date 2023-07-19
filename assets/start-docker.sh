@@ -65,16 +65,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     $PS_FOLDER/app/config/parameters.php
 
   # If debug mode is enabled
-  CACHE_DIR=/var/www/html/var/cache
   if [ "$DEBUG_MODE" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
-    CACHE_DIR=${CACHE_DIR}/dev
-  else
-    CACHE_DIR=${CACHE_DIR}/prod
   fi
-  mkdir -p ${CACHE_DIR}
+  CACHE_DIR=/var/www/html/var/cache
+  mkdir -p ${CACHE_DIR}/prod ${CACHE_DIR}/dev
   chown -R www-data:www-data ${CACHE_DIR}
-
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
