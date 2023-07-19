@@ -102,7 +102,6 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" == "true"
       su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
     done;
   fi
-  chown -R www-data:www-data ${CACHE_DIR}
   touch $MODULES_INSTALLED_LOCK
 else
   echo "* Module installation already performed (see INSTALL_MODULES_ON_RESTART)"
@@ -129,6 +128,7 @@ else
 fi
 
 echo "* Starting php-fpm..."
+chown -R www-data:www-data ${CACHE_DIR}
 su www-data -s /usr/local/sbin/php-fpm -c '-D'
 
 echo "* Starting nginx..."
