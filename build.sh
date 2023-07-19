@@ -32,12 +32,14 @@ if [[ -z $PHP_VERSION ]]; then
   error "Could not find a recommended PHP version for ${PS_VERSION}" 2
 fi
 
-FLASHLIGHT_IMAGE="prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"
+DOCKER_IMAGE=${DOCKER_IMAGE:-"prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"}
 
 # Build builder common docker image
 docker build \
   -f ./Dockerfile \
+  --platform ${PLATFORM:-linux/amd64} \
   --build-arg PS_VERSION=${PS_VERSION} \
   --build-arg PHP_VERSION=${PHP_VERSION} \
-  -t ${FLASHLIGHT_IMAGE} \
+  -t ${DOCKER_IMAGE} \
+  $([ -n "${PUSH+x}" ] && echo "--push" || echo "--load") \
   .
