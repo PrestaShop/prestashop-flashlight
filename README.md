@@ -49,7 +49,7 @@ For a custom multiplatform build & push:
 PS_VERSION=8.1.0 \
 PLATFORM=linux/amd64,linux/arm64 \
 PUSH=true \
-DOCKER_IMAGE=ps/testing:latest \
+DOCKER_IMAGE=my-own-repo/testing:latest \
 ./build.sh
 ```
 
