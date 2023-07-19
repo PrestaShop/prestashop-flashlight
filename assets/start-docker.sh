@@ -106,6 +106,7 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" == "true"
       su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
     done;
   fi
+  chown -R www-data:www-data ${CACHE_DIR}
   touch $MODULES_INSTALLED_LOCK
 else
   echo "* Module installation already performed (see INSTALL_MODULES_ON_RESTART)"
@@ -118,9 +119,9 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" == "true" ]; then
     for i in `find /tmp/init-scripts -maxdepth 1 -executable -type f`; do
       echo "--> Running $i..."
       if [ "$ON_INIT_SCRIPT_FAILURE" == "continue" ]; then
-        ( $i ) || { echo "x Init script $i execution failed. Skipping."; }
+        ( $i ) || { echo "x $i execution failed. Skipping."; }
       else
-        $i
+        $i || { echo "x $i execution failed. Sleep and exit."; sleep 10; exit 4; }
       fi
     done
   else
