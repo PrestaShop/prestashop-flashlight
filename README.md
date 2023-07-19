@@ -37,8 +37,20 @@ Here: https://hub.docker.com/r/prestashop/flashlight
 
 ## Build
 
+Simply:
+
 ```sh
 PS_VERSION=8.1.0 ./build.sh
+```
+
+For a custom multiplatform build & push:
+
+```sh
+PS_VERSION=8.1.0 \
+PLATFORM=linux/amd64,linux/arm64 \
+PUSH=true \
+DOCKER_IMAGE=ps/testing:latest \
+./build.sh
 ```
 
 ## Use
