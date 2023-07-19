@@ -41,5 +41,5 @@ docker build \
   --build-arg PS_VERSION=${PS_VERSION} \
   --build-arg PHP_VERSION=${PHP_VERSION} \
   -t ${DOCKER_IMAGE} \
-  $([ -n "${PUSH+x}" ] && echo "--push") \
+  $([ -n "${PUSH+x}" ] && echo "--push" || echo "--load") \
   .
