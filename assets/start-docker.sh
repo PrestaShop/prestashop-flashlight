@@ -7,6 +7,7 @@ DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
 INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
+ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
@@ -64,15 +65,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     $PS_FOLDER/app/config/parameters.php
 
   # If debug mode is enabled
-  CACHE_DIR=/var/www/html/var/cache
   if [ "$DEBUG_MODE" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
-    CACHE_DIR=${CACHE_DIR}/dev
-  else
-    CACHE_DIR=${CACHE_DIR}/prod
   fi
-  mkdir -p ${CACHE_DIR} && chown -R www-data:www-data ${CACHE_DIR}
-
+  CACHE_DIR=/var/www/html/var/cache
+  mkdir -p ${CACHE_DIR}/prod ${CACHE_DIR}/dev
+  chown -R www-data:www-data ${CACHE_DIR}
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
@@ -98,12 +96,11 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" == "true"
     INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
     for file in $(ls ${INSTALL_MODULES_DIR}/*.zip); do
       module=$(basename ${file} | tr "-" "\n" | head -n 1)
-      echo "--> unzipping and installing ${module} from ${file}..."
+      echo "--> Unzipping and installing ${module} from ${file}..."
       rm -rf "/var/www/html/modules/${module:-something-at-least}"
-      unzip -qq ${file} -d /var/www/html/modules
-      php $INSTALL_COMMAND ${module}
+      su www-data -s /bin/sh -c "unzip -qq ${file} -d /var/www/html/modules"
+      su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
     done;
-    chown -R www-data:www-data /var/www/html/modules /var/www/html/var/cache
   fi
   touch $MODULES_INSTALLED_LOCK
 else
@@ -114,8 +111,13 @@ fi
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" == "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
     echo "* Running init script(s)..."
-    for i in `ls /tmp/init-scripts/`;do
-      /tmp/init-scripts/$i
+    for i in `find /tmp/init-scripts -maxdepth 1 -executable -type f`; do
+      echo "--> Running $i..."
+      if [ "$ON_INIT_SCRIPT_FAILURE" == "continue" ]; then
+        ( $i ) || { echo "x $i execution failed. Skipping."; }
+      else
+        $i || { echo "x $i execution failed. Sleep and exit."; sleep 10; exit 4; }
+      fi
     done
   else
     echo "* No init script found, let's continue..."
@@ -126,6 +128,7 @@ else
 fi
 
 echo "* Starting php-fpm..."
+chown -R www-data:www-data ${CACHE_DIR}
 su www-data -s /usr/local/sbin/php-fpm -c '-D'
 
 echo "* Starting nginx..."

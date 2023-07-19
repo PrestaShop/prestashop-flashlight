@@ -92,6 +92,9 @@ services:
 - **`INIT_SCRIPTS_ON_RESTART`**
   - If set to `true` custom init scripts will be replayed on container restart
   - Default to `false`
+- **`ON_INIT_SCRIPT_FAILURE`**
+  - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
+  - Default to `fail`
 
 ## Credits
 
