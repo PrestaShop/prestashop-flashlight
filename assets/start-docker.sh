@@ -115,12 +115,12 @@ fi
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" == "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
     echo "* Running init script(s)..."
-    for i in `ls /tmp/init-scripts/`; do
+    for i in `find /tmp/init-scripts -maxdepth 1 -executable -type f`; do
       echo "--> Running $i..."
       if [ "$ON_INIT_SCRIPT_FAILURE" == "continue" ]; then
-        ( /tmp/init-scripts/$i ) || { echo "x Init script $i execution failed. Skipping."; }
+        ( $i ) || { echo "x Init script $i execution failed. Skipping."; }
       else
-        /tmp/init-scripts/$i
+        $i
       fi
     done
   else
