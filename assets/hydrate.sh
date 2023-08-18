@@ -13,24 +13,26 @@ export PS_DOMAIN="replace-me.com" \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
   PS_COUNTRY=GB \
-  PS_FOLDER_ADMIN=ps-admin
+  PS_FOLDER_ADMIN=ps-admin \
+  DB_SOCKET=/run/mysqld/mysqld.sock
 
 # 2. Start a MySQL server
+mkdir -p /run/mysqld /var/lib/mysql/;
 mysql_install_db \
-  --user=mysql \
+  --user=root \
   --ldata=/var/lib/mysql/ > /dev/null;
-mkdir -p /run/mysqld;
-nohup /usr/bin/mysqld --user=root &
+nohup /usr/bin/mysqld --user=root --skip-networking=0 --port=${DB_PORT} --socket=${DB_SOCKET} &
+while [ ! -S ${DB_SOCKET} ]; do sleep 0.1; done
 while ! nc -z localhost ${DB_PORT}; do sleep 0.1; done
 echo "✅ MySQL started"
 
-# 3. Setup the root password, add a PrestaShop database and test the PDO link
-mysql -u ${DB_USER} --password= -e "ALTER USER '"${DB_USER}"'@localhost IDENTIFIED BY '"${DB_PASSWD}"'; flush privileges;";
-mysql -u ${DB_USER} --password=${DB_PASSWD} -e "CREATE DATABASE ${DB_NAME};";
+# 3. Setup the root password, add a PrestaShop database
+mysqladmin --no-defaults --protocol=socket --user=root --password= password ${DB_PASSWD}
+mysqladmin --no-defaults --protocol=socket --user=root --password=${DB_PASSWD} create ${DB_NAME}
 
-# 4. Connectivity test
-php -r "new PDO('mysql:unix_socket=/run/mysqld/mysqld.sock;dbname=prestashop', 'root', 'prestashop');"
-php -r "new PDO('mysql:host=127.0.0.1;dbname=prestashop', 'root', 'prestashop');"
+# 4. Connectivity test (both the unix socket file and DB_SERVER:DB_PORT)
+php -r "new PDO('mysql:unix_socket="${DB_SOCKET}";dbname="${DB_NAME}"', '"${DB_USER}"', '"${DB_PASSWD}"');"
+php -r "new PDO('mysql:host="${DB_SERVER}";port="${DB_PORT}";dbname="${DB_NAME}"', '"${DB_USER}"', '"${DB_PASSWD}"');"
 echo "✅ PHP PDO connectivity test"
 
 # 5. Run the PrestaShop installer
@@ -39,7 +41,8 @@ runuser -g www-data -u www-data -- \
   php -d memory_limit=-1 ${PS_FOLDER}/install/index_cli.php \
   --domain=$PS_DOMAIN \
   --db_create=1 \
-  --db_server=$DB_SERVER \
+  --db_server=${DB_SERVER}:${DB_PORT} \
+  --db_port=$DB_PORT \
   --db_name=$DB_NAME \
   --db_user=$DB_USER \
   --db_password=$DB_PASSWD \
@@ -58,8 +61,7 @@ echo "✅ PrestaShop installed"
 
 # 6. Make a database dump
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
-### TODO zip the dump and support both plain and zipped outputs from restoration
-#### do allow overrides
+### TODO zip the dump and support both plain and zipped outputs from restoration to allow overrides
 echo "✅ MySQL dump performed"
 
 # 7. Cache clear

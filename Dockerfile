@@ -63,8 +63,8 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 ENV DUMP_FILE="/dump.sql"
-ADD ./assets/provision-docker.sh /provision-docker.sh
-RUN sh /provision-docker.sh
+ADD ./assets/hydrate.sh /hydrate.sh
+RUN sh /hydrate.sh
 
 # Clean up install files
 RUN rm -rf ${PS_FOLDER}/install ${PS_FOLDER}/Install_PrestaShop.html
@@ -115,7 +115,7 @@ COPY --chown=www-data:www-data --from=build-and-dump /dump.sql /dump.sql
 ADD ./assets/php.ini /usr/local/etc/php/php.ini
 
 # The new default runner
-ADD ./assets/start-docker.sh /run.sh
+ADD ./assets/run.sh /run.sh
 
 EXPOSE 80
 STOPSIGNAL SIGQUIT
