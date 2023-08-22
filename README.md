@@ -108,6 +108,82 @@ services:
   - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
   - Default to `fail`
 
+## Api calls within a docker network
+
+Disclaimer: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host`` or the  `id_shop`` you are targeting.
+
+Let's explain this subtle - rather mandatory - knowledge:
+
+Assume you have a module installed and working properly, and your PS_DOMAIN configured on `http://localhost:8000`
+
+```sh
+> docker compose up -d
+> curl -i 'http://localhost:8000/index.php?fc=module&module=mymodule&controller=myctrl'
+HTTP/1.1 200 OK
+some happy content here ...
+```
+
+Is working as expected. But what about the same request performed within the docker container?
+
+```sh
+> docker exec -t prestashop curl -i 'http://localhost:8000/index.php?fc=module&module=mymodule&controller=myctrl'
+curl: (7) Failed to connect to localhost port 32000 after 5 ms: Couldn't connect to server
+```
+
+Indeed this **WON'T WORK**, the container port is 80, only the host know about 8000 in our use case. Let's talk to it:
+
+```sh
+> docker exec -t prestashop curl -i 'http://localhost/index.php?fc=module&module=mymodule&controller=myctrl'
+HTTP/1.1 302 Found
+Server: nginx/1.24.0
+Date: Tue, 22 Aug 2023 08:53:22 GMT
+Content-Type: text/html; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Powered-By: PHP/8.1.22
+Location: http://localhost:8000/
+```
+
+Damn! Do you know what's happening? PrestaShop cannot know which shop of its multi-shop configuration you are trying to talk to. Event with one shop, this won't be selected by default and fail with a redirect which cannot be resolved within our network configuration.
+
+If you definitely know the Shop ID you are targeting, you can do this with success:
+
+```sh
+curl -i -H  'http://localhost:80/index.php?id_shop=1&fc=module&module=mymodule&controller=myctrl'
+HTTP/1.1 200 OK
+some happy content here ...
+```
+
+but the best way to perform this is to set the target `Host` in a header field:
+
+```sh
+curl -i -H 'Host: localhost:8000' 'http://localhost:80/index.php?fc=module&module=mymodule&controller=myctrl'
+HTTP/1.1 302 Found
+Server: nginx/1.24.0
+Date: Tue, 22 Aug 2023 08:53:22 GMT
+Content-Type: text/html; charset=utf-8
+Transfer-Encoding: chunked
+Connection: keep-alive
+X-Powered-By: PHP/8.1.22
+Location: http://localhost:8000/
+```
+
+or even better if you use an Nginx reverse-proxy to forward requests to prestashop within the internal docker network:
+
+```nginx
+# so you can call "http://localhost:3000/prestashop/index.php" to reach your PrestaShop id_shop 1 with success
+server {
+  location /prestashop {
+      resolver 127.0.0.11 ipv6=off valid=10s;
+      resolver_timeout 10s;
+      proxy_set_header Host "localhost:8000";
+      rewrite /prestashop/?(.*) /$1 break;
+      set $frontend "http://prestashop:80";
+      proxy_pass $frontend;
+  }
+}
+```
+
 ## Credits
 
 - https://github.com/PrestaShop/PrestaShop
