@@ -9,6 +9,7 @@ INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
 ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
 CACHE_DIR=/var/www/html/var/cache
+MYSQL_VERSION=${MYSQL_VERSION:-5.7}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
@@ -54,8 +55,13 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
   fi
 
-  # Configure the DBO parameters
-  MYSQL_VERSION=${MYSQL_VERSION:-5.7}
+  echo "* Checking MySQL connectivity..."
+  function is_mysql_ready() {
+    php -r "new PDO('mysql:host="${MYSQL_HOST}";port="${MYSQL_PORT}";dbname="${MYSQL_DATABASE}"', '"${MYSQL_USER}"', '"${MYSQL_PASSWORD}"');"
+  }
+  while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
+  echo "* PHP PDO connectivity checked"
+
   sed -i \
       -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
       -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
@@ -64,10 +70,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
       -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
       -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
     $PS_FOLDER/app/config/parameters.php
+  echo "* PrestaShop MySQL client configuration set"
 
   # If debug mode is enabled
   if [ "$DEBUG_MODE" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
+    echo "* Debug mode set"
   fi
   mkdir -p ${CACHE_DIR}/prod ${CACHE_DIR}/dev
   chown -R www-data:www-data ${CACHE_DIR}
