@@ -14,7 +14,7 @@ RUN \
   bash less vim geoip git tzdata zip curl \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  libmcrypt gnu-libiconv-libs php-common \
+  libmcrypt gnu-libiconv php-common \
   && rm -rf /var/cache/apk/*
 
 # Install PHP requirements
@@ -33,7 +33,7 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
 # Configure php-fpm and nginx
 RUN mkdir -p /var/log/php /var/run/php /var/run/nginx /var/lib/nginx/tmp/client_body/ \
   && chown www-data:www-data /var/log/php /var/run/php \
-  && chown nginx:nginx /var/run/nginx \ 
+  && chown nginx:nginx /var/run/nginx \
   && chown -R www-data:nginx /var/lib/nginx/tmp/client_body \
   && chmod g+w /var/lib/nginx/tmp/client_body
 ADD ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf

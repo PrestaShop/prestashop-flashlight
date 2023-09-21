@@ -2,7 +2,7 @@
 
 Spin a Prestashop testing instance in seconds!
 
-> **⚠️ Disclaimer**: the following tool is provided in the solely purpose of bootstraping a PrestaShop testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
+> **⚠️ Disclaimer**: the following tool is provided in the sole purpose of bootstraping a PrestaShop testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
 > **Note**: no MySQL server is shipped in the resulting image, you have to provide your own instance for the backup to be dumped during the first connection.
 
@@ -130,7 +130,7 @@ Is working as expected. But what about the same request performed within the doc
 curl: (7) Failed to connect to localhost port 32000 after 5 ms: Couldn't connect to server
 ```
 
-Indeed this **WON'T WORK**, the container port is 80, only the host know about 8000 in our use case. Let's talk to it:
+Indeed, this **WON'T WORK**, the container port is 80, only the host know about 8000 in our use case. Let's talk to it:
 
 ```sh
 > docker exec -t prestashop curl -i 'http://localhost/index.php?fc=module&module=mymodule&controller=myctrl'
@@ -168,7 +168,7 @@ X-Powered-By: PHP/8.1.22
 Location: http://localhost:8000/
 ```
 
-or even better if you use an Nginx reverse-proxy to forward requests to prestashop within the internal docker network:
+or even better if you use a Nginx reverse-proxy to forward requests to prestashop within the internal docker network:
 
 ```nginx
 # so you can call "http://localhost:3000/prestashop/index.php" to reach your PrestaShop id_shop 1 with success
