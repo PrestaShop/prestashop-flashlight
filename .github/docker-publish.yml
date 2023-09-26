@@ -33,10 +33,11 @@ on:
         description: "Docker tag"
         required: true
         type: string
-
-env:
-  REGISTRY: docker.io
-  TARGET_PLATFORMS: "linux/amd64,linux/arm64,linux/arm"
+      target_platforms:
+        description: "Target platforms to build this image for"
+        required: false
+        default: "linux/amd64,linux/arm64,linux/arm"
+        type: string
 
 jobs:
   build:
@@ -66,6 +67,7 @@ jobs:
 
       - name: Build and push
         run: |
+          PLATFORM=${{ inputs.target_platforms }} \
           PS_VERSION=${{ inputs.ps_version }}  \
           PUSH=true \
           DOCKER_IMAGE=prestashop/prestashop-flashlight:${{ inputs.ps_version }} \
