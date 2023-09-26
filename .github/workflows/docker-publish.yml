@@ -25,14 +25,17 @@ on:
         description: "The target PrestaShop version"
         required: true
         type: string
+
       php_version:
         description: "The target PHP version"
-        required: true
+        required: false
         type: string
+
       tag:
         description: "Docker tag"
         required: true
         type: string
+
       target_platforms:
         description: "Target platforms to build this image for"
         required: false
@@ -71,5 +74,5 @@ jobs:
           PS_VERSION=${{ inputs.ps_version }}  \
           PHP_VERSION=${{ inputs.php_version }}  \
           PUSH=true \
-          DOCKER_IMAGE=prestashop/prestashop-flashlight:latest \
+          DOCKER_IMAGE=prestashop/prestashop-flashlight:${{ inputs.tag }} \
           ./build.sh
