@@ -25,6 +25,10 @@ on:
         description: "The target PrestaShop version"
         required: true
         type: string
+      php_version:
+        description: "The target PHP version"
+        required: true
+        type: string
       tag:
         description: "Docker tag"
         required: true
