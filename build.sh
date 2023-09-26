@@ -27,6 +27,7 @@ function get_recommended_php_version {
 # Configuration
 PS_VERSION="${PS_VERSION:-$(get_latest_prestashop_version)}"
 RECOMMENDED_VERSION=$(get_recommended_php_version "$PS_VERSION")
+PHP_FLAVOUR="${PHP_FLAVOUR:-fpm-alpine}"
 PHP_VERSION="${PHP_VERSION:-$RECOMMENDED_VERSION}"
 if [[ -z $PHP_VERSION ]]; then
   error "Could not find a recommended PHP version for ${PS_VERSION}" 2
@@ -40,6 +41,7 @@ docker build \
   --platform ${PLATFORM:-linux/amd64} \
   --build-arg PS_VERSION=${PS_VERSION} \
   --build-arg PHP_VERSION=${PHP_VERSION} \
+  --build-arg PHP_FLAVOUR=${PHP_FLAVOUR} \
   -t ${DOCKER_IMAGE} \
   $([ -n "${PUSH+x}" ] && echo "--push" || echo "--load") \
   .

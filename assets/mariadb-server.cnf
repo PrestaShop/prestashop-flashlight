@@ -1,5 +1,22 @@
-[server]
+[client]
+port = 3306
+socket = /run/mysqld/mysqld.sock
+
 [mysqld]
 bind-address = 0.0.0.0
-skip-networking = 0
 datadir = /var/lib/mysql/
+default-storage-engine = InnoDB
+port = 3306
+skip-networking = 0
+socket = /run/mysqld/mysqld.sock
+user = root
+log_error=/var/log/mysql/error.log
+log_warnings=3
+plugin_load_add = server_audit
+server_audit=FORCE_PLUS_PERMANENT
+server_audit_file_path=/var/log/mysql/audit.log
+server_audit_logging=ON
+
+[mysqldump]
+quick
+max_allowed_packet = 50M
