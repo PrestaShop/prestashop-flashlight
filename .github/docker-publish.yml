@@ -69,6 +69,7 @@ jobs:
         run: |
           PLATFORM=${{ inputs.target_platforms }} \
           PS_VERSION=${{ inputs.ps_version }}  \
+          PHP_VERSION=${{ inputs.php_version }}  \
           PUSH=true \
-          DOCKER_IMAGE=prestashop/prestashop-flashlight:${{ inputs.ps_version }} \
+          DOCKER_IMAGE=prestashop/prestashop-flashlight:latest \
           ./build.sh

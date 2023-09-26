@@ -35,7 +35,7 @@ fi
 DOCKER_IMAGE=${DOCKER_IMAGE:-"prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}"}
 
 # Build builder common docker image
-docker build \
+docker buildx build \
   -f ./Dockerfile \
   --platform ${PLATFORM:-linux/amd64} \
   --build-arg PS_VERSION=${PS_VERSION} \
