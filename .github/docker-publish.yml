@@ -22,9 +22,9 @@ on:
       #     - nginx
       #     - apache
       ps_version:
-        description: "True to print to STDOUT"
+        description: "The target PrestaShop version"
         required: true
-        type: boolean
+        type: string
       tag:
         description: "Docker tag"
         required: true
