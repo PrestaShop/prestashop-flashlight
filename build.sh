@@ -36,10 +36,16 @@ DOCKER_IMAGE=${DOCKER_IMAGE:-"prestashop/flashlight:${PS_VERSION}-${PHP_VERSION}
 
 # Build builder common docker image
 docker buildx build \
-  -f ./Dockerfile \
-  --platform ${PLATFORM:-linux/amd64} \
-  --build-arg PS_VERSION=${PS_VERSION} \
-  --build-arg PHP_VERSION=${PHP_VERSION} \
-  -t ${DOCKER_IMAGE} \
-  $([ -n "${PUSH+x}" ] && echo "--push" || echo "--load") \
+  --file ./Dockerfile \
+  --platform "${PLATFORM:-linux/amd64}" \
+  --build-arg PS_VERSION="${PS_VERSION}" \
+  --build-arg PHP_VERSION="${PHP_VERSION}" \
+  --label org.opencontainers.image.title="PrestaShop flashlight" \
+  --label org.opencontainers.image.description="PrestaShop flashlight" \
+  --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
+  --label org.opencontainers.image.url=https://github.com/PrestaShop/prestashop-flashlight \
+  --label org.opencontainers.image.licenses=MIT \
+  --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+  -t "${DOCKER_IMAGE}" \
+  "$([ -n "${PUSH+x}" ] && echo "--push" || echo "--load")" \
   .
