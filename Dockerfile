@@ -42,7 +42,7 @@ ADD ./assets/nginx.conf /etc/nginx/nginx.conf
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
-FROM base-prestashop as build-and-dump
+FROM base-prestashop AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PS_FOLDER=/var/www/html
@@ -75,7 +75,7 @@ RUN mkdir -p ${PS_FOLDER}/var/cache/prod ${PS_FOLDER}/var/cache/dev
 # -----------------------
 # Flashlight final image
 # -----------------------
-FROM base-prestashop as optimize-prestashop
+FROM base-prestashop AS optimize-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PS_FOLDER=/var/www/html
