@@ -33,7 +33,7 @@ VS the official production image (_linux/amd64_ only) with `AUTO_INSTALL=1`: 2mn
 
 ## Where do I find pre-built images?
 
-Here: https://hub.docker.com/r/prestashop/flashlight (please wait, will be soon available)
+Here: https://hub.docker.com/r/prestashop/prestashop-flashlight
 
 ## Build
 
