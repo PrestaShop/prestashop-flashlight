@@ -39,7 +39,7 @@ on:
       target_platforms:
         description: "Target platforms to build this image for"
         required: false
-        default: "linux/amd64,linux/arm64,linux/arm"
+        default: "linux/amd64,linux/arm64"
         type: string
 
 jobs:
@@ -55,8 +55,6 @@ jobs:
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
-        with:
-          platforms: "arm64"
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
