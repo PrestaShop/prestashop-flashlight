@@ -31,11 +31,9 @@ RUN apk add -U $GD_DEPS $ZIP_DEPS $INTL_DEPS \
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
 
 # Configure php-fpm and nginx
-RUN mkdir -p /var/log/php /var/run/php /var/run/nginx /var/lib/nginx/tmp/client_body/ \
-  && chown www-data:www-data /var/log/php /var/run/php \
+RUN mkdir -p /var/log/php /var/run/php /var/run/nginx \
   && chown nginx:nginx /var/run/nginx \
-  && chown -R www-data:nginx /var/lib/nginx/tmp/client_body \
-  && chmod g+w /var/lib/nginx/tmp/client_body
+  && chown www-data:www-data /var/log/php /var/run/php
 ADD ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 ADD ./assets/nginx.conf /etc/nginx/nginx.conf
 
