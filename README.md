@@ -13,8 +13,8 @@ Compatible with these architecture:
 
 The resulting image is based on this tech stack:
 
-- An [Alpine](https://alpine-linux.org) linux image
-- An [Nginx](https://nginx.com) server
+- An [Alpine](https://www.alpinelinux.org/) linux image
+- An [Nginx](https://www.nginx.com/) server
 
 ## How fast is it?
 
@@ -50,7 +50,7 @@ Add init scripts
 ```yaml
 services:
   prestashop:
-    image: prestashop/flashlight:8.1.0-8.1
+    image: prestashop/prestashop-flashlight:8.1.0-8.1
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
 ```
@@ -75,7 +75,6 @@ PUSH=true \
 TARGET_IMAGE=my-own-repo/testing:latest \
 ./build.sh
 ```
-
 
 ## Container environment variables
 

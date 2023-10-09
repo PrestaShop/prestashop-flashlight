@@ -58,7 +58,7 @@ function get_php_version {
 # Configuration
 # -------------
 TAG="$(get_tag ${TAG:-} ${PS_VERSION:-} ${PHP_VERSION:-})"
-TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/flashlight:${TAG}"}
+TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${TAG}"}
 PS_VERSION="$(get_ps_version)"
 PHP_VERSION="$(get_php_version ${PHP_VERSION:-} $PS_VERSION)"
 
