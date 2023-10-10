@@ -28,7 +28,7 @@ on:
         type: string
 
       php_version:
-        description: "The target PHP version (defaults to 'auto')"
+        description: "The target PHP version"
         required: false
         type: string
 
