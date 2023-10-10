@@ -56,8 +56,8 @@ function get_php_version {
 
 # Configuration
 # -------------
-TAG=$(get_tag "${TAG:-}" "${PS_VERSION}" "${PHP_VERSION}");
-PS_VERSION=$(get_ps_version "$PS_VERSION");
+TAG=$(get_tag "${TAG:-}" "${PS_VERSION:-}" "${PHP_VERSION:-}");
+PS_VERSION=$(get_ps_version "${PS_VERSION:-}");
 PHP_VERSION=$(get_php_version "${PHP_VERSION:-}" "$PS_VERSION");
 if [ -z $PHP_VERSION ]; then
   error "Could not find a recommended PHP version for PS_VERSION: ${PS_VERSION}" 2
