@@ -68,7 +68,7 @@ TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${TAG}"}
 
 # Build builder common docker image
 # ---------------------------------
-echo docker buildx build \
+docker buildx build \
   --file ./Dockerfile \
   --platform "${PLATFORM:-linux/amd64}" \
   --build-arg PS_VERSION="${PS_VERSION}" \
