@@ -8,7 +8,6 @@ INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
 ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
-CACHE_DIR=/var/www/html/var/cache
 MYSQL_VERSION=${MYSQL_VERSION:-5.7}
 
 INIT_LOCK=flashlight-init.lock
@@ -77,8 +76,6 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" == "true" ]; then
     sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" $PS_FOLDER/config/defines.inc.php
     echo "* Debug mode set"
   fi
-  mkdir -p ${CACHE_DIR}/prod ${CACHE_DIR}/dev
-  chown -R www-data:www-data ${CACHE_DIR}
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
@@ -136,7 +133,6 @@ else
 fi
 
 echo "* Starting php-fpm..."
-chown -R www-data:www-data ${CACHE_DIR}
 su www-data -s /usr/local/sbin/php-fpm -c '-D'
 
 echo "* Starting nginx..."

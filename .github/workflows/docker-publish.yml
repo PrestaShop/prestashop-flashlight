@@ -22,24 +22,25 @@ on:
       #     - nginx
       #     - apache
       ps_version:
-        description: "The target PrestaShop version"
-        required: true
+        description: "The target PrestaShop version (defaults to 'latest')"
+        required: false
+        default: latest
         type: string
 
       php_version:
-        description: "The target PHP version"
+        description: "The target PHP version (defaults to 'auto')"
         required: false
         type: string
 
       tag:
-        description: "Docker tag"
-        required: true
+        description: "Docker tag (defaults to '$ps_version-$php_version' and/or 'latest')"
+        required: false
         type: string
 
       target_platforms:
         description: "Target platforms to build this image for"
         required: false
-        default: "linux/amd64,linux/arm64,linux/arm"
+        default: "linux/amd64,linux/arm64"
         type: string
 
 jobs:
@@ -75,5 +76,5 @@ jobs:
           PLATFORM: ${{ inputs.target_platforms }}
           PS_VERSION: ${{ inputs.ps_version }}
           PHP_VERSION: ${{ inputs.php_version }}
+          TAG: ${{ inputs.tag }}
           PUSH: true
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ inputs.tag }}
