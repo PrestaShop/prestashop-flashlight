@@ -25,7 +25,7 @@ function get_recommended_php_version {
 }
 
 function get_tag {
-  TAG=${1:-}; PS_VERSION=${2:-}; PHP_VERSION=${3:-}
+  TAG=${1:-}; PS_VERSION=${2:-}; PHP_VERSION=${3:-};
   if [ "$PS_VERSION" == "latest" ] && [ "$PHP_VERSION" == "latest" ]; then
     echo "latest";
   elif [ -z "$PS_VERSION" ] && [ -z "$PHP_VERSION" ]; then
@@ -33,7 +33,7 @@ function get_tag {
   elif [ -n "$TAG" ]; then
     echo $TAG;
   else
-    echo "${PS_VERSION}-${PHP_VERSION}"
+    echo "auto"
   fi
 }
 
@@ -49,22 +49,22 @@ function get_ps_version {
 function get_php_version {
   PHP_VERSION=${1:-}; PS_VERSION=${2:-}
   if [ -z $PHP_VERSION ] || [ "$PHP_VERSION" == "latest" ] ; then
-    echo $(get_recommended_php_version $PS_VERSION);
-  else
-    echo $PHP_VERSION;
+    echo $(get_recommended_php_version $PS_VERSION)
   fi
+  echo $PHP_VERSION;
 }
 
 # Configuration
 # -------------
-TAG="$(get_tag ${TAG:-} ${PS_VERSION:-} ${PHP_VERSION:-})"
-TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${TAG}"}
-PS_VERSION="$(get_ps_version)"
-PHP_VERSION="$(get_php_version ${PHP_VERSION:-} $PS_VERSION)"
-
-if [[ -z $PHP_VERSION ]]; then
+TAG=$(get_tag "${TAG:-}" "${PS_VERSION:-}" "${PHP_VERSION:-}");
+PS_VERSION=$(get_ps_version "${PS_VERSION:-}");
+PHP_VERSION=$(get_php_version "${PHP_VERSION:-}" "$PS_VERSION");
+if [ -z $PHP_VERSION ]; then
   error "Could not find a recommended PHP version for PS_VERSION: ${PS_VERSION}" 2
 fi
+[ "$TAG" == "auto" ] && TAG="${PS_VERSION}-${PHP_VERSION}";
+
+TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${TAG}"}
 
 # Build builder common docker image
 # ---------------------------------

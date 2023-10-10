@@ -28,12 +28,12 @@ on:
         type: string
 
       php_version:
-        description: "The target PHP version (defaults to 'auto')"
+        description: "The target PHP version (recommended version applies by default, cf. build.sh)"
         required: false
         type: string
 
       tag:
-        description: "Docker tag (defaults to '$ps_version-$php_version' and/or 'latest')"
+        description: "Docker tag (defaults to '$ps_version-$php_version' or 'latest')"
         required: false
         type: string
 
