@@ -31,11 +31,9 @@ RUN apk add -U $GD_DEPS $ZIP_DEPS $INTL_DEPS \
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
 
 # Configure php-fpm and nginx
-RUN mkdir -p /var/log/php /var/run/php /var/run/nginx /var/lib/nginx/tmp/client_body/ \
-  && chown www-data:www-data /var/log/php /var/run/php \
+RUN mkdir -p /var/log/php /var/run/php /var/run/nginx \
   && chown nginx:nginx /var/run/nginx \
-  && chown -R www-data:nginx /var/lib/nginx/tmp/client_body \
-  && chmod g+w /var/lib/nginx/tmp/client_body
+  && chown www-data:www-data /var/log/php /var/run/php
 ADD ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 ADD ./assets/nginx.conf /etc/nginx/nginx.conf
 
@@ -46,6 +44,8 @@ FROM base-prestashop AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PS_FOLDER=/var/www/html
+ARG PS_CACHE_DIR=/var/www/html/var/cache
+ARG PS_LOGS_DIR=/var/www/html/var/logs
 
 # Install and configure MariaDB
 RUN adduser --system mysql; \
@@ -69,8 +69,10 @@ RUN sh /hydrate.sh
 # Clean up install files
 RUN rm -rf ${PS_FOLDER}/install ${PS_FOLDER}/Install_PrestaShop.html
 
-# Create cache directories
-RUN mkdir -p ${PS_FOLDER}/var/cache/prod ${PS_FOLDER}/var/cache/dev
+# Clean up var and recreate cache and log directories
+RUN rm -rf "${PS_CACHE_DIR}" "${PS_LOGS_DIR}" \
+  && mkdir -p "${PS_CACHE_DIR}/prod" "${PS_CACHE_DIR}/dev" "${PS_LOGS_DIR}" \
+  && chown -R www-data:www-data "${PS_CACHE_DIR}" "${PS_LOGS_DIR}"
 
 # -----------------------
 # Flashlight final image
@@ -116,6 +118,10 @@ ADD ./assets/php.ini /usr/local/etc/php/php.ini
 
 # The new default runner
 ADD ./assets/run.sh /run.sh
+
+# Check if the server is available
+HEALTHCHECK --interval=30s --timeout=10s --retries=10 --start-period=10s \
+  CMD curl -Isf http://localhost:80/robots.txt || exit 1
 
 EXPOSE 80
 STOPSIGNAL SIGQUIT

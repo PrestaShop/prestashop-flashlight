@@ -1,6 +1,6 @@
 services:
   prestashop:
-    image: prestashop/prestashop-flashlight:8.1.0-8.1
+    image: prestashop/prestashop-flashlight:latest
     healthcheck:
       test: ["CMD-SHELL", "curl -Isf http://localhost:80/robots.txt || exit 1"]
       interval: 30s

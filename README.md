@@ -13,8 +13,8 @@ Compatible with these architecture:
 
 The resulting image is based on this tech stack:
 
-- An [Alpine](https://alpine-linux.org) linux image
-- An [Nginx](https://nginx.com) server
+- An [Alpine](https://www.alpinelinux.org/) linux image
+- An [Nginx](https://www.nginx.com/) server
 
 ## How fast is it?
 
@@ -35,24 +35,6 @@ VS the official production image (_linux/amd64_ only) with `AUTO_INSTALL=1`: 2mn
 
 Here: https://hub.docker.com/r/prestashop/prestashop-flashlight
 
-## Build
-
-Simply:
-
-```sh
-PS_VERSION=8.1.0 ./build.sh
-```
-
-For a custom multiplatform build & push:
-
-```sh
-PS_VERSION=8.1.0 \
-PLATFORM=linux/amd64,linux/arm64 \
-PUSH=true \
-DOCKER_IMAGE=my-own-repo/testing:latest \
-./build.sh
-```
-
 ## Use
 
 Start the environment
@@ -68,9 +50,30 @@ Add init scripts
 ```yaml
 services:
   prestashop:
-    image: prestashop/flashlight:8.1.0-8.1
+    image: prestashop/prestashop-flashlight:8.1.0-8.1
     volumes:
       - ./init-scripts:/tmp/init-scripts:ro
+```
+
+## Build
+
+Requirements:
+* [jq](https://jqlang.github.io/jq/)
+
+To build the latest PrestaShop version, simply:
+
+```sh
+./build.sh
+```
+
+For a custom multiplatform build & push:
+
+```sh
+PS_VERSION=8.1.0 \
+PLATFORM=linux/amd64,linux/arm64 \
+PUSH=true \
+TARGET_IMAGE=my-own-repo/testing:latest \
+./build.sh
 ```
 
 ## Container environment variables
