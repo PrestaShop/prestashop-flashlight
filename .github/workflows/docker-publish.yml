@@ -44,7 +44,8 @@ on:
         type: string
 
 jobs:
-  build:
+  build_and_publish:
+    name: Build and publish docker
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -70,10 +71,10 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        run: |
-          PLATFORM=${{ inputs.target_platforms }} \
-          PS_VERSION=${{ inputs.ps_version }}  \
-          PHP_VERSION=${{ inputs.php_version }}  \
-          PUSH=true \
-          TAG=${{ inputs.tag }} \
-          ./build.sh
+        run: ./build.sh
+        env:
+          PLATFORM: ${{ inputs.target_platforms }}
+          PS_VERSION: ${{ inputs.ps_version }}
+          PHP_VERSION: ${{ inputs.php_version }}
+          TAG: ${{ inputs.tag }}
+          PUSH: true
