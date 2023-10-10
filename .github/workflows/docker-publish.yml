@@ -24,6 +24,7 @@ on:
       ps_version:
         description: "The target PrestaShop version (defaults to 'latest')"
         required: false
+        default: latest
         type: string
 
       php_version:
