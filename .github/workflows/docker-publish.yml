@@ -28,7 +28,7 @@ on:
         type: string
 
       php_version:
-        description: "The target PHP version (recommended version applies by default)"
+        description: "The target PHP version (recommended version applies by default, cf. build.sh)"
         required: false
         type: string
 
