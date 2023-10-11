@@ -1,0 +1,38 @@
+{
+  "7.1": {
+    "nginx": {
+      "debian": "7.1-fpm-buster",
+      "alpine": "7.1-fpm-alpine"
+    }
+  },
+  "7.2": {
+    "nginx": {
+      "debian": "7.2-fpm-buster",
+      "alpine": "7.2-fpm-alpine"
+    }
+  },
+  "8.0": {
+    "nginx": {
+      "debian": "8.0-fpm-bullseye",
+      "alpine": "8.0-fpm-alpine"
+    }
+  },
+  "8.1": {
+    "nginx": {
+      "debian": "8.1-fpm-bookworm",
+      "alpine": "8.1-fpm-alpine"
+    }
+  },
+  "8.2": {
+    "nginx": {
+      "debian": "8.2-fpm-bookworm",
+      "alpine": "8.2-fpm-alpine"
+    }
+  },
+  "8.3": {
+    "nginx": {
+      "debian": "8.3-fpm-bookworm",
+      "alpine": "8.3-fpm-alpine"
+    }
+  }
+}

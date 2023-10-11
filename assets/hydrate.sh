@@ -1,8 +1,12 @@
-#!/bin/sh
-set -euo pipefail
+#!/bin/bash
+set -eu -o pipefail
 
 # 1. ENV vars configuration
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
+PS_CACHE_DIR="${PS_FOLDER}/var/cache"
+PS_LOGS_DIR="${PS_FOLDER}/var/logs"
+DUMP_FILE="/dump.sql"
+
 export PS_DOMAIN="replace-me.com" \
   DB_SERVER=127.0.0.1 \
   DB_PORT=3306 \
@@ -72,3 +76,10 @@ killall mysqld;
 
 # 9. Some clean up
 mv ${PS_FOLDER}/admin ${PS_FOLDER}/${PS_FOLDER_ADMIN}
+rm -rf \
+  ${PS_FOLDER}/install \
+  ${PS_FOLDER}/Install_PrestaShop.html \
+  ${PS_CACHE_DIR} \
+  ${PS_LOGS_DIR}
+mkdir -p ${PS_CACHE_DIR} ${PS_LOGS_DIR}
+chown -R www-data:www-data ${PS_CACHE_DIR} ${PS_LOGS_DIR}

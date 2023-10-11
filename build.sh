@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eu -o pipefail
 cd $(dirname "$0")
 
 function error {
@@ -22,6 +22,11 @@ function get_recommended_php_version {
     fi
   done <<<"$REGEXP_LIST"
   echo "$RECOMMENDED_VERSION";
+}
+
+function get_php_flavour {
+   OS_FLAVOUR=${1:-}; SERVER_FLAVOUR=${2:-}; PHP_VERSION=${3:-};
+   echo $(jq -r '."'${PHP_VERSION}'".'${SERVER_FLAVOUR}'.'${OS_FLAVOUR} <php-flavours.json);
 }
 
 function get_tag {
@@ -63,22 +68,34 @@ if [ -z $PHP_VERSION ]; then
   error "Could not find a recommended PHP version for PS_VERSION: ${PS_VERSION}" 2
 fi
 [ "$TAG" == "auto" ] && TAG="${PS_VERSION}-${PHP_VERSION}";
-
+if [ "$TAG" == "latest" ]; then
+  EXTRA_TAG="${PS_VERSION}-${PHP_VERSION}";
+  EXTRA_TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${EXTRA_TAG}"}
+fi
+OS_FLAVOUR=${OS_FLAVOUR:-alpine}
+SERVER_FLAVOUR=${SERVER_FLAVOUR:-nginx}
+PHP_FLAVOUR=$(get_php_flavour "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
+if [ "$PHP_FLAVOUR" == "null" ]; then
+  error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2
+fi
+echo $PHP_FLAVOUR
+exit 1;
 TARGET_IMAGE=${TARGET_IMAGE:-"prestashop/prestashop-flashlight:${TAG}"}
 
-# Build builder common docker image
-# ---------------------------------
+# Build the docker image
+# ----------------------
 docker buildx build \
-  --file ./Dockerfile \
+  --file "./docker/${PHP_FLAVOUR}.Dockerfile" \
   --platform "${PLATFORM:-linux/amd64}" \
   --build-arg PS_VERSION="${PS_VERSION}" \
   --build-arg PHP_VERSION="${PHP_VERSION}" \
-  --label org.opencontainers.image.title="PrestaShop flashlight" \
-  --label org.opencontainers.image.description="PrestaShop flashlight" \
+  --label org.opencontainers.image.title="PrestaShop FlashLight" \
+  --label org.opencontainers.image.description="PrestaShop FlashLight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
   --label org.opencontainers.image.url=https://github.com/PrestaShop/prestashop-flashlight \
   --label org.opencontainers.image.licenses=MIT \
   --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
   -t "${TARGET_IMAGE}" \
+  "$([ -n "${EXTRA_TAG+x}" ] && echo "-t ${EXTRA_TARGET_IMAGE}" \
   "$([ -n "${PUSH+x}" ] && echo "--push" || echo "--load")" \
   .

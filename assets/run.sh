@@ -1,5 +1,5 @@
 #!/bin/sh
-set -euo pipefail
+set -eu -o pipefail
 
 DEBUG_MODE=${DEBUG_MODE:-false}
 INIT_ON_RESTART=${INIT_ON_RESTART:-false}
