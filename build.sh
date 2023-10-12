@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu
+set -e
 cd "$(dirname "$0")"
 
 # Available variables
