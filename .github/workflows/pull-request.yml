@@ -21,3 +21,14 @@ jobs:
         with:
           recursive: true
           dockerfile: "*.Dockerfile"
+
+  docker_build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os_flavour: ["alpine", "debian"]
+    name: "Docker build: ${{ matrix.os_flavour }}"
+    steps:
+      - run: ./build.sh
+        env:
+          OS_FLAVOUR: ${{ matrix.os_flavour }}
