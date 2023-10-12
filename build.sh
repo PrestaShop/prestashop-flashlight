@@ -46,7 +46,7 @@ function get_php_flavour {
    local OS_FLAVOUR=${1:-};
    local SERVER_FLAVOUR=${2:-};
    local PHP_VERSION=${3:-};
-   jq -r '."'"${PHP_VERSION}"'".'"${SERVER_FLAVOUR}"'.'"${OS_FLAVOUR}" <php-flavours.json;
+   jq -r '."'"${PHP_VERSION}"'".'"${OS_FLAVOUR}" <php-flavours.json;
 }
 
 function get_tag {
