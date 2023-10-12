@@ -1,36 +1,37 @@
-# ------------------------------------------
-#
-# FlashLight base image for Debian bullseye
-#
-# ------------------------------------------
+# ----------------------- #
+#  PrestaShop FlashLight  #
+#     Debian image        #
+# ----------------------- #
 ARG PS_VERSION
 ARG PHP_VERSION
-FROM php:${PHP_VERSION}-fpm-bullseye AS base-prestashop
+ARG PHP_FLAVOUR
+FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ENV PS_FOLDER=/var/www/html
 
 # Install base tools
-RUN apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq \
-  nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
-  nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  libmcrypt gnu-libiconv php-common mysql-client
+RUN apt update \
+  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+  bash less vim git tzdata zip curl jq netcat-traditional ca-certificates \
+  lsb-release libgnutls30 gnupg libmcrypt4 libiconv-hook1 \
+  nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
+  libnginx-mod-http-geoip libnginx-mod-stream \
+  && apt clean
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
-RUN apk --no-cache add -U \
-  zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev \
+# see: https://stackoverflow.com/a/73834081
+# see: https://packages.sury.org/php/dists/
+RUN curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg \
+  && . /etc/os-release \
+  && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
+  && rm /etc/apt/preferences.d/no-debian-php;
+RUN apt update \
+  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+  php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
+  && apt clean \
   && docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install gd pdo_mysql zip intl;
-#   docker-php-ext-enable opcache
-
-# @TODO check opcache configuration
-# RUN echo '\
-#   opcache.interned_strings_buffer=16\n\
-#   opcache.load_comments=Off\n\
-#   opcache.max_accelerated_files=16000\n\
-#   opcache.save_comments=Off\n\
-#   ' >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
@@ -65,10 +66,11 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 # Install and configure MariaDB
-RUN adduser --system mysql; \
-  apk --no-cache add -U --no-commit-hooks --no-scripts \
-  runuser mariadb-client mariadb;
-COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
+RUN apt update \
+  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+  mariadb-client mariadb-server \
+  && apt clean;
+COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf
 
 # Hydrate the SQL dump
 COPY ./assets/hydrate.sh /hydrate.sh

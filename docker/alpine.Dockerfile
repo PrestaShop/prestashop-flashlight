@@ -1,11 +1,11 @@
-# ---------------------------------------
-#
-# FlashLight base image for Alpine linux
-#
-# ---------------------------------------
+# ----------------------- #
+#  PrestaShop FlashLight  #
+#     Alpine image        #
+# ----------------------- #
 ARG PS_VERSION
 ARG PHP_VERSION
-FROM php:${PHP_VERSION}-fpm-alpine AS base-prestashop
+ARG PHP_FLAVOUR
+FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ENV PS_FOLDER=/var/www/html
 
