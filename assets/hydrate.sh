@@ -35,14 +35,14 @@ mysqladmin --no-defaults --protocol=socket --user=root --password= password ${DB
 mysqladmin --no-defaults --protocol=socket --user=root --password=${DB_PASSWD} create ${DB_NAME}
 
 # 4. Connectivity test (both the unix socket file and DB_SERVER:DB_PORT)
-php -r "new PDO('mysql:unix_socket="${DB_SOCKET}";dbname="${DB_NAME}"', '"${DB_USER}"', '"${DB_PASSWD}"');"
-php -r "new PDO('mysql:host="${DB_SERVER}";port="${DB_PORT}";dbname="${DB_NAME}"', '"${DB_USER}"', '"${DB_PASSWD}"');"
+php -r "new PDO('mysql:unix_socket=""$DB_SOCKET"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"
+php -r "new PDO('mysql:host=""$DB_SERVER"";port=""$DB_PORT"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"
 echo "✅ PHP PDO connectivity test"
 
 # 5. Run the PrestaShop installer
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
 runuser -g www-data -u www-data -- \
-  php -d memory_limit=-1 ${PS_FOLDER}/install/index_cli.php \
+  php -d memory_limit=-1 "${PS_FOLDER}/install/index_cli.php" \
   --domain=$PS_DOMAIN \
   --db_create=1 \
   --db_server=${DB_SERVER}:${DB_PORT} \
@@ -75,11 +75,11 @@ php -d memory_limit=-1 bin/console cache:clear
 killall mysqld;
 
 # 9. Some clean up
-mv ${PS_FOLDER}/admin ${PS_FOLDER}/${PS_FOLDER_ADMIN}
+mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
 rm -rf \
-  ${PS_FOLDER}/install \
-  ${PS_FOLDER}/Install_PrestaShop.html \
-  ${PS_CACHE_DIR} \
-  ${PS_LOGS_DIR}
-mkdir -p ${PS_CACHE_DIR} ${PS_LOGS_DIR}
-chown -R www-data:www-data ${PS_CACHE_DIR} ${PS_LOGS_DIR}
+  "$PS_FOLDER/install" \
+  "$PS_FOLDER/Install_PrestaShop.html" \
+  "$PS_CACHE_DIR" \
+  "$PS_LOGS_DIR"
+mkdir -p "$PS_CACHE_DIR" "$PS_LOGS_DIR"
+chown -R www-data:www-data "$PS_CACHE_DIR" "$PS_LOGS_DIR"

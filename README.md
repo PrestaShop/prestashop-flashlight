@@ -21,7 +21,7 @@ Here: https://hub.docker.com/r/prestashop/prestashop-flashlight
 
 ## Use
 
-Start the environment
+Start the environment:
 
 ```sh
 cp .env.dist .env
@@ -29,7 +29,7 @@ edit .env
 docker compose up
 ```
 
-Add init scripts
+You can also tweak the provided `docker-compose.yml` file, and for example, add init scripts:
 
 ```yaml
 services:
@@ -39,33 +39,9 @@ services:
       - ./init-scripts:/tmp/init-scripts:ro
 ```
 
-## Build
+| **⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
 
-Requirements:
-
-- [jq](https://jqlang.github.io/jq/)
-
-To build the latest PrestaShop version, simply:
-
-```sh
-./build.sh
-```
-
-For a custom multiplatform build & push:
-
-```sh
-PS_VERSION=8.1.0 \
-PLATFORM=linux/amd64,linux/arm64 \
-PUSH=true \
-TARGET_IMAGE=my-own-repo/testing:latest \
-./build.sh
-```
-
-The `OS_FLAVOUR` defaults to `alpine` (see [Alpine Linux](https://www.alpinelinux.org/)) and `SERVER_FLAVOUR` to `nginx` (see [Nginx](https://www.nginx.com/)).
-
-For more documentation about available build variables, please see [./build.sh](./build.sh).
-
-## Container environment variables
+## Run environment variables
 
 - **`PS_DOMAIN`**
   - Description: the public domain (and port) to reach your PrestaShop instance
@@ -100,7 +76,35 @@ For more documentation about available build variables, please see [./build.sh](
   - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
   - Default to `fail`
 
-## Maintaining
+# Develop
+
+## Build
+
+Requirements:
+
+- [jq](https://jqlang.github.io/jq/)
+
+To build the latest PrestaShop version, simply:
+
+```sh
+./build.sh
+```
+
+For a custom multiplatform build & push:
+
+```sh
+PS_VERSION=8.1.0 \
+PLATFORM=linux/amd64,linux/arm64 \
+PUSH=true \
+TARGET_IMAGE=my-own-repo/testing:latest \
+./build.sh
+```
+
+The `OS_FLAVOUR` defaults to `alpine` (see [Alpine Linux](https://www.alpinelinux.org/)) and `SERVER_FLAVOUR` to `nginx` (see [Nginx](https://www.nginx.com/)).
+
+For more documentation about available build variables, please see [./build.sh](./build.sh).
+
+## Lint
 
 Requirements:
 
@@ -115,7 +119,9 @@ find . -type f \( -name '*.sh' \) | xargs shellcheck -x -s bash;
 HADOLINT_IGNORE=DL3006,DL3018 find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
 ```
 
-## Api calls within a docker network
+## Q&A
+
+### Let's talk about API calls within a docker network
 
 **Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
 
@@ -191,7 +197,7 @@ server {
 }
 ```
 
-## Credits
+# Credits
 
 - https://github.com/PrestaShop/PrestaShop
 - https://github.com/PrestaShop/performance-project
