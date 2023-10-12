@@ -11,6 +11,7 @@ declare SERVER_FLAVOUR;  # -- not implemented, either "nginx" (default) or "apac
 declare PLATFORM;        # -- a comma separated list of target platforms (defaults to "linux/amd64")
 declare TAG;             # -- overrides automatically generated tag for the docker image
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
+declare PUSH;            # -- set it to "true" if you want to push the resulting image
 
 # Static configuration
 # --------------------
@@ -109,7 +110,6 @@ PHP_FLAVOUR=$(get_php_flavour "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
 if [ "$PHP_FLAVOUR" == "null" ]; then
   error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2;
 fi
-
 if [ -z "${TARGET_IMAGE:+x}" ]; then
   read -ra TARGET_IMAGES <<<"$(get_target_images "$TAG" "$PHP_FLAVOUR" "$PS_VERSION" "$PHP_VERSION")"
 else
@@ -131,5 +131,5 @@ docker buildx build \
   --label org.opencontainers.image.licenses=MIT \
   --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
   "${TARGET_IMAGES[@]}" \
-  "$([ -n "${PUSH+x}" ] && echo "--push" || echo "--load")" \
+  "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
   .

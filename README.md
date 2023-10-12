@@ -2,34 +2,18 @@
 
 Spin a Prestashop testing instance in seconds!
 
-> **⚠️ Disclaimer**: the following tool is provided in the sole purpose of bootstraping a PrestaShop testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
+PrestaShop FlashLight is fast: the installation process with default content for a PrestaShop is tackled at build time, compiling the result to a single database dump.
 
-> **Note**: no MySQL server is shipped in the resulting image, you have to provide your own instance for the backup to be dumped during the first connection.
-
-Compatible with these architecture:
+Supported architectures:
 
 - linux/amd64 (akka `x86_64`)
 - linux/arm64/v8 (akka `arm64`)
 
-The resulting image is based on this tech stack:
+At runtime the dump is tweaked and consumed, providing a fast instance bootstrap.
 
-- An [Alpine](https://www.alpinelinux.org/) linux image
-- An [Nginx](https://www.nginx.com/) server
+> **⚠️ Disclaimer**: the following tool is provided in the sole purpose of bootstraping a PrestaShop testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
-## How fast is it?
-
-On a Mac M1 (_linux/arm64_) computer:
-
-```
-❯ docker compose up -d
-[+] Building 0.0s (0/0)
-[+] Running 3/3
- ✔ Container phpmyadmin  Running            0.0s
- ✔ Container mysql       Healthy           10.8s
- ✔ Container prestashop  Started           11.1s
-```
-
-VS the official production image (_linux/amd64_ only) with `AUTO_INSTALL=1`: 2mn 15s.
+> **Note**: no MySQL server is shipped in the resulting image, you have to provide your own instance for the backup to be dumped during the first connection.
 
 ## Where do I find pre-built images?
 
@@ -58,7 +42,8 @@ services:
 ## Build
 
 Requirements:
-* [jq](https://jqlang.github.io/jq/)
+
+- [jq](https://jqlang.github.io/jq/)
 
 To build the latest PrestaShop version, simply:
 
@@ -75,6 +60,10 @@ PUSH=true \
 TARGET_IMAGE=my-own-repo/testing:latest \
 ./build.sh
 ```
+
+The `OS_FLAVOUR` defaults to `alpine` (see [Alpine Linux](https://www.alpinelinux.org/)) and `SERVER_FLAVOUR` to `nginx` (see [Nginx](https://www.nginx.com/)).
+
+For more documentation about available build variables, please see [./build.sh](./build.sh).
 
 ## Container environment variables
 
@@ -111,9 +100,24 @@ TARGET_IMAGE=my-own-repo/testing:latest \
   - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
   - Default to `fail`
 
+## Maintaining
+
+Requirements:
+
+- [shellcheck](https://github.com/koalaman/shellcheck)
+- [hadolint](https://github.com/hadolint/hadolint)
+
+```sh
+# Lint bash scripts
+find . -type f \( -name '*.sh' \) | xargs shellcheck -x -s bash;
+
+# Lint docker files
+HADOLINT_IGNORE=DL3006,DL3018 find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
+```
+
 ## Api calls within a docker network
 
-**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the  `id_shop` you are targeting.
+**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
 
 Let's explain this subtle - rather mandatory - knowledge:
 
