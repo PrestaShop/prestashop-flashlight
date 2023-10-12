@@ -29,6 +29,7 @@ jobs:
         os_flavour: ["alpine", "debian"]
     name: "Docker build: ${{ matrix.os_flavour }}"
     steps:
+      - uses: actions/checkout@v3
       - run: ./build.sh
         env:
           OS_FLAVOUR: ${{ matrix.os_flavour }}
