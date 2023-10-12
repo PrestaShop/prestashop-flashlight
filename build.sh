@@ -19,17 +19,17 @@ DEFAULT_OS="alpine";
 DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
 
-function error {
+error() {
   echo -e "\e[1;31m${1:-Unknown error}\e[0m"
   exit "${2:-1}"
 }
 
-function get_latest_prestashop_version {
+get_latest_prestashop_version() {
   curl --silent --location --request GET \
     'https://api.github.com/repos/prestashop/prestashop/releases/latest' | jq -r '.tag_name'
 }
 
-function get_recommended_php_version {
+get_recommended_php_version() {
   local PS_VERSION=$1;
   local RECOMMENDED_VERSION=;
   REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
@@ -42,14 +42,14 @@ function get_recommended_php_version {
   echo "$RECOMMENDED_VERSION";
 }
 
-function get_php_flavour {
+get_php_flavour() {
    local OS_FLAVOUR=${1:-};
    local SERVER_FLAVOUR=${2:-};
    local PHP_VERSION=${3:-};
    jq -r '."'"${PHP_VERSION}"'".'"${OS_FLAVOUR}" <php-flavours.json;
 }
 
-function get_tag {
+get_tag() {
   local TAG=${1:-};
   local PS_VERSION=${2:-};
   local PHP_VERSION=${3:-};
@@ -64,7 +64,7 @@ function get_tag {
   fi
 }
 
-function get_ps_version {
+get_ps_version() {
   local PS_VERSION=${1:-};
   if [ -z "$PS_VERSION" ] || [ "$PS_VERSION" == "latest" ] ; then
     get_latest_prestashop_version;
@@ -73,7 +73,7 @@ function get_ps_version {
   fi
 }
 
-function get_php_version {
+get_php_version() {
   local PHP_VERSION=${1:-};
   local PS_VERSION=${2:-};
   if [ -z "$PHP_VERSION" ] || [ "$PHP_VERSION" == "latest" ] ; then
@@ -83,7 +83,7 @@ function get_php_version {
   fi
 }
 
-function get_target_images {
+get_target_images() {
   local TAG=${1:-};
   local PHP_FLAVOUR=${2:-};
   local PS_VERSION=${3:-};
@@ -97,13 +97,13 @@ function get_target_images {
 
 # Applying configuration
 # ----------------------
-TAG=$(get_tag "${TAG}" "${PS_VERSION}" "${PHP_VERSION}");
-PS_VERSION=$(get_ps_version "${PS_VERSION}");
-PHP_VERSION=$(get_php_version "${PHP_VERSION}" "$PS_VERSION");
+TAG=$(get_tag "$TAG" "$PS_VERSION" "$PHP_VERSION");
+PS_VERSION=$(get_ps_version "$PS_VERSION");
+PHP_VERSION=$(get_php_version "$PHP_VERSION" "$PS_VERSION");
 if [ -z "$PHP_VERSION" ]; then
-  error "Could not find a recommended PHP version for PS_VERSION: ${PS_VERSION}" 2
+  error "Could not find a recommended PHP version for PS_VERSION: $PS_VERSION" 2
 fi
-[ "$TAG" == "auto" ] && TAG="${PS_VERSION}-${PHP_VERSION}";
+[ "$TAG" == "auto" ] && TAG="$PS_VERSION-$PHP_VERSION";
 OS_FLAVOUR=${OS_FLAVOUR:-$DEFAULT_OS};
 SERVER_FLAVOUR=${SERVER_FLAVOUR:-$DEFAULT_SERVER};
 PHP_FLAVOUR=$(get_php_flavour "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
