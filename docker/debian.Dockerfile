@@ -36,6 +36,8 @@ RUN apt update \
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
   && mkdir -p /var/log/php /var/run/php /var/run/nginx \
+  && adduser --group nginx \
+  && adduser --system nginx \
   && chown nginx:nginx /var/run/nginx \
   && chown www-data:www-data /var/log/php /var/run/php
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
@@ -67,7 +69,7 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
 
 # Install and configure MariaDB
 RUN apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+  && DEBIAN_FRONTEND=noninteractive apt install -o DPkg::Options::="--force-confnew" -qqy \
   mariadb-client mariadb-server \
   && apt clean;
 COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf

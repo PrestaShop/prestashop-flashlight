@@ -1,5 +1,5 @@
 #!/bin/bash
-set -eu -o pipefail
+set -eu
 
 # 1. ENV vars configuration
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
