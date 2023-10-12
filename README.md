@@ -116,7 +116,7 @@ Requirements:
 find . -type f \( -name '*.sh' \) | xargs shellcheck -x -s bash;
 
 # Lint docker files
-HADOLINT_IGNORE=DL3006,DL3018 find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
+find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
 ```
 
 ## Q&A

@@ -1,7 +1,7 @@
 #!/bin/bash
 set -eu
 
-# 1. ENV vars configuration
+# 1. Settings
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
@@ -25,7 +25,7 @@ mkdir -p /run/mysqld /var/lib/mysql/;
 mysql_install_db \
   --user=root \
   --ldata=/var/lib/mysql/ > /dev/null;
-nohup /usr/bin/mysqld --user=root --skip-networking=0 --port=${DB_PORT} --socket=${DB_SOCKET} &
+nohup mysqld --user=root --skip-networking=0 --port=${DB_PORT} --socket=${DB_SOCKET} &
 while [ ! -S ${DB_SOCKET} ]; do sleep 0.1; done
 while ! nc -z localhost ${DB_PORT}; do sleep 0.1; done
 echo "✅ MySQL started"

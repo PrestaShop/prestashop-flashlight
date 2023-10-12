@@ -1,7 +1,6 @@
-# ----------------------- #
-#  PrestaShop FlashLight  #
-#     Alpine image        #
-# ----------------------- #
+# -------------------------------------
+#  PrestaShop FlashLight: Alpine image
+# -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR
@@ -40,10 +39,7 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 
-# Disable IPv6
-RUN echo "net.ipv6.conf.all.disable_ipv6 = 1" | tee /etc/sysctl.conf
-
-# Increase the memory limits
+# Disable memory limits
 COPY ./assets/php.ini /usr/local/etc/php/php.ini
 
 # --------------------------------

@@ -1,7 +1,6 @@
-# ----------------------- #
-#  PrestaShop FlashLight  #
-#     Debian image        #
-# ----------------------- #
+# -------------------------------------
+#  PrestaShop FlashLight: Debian image
+# -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR
@@ -10,13 +9,13 @@ ARG PS_VERSION
 ENV PS_FOLDER=/var/www/html
 
 # Install base tools
-RUN apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
   bash less vim git tzdata zip curl jq netcat-traditional ca-certificates \
   lsb-release libgnutls30 gnupg libmcrypt4 libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream \
-  && apt clean
+  && apt-get clean
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -26,10 +25,10 @@ RUN curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.or
   && . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
   && rm /etc/apt/preferences.d/no-debian-php;
-RUN apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -qqy \
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
-  && apt clean \
+  && apt-get clean \
   && docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
@@ -43,10 +42,7 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 
-# Disable IPv6
-RUN echo "net.ipv6.conf.all.disable_ipv6 = 1" | tee /etc/sysctl.conf
-
-# Increase the memory limits
+# Disable memory limits
 COPY ./assets/php.ini /usr/local/etc/php/php.ini
 
 # --------------------------------
@@ -68,10 +64,10 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 # Install and configure MariaDB
-RUN apt update \
-  && DEBIAN_FRONTEND=noninteractive apt install -o DPkg::Options::="--force-confnew" -qqy \
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -o DPkg::Options::="--force-confnew" -qqy \
   mariadb-client mariadb-server \
-  && apt clean;
+  && apt-get clean;
 COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf
 
 # Hydrate the SQL dump
