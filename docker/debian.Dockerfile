@@ -29,6 +29,7 @@ RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
   && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
   && docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
