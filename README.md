@@ -43,38 +43,18 @@ services:
 
 ## Run environment variables
 
-- **`PS_DOMAIN`**
-  - Description: the public domain (and port) to reach your PrestaShop instance
-  - Mandatory if you do not use `NGROK_TUNNEL_AUTO_DETECT`
-  - Example: `localhost:8000`
-- **`NGROK_TUNNEL_AUTO_DETECT`**
-  - Description: the ngrok agent base API url, to guess the tunnel domain of your shop
-  - Mandatory if you do not use `PS_DOMAIN`
-  - Example: `http://ngrok:4040`
-- **`SSL_REDIRECT`**
-  - If set to `true` PrestaShop will be told to redirect all inbound traffic to https://$PS_DOMAIN
-  - Default to `false` (or automatically guessed if using NGROK_TUNNEL_AUTO_DETECT)
-- **`DEBUG_MODE`**
-  - If set to `true` the Debug mode will be enabled on PrestaShop
-  - Default to `false`
-- **`INSTALL_MODULES_DIR`**
-  - A module directory containing zips to be installed with the PrestaShop CLI
-  - Example: `/ps-modules`
-- **`INIT_ON_RESTART`**
-  - If set to `true` the PS_DOMAIN auto search and dump fix will be replayed on container restart
-  - Default to `false`
-- **`DUMP_ON_RESTART`**
-  - If set to `true` the dump restoration replayed on container restart
-  - Default to `false`
-- **`INSTALL_MODULES_ON_RESTART`**
-  - If set to `true` zip modules will be reinstalled on container restart
-  - Default to `false`
-- **`INIT_SCRIPTS_ON_RESTART`**
-  - If set to `true` custom init scripts will be replayed on container restart
-  - Default to `false`
-- **`ON_INIT_SCRIPT_FAILURE`**
-  - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
-  - Default to `fail`
+| Variable                   | Description                                                                                              | Required                                    | Default value                         |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------- |
+| PS_DOMAIN                  | the public domain (and port) to reach your PrestaShop instance                                           | yes, unles using `NGROK_TUNNEL_AUTO_DETECT` | N/A (example: `localhost:8000`)       |
+| NGROK_TUNNEL_AUTO_DETECT   | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | yes, unless using `PS_DOMAIN`               | N/A (example `http://ngrok:4040`)     |
+| SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | no                                          | `false` (example: `true`)             |
+| DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | no                                          | `false`                               |
+| INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | no                                          | empty string (example: `/ps-modules`) |
+| INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | no                                          | `false`                               |
+| DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | no                                          | `false`                               |
+| INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | no                                          | `false`                               |
+| INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | no                                          | `false`                               |
+| ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | no                                          | `fail`                                |
 
 # Develop
 
