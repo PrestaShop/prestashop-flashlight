@@ -68,7 +68,8 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -o DPkg::Options::="--force-confnew" -qqy \
   mariadb-client mariadb-server \
-  && apt-get clean;
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf
 
 # Hydrate the SQL dump
