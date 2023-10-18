@@ -13,7 +13,7 @@ RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  libmcrypt gnu-libiconv php-common mysql-client
+  libmcrypt gnu-libiconv php-common mariadb-client
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -39,9 +39,6 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 
-# Disable memory limits
-COPY ./assets/php.ini /usr/local/etc/php/php.ini
-
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
@@ -63,7 +60,7 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
 # Install and configure MariaDB
 RUN adduser --system mysql; \
   apk --no-cache add -U --no-commit-hooks --no-scripts \
-  runuser mariadb-client mariadb;
+  runuser mariadb;
 COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 
 # Hydrate the SQL dump

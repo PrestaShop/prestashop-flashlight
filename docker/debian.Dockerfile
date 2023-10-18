@@ -14,7 +14,7 @@ RUN apt-get update \
   bash less vim git tzdata zip unzip curl jq netcat-traditional ca-certificates \
   lsb-release libgnutls30 gnupg libmcrypt4 libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream
+  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -42,9 +42,6 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 
-# Disable memory limits
-COPY ./assets/php.ini /usr/local/etc/php/php.ini
-
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
@@ -66,7 +63,7 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
 # Install and configure MariaDB
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -o DPkg::Options::="--force-confnew" -qqy \
-  mariadb-client mariadb-server \
+  mariadb-server \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf
