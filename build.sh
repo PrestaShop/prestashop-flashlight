@@ -88,10 +88,12 @@ get_target_images() {
   local PHP_FLAVOUR=${2:-};
   local PS_VERSION=${3:-};
   local PHP_VERSION=${4:-};
+  local OS_FLAVOUR=${5:-};
   declare RES;
   [ "$TAG" == "latest" ] && RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
   [[ "$PHP_FLAVOUR" == *"$DEFAULT_OS" ]] && RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
+  RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   echo "$RES";
 }
 
@@ -111,7 +113,7 @@ if [ "$PHP_FLAVOUR" == "null" ]; then
   error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2;
 fi
 if [ -z "${TARGET_IMAGE:+x}" ]; then
-  read -ra TARGET_IMAGES <<<"$(get_target_images "$TAG" "$PHP_FLAVOUR" "$PS_VERSION" "$PHP_VERSION")"
+  read -ra TARGET_IMAGES <<<"$(get_target_images "$TAG" "$PHP_FLAVOUR" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
