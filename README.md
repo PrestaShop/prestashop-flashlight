@@ -111,6 +111,15 @@ TARGET_IMAGE=my-own-repo/testing:latest \
   - If set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed
   - Default to `fail`
 
+## Back office access informations
+
+The default url/credentials to access back office are defined in `assets/hydrate.sh` and are set to:
+
+| Url | {PS_DOMAIN}/ps-admin|
+| --- | --- |
+| Login | admin@prestashop.com |
+| Password | prestashop |
+
 ## Api calls within a docker network
 
 **Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the  `id_shop` you are targeting.
