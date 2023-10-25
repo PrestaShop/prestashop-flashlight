@@ -124,8 +124,8 @@ docker buildx build \
   --build-arg PHP_FLAVOUR="${PHP_FLAVOUR}" \
   --build-arg PS_VERSION="${PS_VERSION}" \
   --build-arg PHP_VERSION="${PHP_VERSION}" \
-  --label org.opencontainers.image.title="PrestaShop FlashLight" \
-  --label org.opencontainers.image.description="PrestaShop FlashLight testing utility" \
+  --label org.opencontainers.image.title="PrestaShop Flashlight" \
+  --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
   --label org.opencontainers.image.url=https://github.com/PrestaShop/prestashop-flashlight \
   --label org.opencontainers.image.licenses=MIT \

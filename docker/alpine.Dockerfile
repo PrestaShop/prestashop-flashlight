@@ -1,5 +1,5 @@
 # -------------------------------------
-#  PrestaShop FlashLight: Alpine image
+#  PrestaShop Flashlight: Alpine image
 # -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION

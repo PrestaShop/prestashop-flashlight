@@ -2,7 +2,7 @@
 
 Spin a Prestashop testing instance in seconds!
 
-PrestaShop FlashLight is fast: the installation process with default content for a PrestaShop is tackled at build time, compiling the result to a single database dump.
+PrestaShop Flashlight is fast: the installation process with default content for a PrestaShop is tackled at build time, compiling the result to a single database dump.
 
 Supported architectures:
 

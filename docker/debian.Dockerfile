@@ -1,5 +1,5 @@
 # -------------------------------------
-#  PrestaShop FlashLight: Debian image
+#  PrestaShop Flashlight: Debian image
 # -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION
