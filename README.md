@@ -55,6 +55,7 @@ services:
 | INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | no                                          | `false`                               |
 | INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | no                                          | `false`                               |
 | ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | no                                          | `fail`                                |
+| DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                          | `false`                               |
 
 # Develop
 
@@ -103,17 +104,16 @@ find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
 
 The default url/credentials to access to PrestaShop's back office defined in `./assets/hydrate.sh` and are set to:
 
-| Url | {PS_DOMAIN}/ps-admin|
-| --- | --- |
-| Login | admin@prestashop.com |
-| Password | prestashop |
-
+| Url      | {PS_DOMAIN}/ps-admin |
+| -------- | -------------------- |
+| Login    | admin@prestashop.com |
+| Password | prestashop           |
 
 ## Q&A
 
 ## Api calls within a docker network
 
-**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the  `id_shop` you are targeting.
+**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
 
 Let's explain this subtle - rather mandatory - knowledge:
 

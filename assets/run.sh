@@ -1,6 +1,7 @@
 #!/bin/sh
 set -eu
 
+DRY_RUN=${DRY_RUN:-false}
 DEBUG_MODE=${DEBUG_MODE:-false}
 INIT_ON_RESTART=${INIT_ON_RESTART:-false}
 DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
@@ -130,6 +131,11 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
   touch $INIT_SCRIPTS_LOCK
 else
   echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
+fi
+
+if [ "$DRY_RUN" = "true" ]; then
+  echo "* Dry run is sucessful! Exiting."
+  exit 0
 fi
 
 echo "* Starting php-fpm..."
