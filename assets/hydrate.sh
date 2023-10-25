@@ -39,10 +39,13 @@ php -r "new PDO('mysql:unix_socket=""$DB_SOCKET"";dbname=""$DB_NAME""', '""$DB_U
 php -r "new PDO('mysql:host=""$DB_SERVER"";port=""$DB_PORT"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"
 echo "✅ PHP PDO connectivity test"
 
-# 5. Run the PrestaShop installer
+# 5. Set dev mode to debug the installation if it fails
+sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
+
+# 6. Run the PrestaShop installer
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
 sudo -g www-data -u www-data -- \
-  php -d memory_limit=-1 "${PS_FOLDER}/install/index_cli.php" \
+  php -f "${PS_FOLDER}/install/index_cli.php" -- \
   --domain=$PS_DOMAIN \
   --db_create=1 \
   --db_server=${DB_SERVER}:${DB_PORT} \
@@ -63,18 +66,25 @@ sudo -g www-data -u www-data -- \
   --ssl=0
 echo "✅ PrestaShop installed"
 
-# 6. Make a database dump
+# 7. Swap off dev mode
+sed -ie "s/define('_PS_MODE_DEV_', true);/define('_PS_MODE_DEV_',\ false);/g" "$PS_FOLDER/config/defines.inc.php"
+
+# 8. Make a database dump
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
 ### TODO zip the dump and support both plain and zipped outputs from restoration to allow overrides
 echo "✅ MySQL dump performed"
 
-# 7. Cache clear
-php -d memory_limit=-1 bin/console cache:clear
+# 9. Cache clear
+if [ -d "./bin/console" ]; then
+  php -d memory_limit=-1 bin/console cache:clear; # PS 1.7+
+else 
+  rm -rf "$PS_FOLDER/cache/*"; # PS 1.6
+fi
 
-# 8. Tear down mysql
+# 10. Tear down mysql
 killall mysqld;
 
-# 9. Some clean up
+# 11. Some clean up
 mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
 rm -rf \
   "$PS_FOLDER/install" \
