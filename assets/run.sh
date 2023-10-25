@@ -23,7 +23,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     exit 2
   fi
 
-  # Check if a tunnel autodetection mechanism should be involded
+  # Check if a tunnel autodetection mechanism should be involved
   if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
     echo "* Auto-detecting domain with ngrok client api on ${NGROK_TUNNEL_AUTO_DETECT}..."
     TUNNEL_API="${NGROK_TUNNEL_AUTO_DETECT}/api/tunnels"
