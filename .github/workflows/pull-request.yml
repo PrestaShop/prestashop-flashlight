@@ -23,12 +23,12 @@ jobs:
           dockerfile: "*.Dockerfile"
 
   docker_build:
+    name: "Docker build: ${{ matrix.os_flavour }} for ${{ matrix.ps_version }}"
     runs-on: ubuntu-latest
     strategy:
       matrix:
         os_flavour: ["alpine", "debian"]
         ps_version: ["1.6.1.24", "1.7.8.10", "8.1.1"]
-    name: "Docker build: ${{ matrix.os_flavour }} for ${{ matrix.ps_version }}"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -38,3 +38,7 @@ jobs:
         env:
           OS_FLAVOUR: ${{ matrix.os_flavour }}
           PS_VERSION: ${{ matrix.ps_version }}
+
+      - name: Test the image with a dry run
+        run: docker run -e DRY_RUN=true \
+          prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
