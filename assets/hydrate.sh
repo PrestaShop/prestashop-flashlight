@@ -71,7 +71,7 @@ sed -ie "s/define('_PS_MODE_DEV_', true);/define('_PS_MODE_DEV_',\ false);/g" "$
 
 # 8. Make a database dump
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
-### TODO zip the dump and support both plain and zipped outputs from restoration to allow overrides
+# TODO zip the dump and support both plain and zipped outputs from restoration to allow overrides
 echo "✅ MySQL dump performed"
 
 # 9. Cache clear

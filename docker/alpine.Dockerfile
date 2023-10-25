@@ -22,7 +22,7 @@ RUN apk --no-cache add -U zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-d
   && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
-# @TODO check opcache configuration
+# TODO check opcache configuration
 # RUN docker-php-ext-enable opcache
 # RUN echo '\
 #   opcache.interned_strings_buffer=16\n\
