@@ -6,6 +6,7 @@ ARG PHP_VERSION
 ARG PHP_FLAVOUR
 FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
+ARG PHP_VERSION
 ENV PS_FOLDER=/var/www/html
 
 # Install base tools
@@ -25,11 +26,10 @@ RUN curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.or
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
   && rm /etc/apt/preferences.d/no-debian-php;
 RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
-  php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && ([ "7.1" = $(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".") ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
+  && ([[ $PHP_VERSION == 7.1* ]] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
 # Configure php-fpm and nginx
