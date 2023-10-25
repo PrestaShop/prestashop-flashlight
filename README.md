@@ -99,11 +99,21 @@ find . -type f \( -name '*.sh' \) | xargs shellcheck -x -s bash;
 find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
 ```
 
+## Back office access information
+
+The default url/credentials to access to PrestaShop's back office defined in `./assets/hydrate.sh` and are set to:
+
+| Url | {PS_DOMAIN}/ps-admin|
+| --- | --- |
+| Login | admin@prestashop.com |
+| Password | prestashop |
+
+
 ## Q&A
 
-### Let's talk about API calls within a docker network
+## Api calls within a docker network
 
-**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
+**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the  `id_shop` you are targeting.
 
 Let's explain this subtle - rather mandatory - knowledge:
 
