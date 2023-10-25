@@ -29,7 +29,7 @@ RUN apt-get update \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && ([ "7.1" = $(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".") ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-gd --with-jpeg) \
+  && ([ "7.1" = $(php -v | head -n 1 | cut -d " " -f 2 | cut -f1-2 -d".") ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
 # Configure php-fpm and nginx
