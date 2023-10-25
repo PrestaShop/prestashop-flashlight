@@ -41,7 +41,7 @@ echo "✅ PHP PDO connectivity test"
 
 # 5. Run the PrestaShop installer
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
-runuser -g www-data -u www-data -- \
+sudo -g www-data -u www-data -- \
   php -d memory_limit=-1 "${PS_FOLDER}/install/index_cli.php" \
   --domain=$PS_DOMAIN \
   --db_create=1 \

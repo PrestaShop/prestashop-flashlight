@@ -14,7 +14,7 @@ RUN apt-get update \
   bash less vim git tzdata zip unzip curl jq netcat-traditional ca-certificates \
   lsb-release libgnutls30 gnupg libmcrypt4 libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client
+  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source

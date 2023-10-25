@@ -13,7 +13,7 @@ RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  libmcrypt gnu-libiconv php-common mariadb-client
+  libmcrypt gnu-libiconv php-common mariadb-client sudo
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -51,16 +51,16 @@ ARG PS_FOLDER=/var/www/html
 ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 
 # Extract the souces
-RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
+RUN mkdir -p /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
-  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d $PS_FOLDER \
+  && [[ -f /tmp/unzip-ps/prestashop.zip ]] && unzip -n -q /tmp/unzip-ps/prestashop.zip -d $PS_FOLDER \
+  || mv /tmp/unzip-ps/prestashop $PS_FOLDER \
   && chown -R www-data:www-data $PS_FOLDER \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 # Install and configure MariaDB
 RUN adduser --system mysql; \
-  apk --no-cache add -U --no-commit-hooks --no-scripts \
-  runuser mariadb;
+  apk --no-cache add -U --no-commit-hooks --no-scripts mariadb;
 COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 
 # Hydrate the SQL dump
