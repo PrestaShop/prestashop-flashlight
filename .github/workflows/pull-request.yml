@@ -27,7 +27,8 @@ jobs:
     strategy:
       matrix:
         os_flavour: ["alpine", "debian"]
-    name: "Docker build: ${{ matrix.os_flavour }}"
+        ps_version: ["1.6.1.24", "1.7.8.10", "8.1.1"]
+    name: "Docker build: ${{ matrix.os_flavour }} for ${{ matrix.ps_version }}"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -36,3 +37,4 @@ jobs:
         run: ./build.sh
         env:
           OS_FLAVOUR: ${{ matrix.os_flavour }}
+          PS_VERSION: ${{ matrix.ps_version }}
