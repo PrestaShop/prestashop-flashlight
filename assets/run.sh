@@ -57,19 +57,36 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
 
   echo "* Checking MySQL connectivity..."
   is_mysql_ready () {
-    php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');"
+    if [ "$DRY_RUN" = "true" ]; then
+      echo "(skipped)";
+    else
+      php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');"
+    fi
   }
   while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
   echo "* PHP PDO connectivity checked"
 
-  sed -i \
-      -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
-      -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
-      -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
-      -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
-      -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
-      -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
-    "$PS_FOLDER/app/config/parameters.php"
+  if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
+    sed -i \
+        -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
+        -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
+        -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
+        -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
+        -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
+        -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
+      "$PS_FOLDER/app/config/parameters.php"
+  elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
+    sed -i \
+        -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
+        -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
+        -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
+        -e "s/_DB_PASSWD_', 'prestashop/_DB_PASSWD_', '$MYSQL_PASSWORD/" \
+      "$PS_FOLDER/config/settings.inc.php"
+  else
+    echo "Error: could not configure PrestaShop (config file not found). Exiting"
+    sleep 3
+    exit 4
+  fi
   echo "* PrestaShop MySQL client configuration set"
 
   # If debug mode is enabled
@@ -82,10 +99,15 @@ else
   echo "* Init already performed (see INIT_ON_RESTART)"
 fi
 
-# Restoring MySQL dump and extras dumps if any
+# Restoring MySQL dumps
 if [ ! -f $DUMP_LOCK ] || [ "$DUMP_ON_RESTART" = "true" ]; then
   echo "* Restoring MySQL dump..."
-  mysql -u "$MYSQL_USER" --host="$MYSQL_HOST" --password="$MYSQL_PASSWORD" "$MYSQL_DATABASE" < /dump.sql
+  [ ! -f "/dump.sql" ] && echo "Error: missing dump. Exiting" && exit 5
+  if [ "$DRY_RUN" = "true" ]; then
+    echo "(skipped)";
+  else
+    mysql -u "$MYSQL_USER" --host="$MYSQL_HOST" --password="$MYSQL_PASSWORD" "$MYSQL_DATABASE" < /dump.sql
+  fi
   echo "* MySQL dump restored!"
   if [ -n "$MYSQL_EXTRA_DUMP" ]; then
     echo "* Restoring MySQL EXTRA dump(s)..."
@@ -122,7 +144,7 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
         ( $1 ) || { echo "x $1 execution failed. Skipping."; }
       else
-        $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 4; }
+        $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
       fi
     ' sh {} \; print;
   else

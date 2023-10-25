@@ -40,5 +40,7 @@ jobs:
           PS_VERSION: ${{ matrix.ps_version }}
 
       - name: Test the image with a dry run
-        run: docker run -e DRY_RUN=true \
+        run: docker run \
+          -e PS_DOMAIN=localhost:80 \
+          -e DRY_RUN=true \
           prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
