@@ -19,9 +19,10 @@ RUN apk --no-cache add -U \
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
 RUN apk --no-cache add -U zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev \
-  && ([[ $PHP_VERSION == 7.1* ]] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
+  && ([ "7.1" = "$(echo \"$PHP_VERSION\" | cut -f1-2 -d \".\")" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
   && docker-php-ext-install gd pdo_mysql zip intl;
 #   docker-php-ext-enable opcache
+# && ([ "7.1" = "$(php -v | head -n 1 | cut -d \" \" -f 2 | cut -f1-2 -d \".\")" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
 
 # @TODO check opcache configuration
 # RUN echo '\
