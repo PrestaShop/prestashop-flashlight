@@ -29,7 +29,7 @@ RUN apt-get update \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && docker-php-ext-configure gd --with-jpeg \
+  && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
   && docker-php-ext-install gd pdo_mysql zip intl;
 
 # Configure php-fpm and nginx
@@ -62,8 +62,7 @@ RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
 
 # Install and configure MariaDB
 RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -o DPkg::Options::="--force-confnew" -qqy \
-  mariadb-server \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -o DPkg::Options::="--force-confnew" -qqy mariadb-server \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 COPY ./assets/mariadb-server.cnf /etc/mysql/my.cnf
