@@ -121,14 +121,18 @@ fi
 # Eventually install some modules
 if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" ]; then
   if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
-    INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
-    for file in "$INSTALL_MODULES_DIR"/*.zip; do
-      module=$(basename "$file" | tr "-" "\n" | head -n 1)
-      echo "--> Unzipping and installing ${module} from ${file}..."
-      rm -rf "/var/www/html/modules/${module:-something-at-least}"
-      su www-data -s /bin/sh -c "unzip -qq ${file} -d /var/www/html/modules"
-      su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
-    done;
+    if [ -d "./bin/console" ]; then
+      INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
+      for file in "$INSTALL_MODULES_DIR"/*.zip; do
+        module=$(basename "$file" | tr "-" "\n" | head -n 1)
+        echo "--> Unzipping and installing ${module} from ${file}..."
+        rm -rf "/var/www/html/modules/${module:-something-at-least}"
+        su www-data -s /bin/sh -c "unzip -qq ${file} -d /var/www/html/modules"
+        su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
+      done;
+    else
+      echo "Auto-installing modules with PrestaShop v1.6 is not yet supported";
+    fi
   fi
   touch $MODULES_INSTALLED_LOCK
 else
