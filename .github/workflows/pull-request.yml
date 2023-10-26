@@ -1,0 +1,45 @@
+name: Pull Request
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+
+jobs:
+  lint_shell:
+    name: "Lint: shell"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+
+  lint_dockerfile:
+    name: "Lint: dockerfile"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hadolint/hadolint-action@v3.1.0
+        with:
+          recursive: true
+          dockerfile: "*.Dockerfile"
+
+  docker_build:
+    name: "Docker build: ${{ matrix.os_flavour }} for ${{ matrix.ps_version }}"
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os_flavour: ["alpine", "debian"]
+        ps_version: ["1.6.1.24", "1.7.8.10", "8.1.1"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Call the docker build chain
+        run: ./build.sh
+        env:
+          OS_FLAVOUR: ${{ matrix.os_flavour }}
+          PS_VERSION: ${{ matrix.ps_version }}
+
+      - name: Test the image with a dry run
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
