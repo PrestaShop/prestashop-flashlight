@@ -76,9 +76,10 @@ echo "✅ MySQL dump performed"
 
 # 9. Cache clear
 if [ -d "./bin/console" ]; then
-  php -d memory_limit=-1 bin/console cache:clear; # PS 1.7+
+  php -d memory_limit=-1 bin/console cache:clear;
 else 
-  rm -rf "$PS_FOLDER/cache/*"; # PS 1.6
+  # PrestaShop 1.6 only
+  rm -rf "$PS_FOLDER/cache/*";
 fi
 
 # 10. Tear down mysql

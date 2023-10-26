@@ -143,14 +143,14 @@ fi
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
     echo "* Running init script(s)..."
-    find /tmp/init-scripts -maxdepth 1 -executable -type f -exec sh -c '
+    find '/tmp/init-scripts' -maxdepth 1 -executable -type f -exec sh -c '
       echo "--> Running $1..."
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
         ( $1 ) || { echo "x $1 execution failed. Skipping."; }
       else
         $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
       fi
-    ' sh {} \; print;
+    ' sh {} \;
   else
     echo "* No init script found, let's continue..."
   fi

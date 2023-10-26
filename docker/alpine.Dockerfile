@@ -4,6 +4,7 @@
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR
+ARG GIT_SHA
 FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
@@ -45,6 +46,7 @@ COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 FROM base-prestashop AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
+ARG GIT_SHA
 ARG PS_FOLDER=/var/www/html
 
 # Get PrestaShop source code
@@ -62,9 +64,18 @@ RUN adduser --system mysql; \
   apk --no-cache add -U --no-commit-hooks --no-scripts mariadb;
 COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 
+# Ship a VERSION file
+RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
+  && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
+  && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION"
+
 # Hydrate the SQL dump
 COPY ./assets/hydrate.sh /hydrate.sh
 RUN sh /hydrate.sh
+
+# Extra patches to the PrestaShop sources
+COPY ./assets/patch.sh /patch.sh
+RUN sh /patch.sh
 
 # -----------------------
 # Flashlight final image

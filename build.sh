@@ -18,6 +18,7 @@ declare PUSH;            # -- set it to "true" if you want to push the resulting
 DEFAULT_OS="alpine";
 DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
+GIT_SHA=$(git rev-parse HEAD)
 
 error() {
   echo -e "\e[1;31m${1:-Unknown error}\e[0m"
@@ -126,6 +127,7 @@ docker buildx build \
   --build-arg PHP_FLAVOUR="${PHP_FLAVOUR}" \
   --build-arg PS_VERSION="${PS_VERSION}" \
   --build-arg PHP_VERSION="${PHP_VERSION}" \
+  --build-arg GIT_SHA="${GIT_SHA}" \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
