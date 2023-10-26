@@ -18,8 +18,10 @@ patch_1_6 () {
     "$PS_FOLDER/classes/Rijndael.php"
 
   # Fix the Rijndael keys length
+   # shellcheck disable=SC2016
   sed -i 's/$this->_key = $key/$this->_key = openssl_random_pseudo_bytes(32)/' \
     "$PS_FOLDER/classes/Rijndael.php"
+  # shellcheck disable=SC2016
   sed -i 's/$this->_iv = base64_decode($iv)/$this->_iv = openssl_random_pseudo_bytes(16)/' \
     "$PS_FOLDER/classes/Rijndael.php"
 }
