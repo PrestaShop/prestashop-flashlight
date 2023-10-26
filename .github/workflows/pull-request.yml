@@ -41,6 +41,6 @@ jobs:
 
       - name: Test the image with a dry run
         run: docker run \
-          -e PS_DOMAIN=localhost:80 \
-          -e DRY_RUN=true \
+          --env PS_DOMAIN='localhost:80' \
+          --env DRY_RUN='true' \
           prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
