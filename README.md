@@ -111,6 +111,10 @@ The default url/credentials to access to PrestaShop's back office defined in `./
 
 ## Q&A
 
+## Does Flashlight support PrestaShop 1.6?
+
+Partially yes. As there is no console whithin the sources, the modules cannot be automatically installed right now. Feel free to contribute!
+
 ## Api calls within a docker network
 
 **Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
