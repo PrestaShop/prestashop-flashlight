@@ -15,13 +15,13 @@ RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  libmcrypt libmcrypt-dev gnu-libiconv php-common mariadb-client sudo
+  libmcrypt gnu-libiconv php-common mariadb-client sudo
 
 # Install PHP requirements
 # see: https://olvlvl.com/2019-06-install-php-ext-source
-RUN apk --no-cache add -U zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev \
+RUN apk --no-cache add -U zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev libmcrypt-dev \
   && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
-  && docker-php-ext-install gd pdo_mysql zip intl mcrypt;
+  && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-install gd pdo_mysql zip intl mcrypt || && docker-php-ext-install gd pdo_mysql zip intl);
 
 # TODO check opcache configuration
 # RUN docker-php-ext-enable opcache
