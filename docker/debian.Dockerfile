@@ -30,7 +30,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
-  && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-install gd pdo_mysql zip intl mcrypt || && docker-php-ext-install gd pdo_mysql zip intl)
+  && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-install gd pdo_mysql zip intl mcrypt || docker-php-ext-install gd pdo_mysql zip intl)
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
