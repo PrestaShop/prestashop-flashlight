@@ -13,7 +13,7 @@ ENV PS_FOLDER=/var/www/html
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
   bash less vim git tzdata zip unzip curl jq netcat-traditional ca-certificates \
-  lsb-release libgnutls30 gnupg libmcrypt4 libiconv-hook1 \
+  lsb-release libgnutls30 gnupg libmcrypt4 libmcrypt-dev libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
 
@@ -30,7 +30,7 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && ([ "7.1" = "$PHP_VERSION" ] && docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir || docker-php-ext-configure gd --with-jpeg) \
-  && docker-php-ext-install gd pdo_mysql zip intl;
+  && docker-php-ext-install gd pdo_mysql zip intl mcrypt;
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
