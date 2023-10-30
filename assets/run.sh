@@ -16,6 +16,11 @@ DUMP_LOCK=flashlight-dump.lock
 MODULES_INSTALLED_LOCK=flashlight-modules-installed.lock
 INIT_SCRIPTS_LOCK=flashlight-init-scripts.lock
 
+# Runs everything as www-data
+run_user () {
+  sudo -g www-data -u www-data -- "$@"
+}
+
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ -z "${PS_DOMAIN:-}" ] && [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
     echo "Missing PS_DOMAIN or NGROK_TUNNEL_AUTO_DETECT. Exiting"
@@ -60,14 +65,14 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     if [ "$DRY_RUN" = "true" ]; then
       echo "(skipped)";
     else
-      php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');"
+      run_user php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');" 2> /dev/null;
     fi
   }
   while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
   echo "* PHP PDO connectivity checked"
 
   if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
-    sed -i \
+    run_user sed -i \
         -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
         -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
         -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
@@ -76,7 +81,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
         -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
       "$PS_FOLDER/app/config/parameters.php"
   elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
-    sed -i \
+    run_user sed -i \
         -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
         -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
         -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
@@ -121,14 +126,13 @@ fi
 # Eventually install some modules
 if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" ]; then
   if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
-    if [ -d "./bin/console" ]; then
-      INSTALL_COMMAND="/var/www/html/bin/console prestashop:module --no-interaction install"
+    if [ -f "$PS_FOLDER/bin/console" ]; then
       for file in "$INSTALL_MODULES_DIR"/*.zip; do
         module=$(basename "$file" | tr "-" "\n" | head -n 1)
-        echo "--> Unzipping and installing ${module} from ${file}..."
+        echo "--> Unzipping and installing $module from $file..."
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
-        su www-data -s /bin/sh -c "unzip -qq ${file} -d /var/www/html/modules"
-        su www-data -s /bin/sh -c "php $INSTALL_COMMAND ${module}"
+        run_user unzip -qq "$file" -d /var/www/html/modules
+        run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module"
       done;
     else
       echo "Auto-installing modules with PrestaShop v1.6 is not yet supported";
@@ -144,11 +148,11 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
     echo "* Running init script(s)..."
     find '/tmp/init-scripts' -maxdepth 1 -executable -type f -exec sh -c '
-      echo "--> Running $1..."
+      echo "  --> Running $1..."
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
-        ( $1 ) || { echo "x $1 execution failed. Skipping."; }
+        ( sudo -g www-data -u www-data -- $1 ) || { echo "x $1 execution failed. Skipping."; }
       else
-        $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
+        ( sudo -g www-data -u www-data -- $1 ) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
       fi
     ' sh {} \;
   else
@@ -165,7 +169,7 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-su www-data -s /usr/local/sbin/php-fpm -c '-D'
+run_user php-fpm -D
 
 echo "* Starting nginx..."
 nginx -g "daemon off;"
