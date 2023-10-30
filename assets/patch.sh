@@ -10,4 +10,6 @@ patch_1_6 () {
   echo "Disallow: /" >> "${PS_FOLDER}/robots.txt"
 }
 
-echo "$PS_VERSION" | grep "^1.6" > /dev/null && patch_1_6
+if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then
+  patch_1_6;
+fi
