@@ -127,6 +127,7 @@ fi
 docker buildx build \
   --file "./docker/${OS_FLAVOUR}.Dockerfile" \
   --platform "${PLATFORM:-linux/amd64}" \
+  --cache-from "${TARGET_IMAGES[1]}" \
   --build-arg PHP_FLAVOUR="${PHP_FLAVOUR}" \
   --build-arg PS_VERSION="${PS_VERSION}" \
   --build-arg PHP_VERSION="${PHP_VERSION}" \
