@@ -146,17 +146,19 @@ fi
 # Custom init scripts
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
   if [ -d /tmp/init-scripts/ ]; then
-    echo "* Running init script(s)..."
-    find '/tmp/init-scripts' -maxdepth 1 -executable -type f -exec sh -c '
-      echo "  --> Running $1..."
+    printf "* Running init script(s)..."
+    # shellcheck disable=SC2016
+    find '/tmp/init-scripts' -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      printf "\n--> Running $1...\n"
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
-        ( sudo -g www-data -u www-data -- $1 ) || { echo "x $1 execution failed. Skipping."; }
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        ( sudo -g www-data -u www-data -- $1 ) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
       fi
-    ' sh {} \;
+    ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
+    printf "\n";
   else
-    echo "* No init script found, let's continue..."
+    echo "* No init script(s) found"
   fi
   touch $INIT_SCRIPTS_LOCK
 else
