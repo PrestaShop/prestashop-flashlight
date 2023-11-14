@@ -113,7 +113,7 @@ COPY --chown=www-data:www-data \
 # The new default runner
 COPY ./assets/run.sh /run.sh
 
-HEALTHCHECK --interval=30s --timeout=10s --retries=10 --start-period=10s \
+HEALTHCHECK --interval=30s --timeout=5s --retries=10 --start-period=10s \
   CMD curl -Isf http://localhost:80/robots.txt || exit 1
 EXPOSE 80
 STOPSIGNAL SIGQUIT

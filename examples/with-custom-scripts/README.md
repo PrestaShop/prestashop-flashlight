@@ -8,7 +8,7 @@ See [./init-scripts](./init-scripts).
 The expected output of this example is:
 
 ```
-❯ docker-compose up prestashop
+docker-compose up prestashop
 [+] Building 0.0s (0/0)                                                                                                                                                                                     docker:desktop-linux
 [+] Running 3/2
  ✔ Network with-custom-scripts_default         Created                              0.0s

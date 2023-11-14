@@ -1,6 +1,7 @@
 # Examples
 
 - [With custom scripts](./with-custom-scripts/)
+- [Auto install modules](./auto-install-modules/)
 
 ## Contributing
 
