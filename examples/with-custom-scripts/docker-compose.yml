@@ -1,11 +1,6 @@
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
-    healthcheck:
-      test: ["CMD-SHELL", "curl -Isf http://localhost:80/robots.txt || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 10
     depends_on:
       mysql:
         condition: service_healthy
