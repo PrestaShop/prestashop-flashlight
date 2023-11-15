@@ -3,7 +3,7 @@ name: Docker image publish
 on:
   workflow_dispatch:
     inputs:
-      flavour:
+      os_flavour:
         description: "OS flavour"
         required: false
         default: "alpine"
@@ -76,5 +76,6 @@ jobs:
           PLATFORM: ${{ inputs.target_platforms }}
           PS_VERSION: ${{ inputs.ps_version }}
           PHP_VERSION: ${{ inputs.php_version }}
+          OS_FLAVOUR: ${{ inputs.os_flavour }}
           TAG: ${{ inputs.tag }}
           PUSH: "true"
