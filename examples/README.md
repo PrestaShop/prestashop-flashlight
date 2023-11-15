@@ -1,6 +1,7 @@
 # Examples
 
-- [With custom scripts](./with-custom-scripts/)
+- [With custom init scripts](./with-init-scripts/)
+- [With custom post scripts](./with-post-scripts/)
 - [Auto install modules](./auto-install-modules/)
 
 ## Contributing

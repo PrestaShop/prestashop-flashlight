@@ -7,6 +7,7 @@ INIT_ON_RESTART=${INIT_ON_RESTART:-false}
 DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
 INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
+POST_SCRIPTS_ON_RESTART=${POST_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
 ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
 ON_INSTALL_MODULES_FAILURE=${ON_INSTALL_MODULES_FAILURE:-fail}
@@ -14,11 +15,11 @@ MYSQL_VERSION=${MYSQL_VERSION:-5.7}
 INIT_SCRIPTS_DIR=${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}
 POST_SCRIPTS_DIR=${POST_SCRIPTS_DIR:-/tmp/post-scripts/}
 
-INIT_LOCK=flashlight-init.lock
-DUMP_LOCK=flashlight-dump.lock
-MODULES_INSTALLED_LOCK=flashlight-modules-installed.lock
-INIT_SCRIPTS_LOCK=flashlight-init-scripts.lock
-POST_SCRIPTS_LOCK=flashlight-post-scripts.lock
+INIT_LOCK=/tmp/flashlight-init.lock
+DUMP_LOCK=/tmp/flashlight-dump.lock
+MODULES_INSTALLED_LOCK=/tmp/flashlight-modules-installed.lock
+INIT_SCRIPTS_LOCK=/tmp/flashlight-init-scripts.lock
+POST_SCRIPTS_LOCK=/tmp/flashlight-post-scripts.lock
 
 # Runs everything as www-data
 run_user () {
@@ -183,11 +184,13 @@ run_user php-fpm -D
 
 echo "* Starting nginx..."
 nginx -g "daemon off;" &
+NGINX_PID=$!
 sleep 1;
+echo "* Nginx started"
 
 # Post-run scripts
 if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
-  if [ -d "$INIT_SCRIPTS_DIR" ]; then
+  if [ -d "$POST_SCRIPTS_DIR" ]; then
     printf "* Running post script(s)..."
     # shellcheck disable=SC2016
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
@@ -204,5 +207,8 @@ if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
   fi
   touch $POST_SCRIPTS_LOCK
 else
-  echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
+  echo "* Post scripts already run (see POST_SCRIPTS_ON_RESTART)"
 fi
+
+# set back nginx to front process
+wait $NGINX_PID

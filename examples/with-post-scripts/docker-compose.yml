@@ -6,10 +6,10 @@ services:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
-      - CUSTOM_FOO=bar
-      - CUSTOM_MUSH=room
+      - CUSTOM_GALETTE=saucisse
+      - POST_SCRIPTS_DIR=/tmp/post-scripts
     volumes:
-      - ./init-scripts:/tmp/init-scripts
+      - ./post-scripts:/tmp/post-scripts
     ports:
       - 8000:80
 

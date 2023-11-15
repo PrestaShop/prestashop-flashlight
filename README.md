@@ -39,7 +39,7 @@ services:
       - ./init-scripts:/tmp/init-scripts:ro
 ```
 
-| **⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
+**⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
 
 ## Examples
 
