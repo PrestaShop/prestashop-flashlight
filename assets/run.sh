@@ -9,12 +9,16 @@ INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
 INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
 SSL_REDIRECT=${SSL_REDIRECT:-false}
 ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
+ON_INSTALL_MODULES_FAILURE=${ON_INSTALL_MODULES_FAILURE:-fail}
 MYSQL_VERSION=${MYSQL_VERSION:-5.7}
+INIT_SCRIPTS_DIR=${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}
+POST_SCRIPTS_DIR=${POST_SCRIPTS_DIR:-/tmp/post-scripts/}
 
 INIT_LOCK=flashlight-init.lock
 DUMP_LOCK=flashlight-dump.lock
 MODULES_INSTALLED_LOCK=flashlight-modules-installed.lock
 INIT_SCRIPTS_LOCK=flashlight-init-scripts.lock
+POST_SCRIPTS_LOCK=flashlight-post-scripts.lock
 
 # Runs everything as www-data
 run_user () {
@@ -132,7 +136,11 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
         echo "--> Unzipping and installing $module from $file..."
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
         run_user unzip -qq "$file" -d /var/www/html/modules
-        run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module"
+        if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
+          (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
+        else
+          (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
+        fi
       done;
     else
       echo "Auto-installing modules with PrestaShop v1.6 is not yet supported";
@@ -143,12 +151,12 @@ else
   echo "* Module installation already performed (see INSTALL_MODULES_ON_RESTART)"
 fi
 
-# Custom init scripts
+# Init scripts
 if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
-  if [ -d /tmp/init-scripts/ ]; then
+  if [ -d "$INIT_SCRIPTS_DIR" ]; then
     printf "* Running init script(s)..."
     # shellcheck disable=SC2016
-    find '/tmp/init-scripts' -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+    find "$INIT_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
         (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
@@ -174,4 +182,27 @@ echo "* Starting php-fpm..."
 run_user php-fpm -D
 
 echo "* Starting nginx..."
-nginx -g "daemon off;"
+nginx -g "daemon off;" &
+sleep 1;
+
+# Post-run scripts
+if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
+  if [ -d "$INIT_SCRIPTS_DIR" ]; then
+    printf "* Running post script(s)..."
+    # shellcheck disable=SC2016
+    find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      printf "\n--> Running $1...\n"
+      if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
+      else
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
+      fi
+    ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
+    printf "\n";
+  else
+    echo "* No post script(s) found"
+  fi
+  touch $POST_SCRIPTS_LOCK
+else
+  echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
+fi
