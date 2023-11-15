@@ -39,7 +39,7 @@ services:
       - ./init-scripts:/tmp/init-scripts:ro
 ```
 
-| **⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
+**⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
 
 ## Examples
 
@@ -54,11 +54,16 @@ A few examples are available in the [examples](./examples) folder.
 | SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | no                                          | `false` (example: `true`)             |
 | DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | no                                          | `false`                               |
 | INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | no                                          | empty string (example: `/ps-modules`) |
+| INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                             | no                                          | `/tmp/init-scripts`                   |
+| POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                            | no                                          | `/tmp/post-scripts`                   |
 | INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | no                                          | `false`                               |
 | DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | no                                          | `false`                               |
 | INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | no                                          | `false`                               |
 | INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | no                                          | `false`                               |
+| POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                     | no                                          | `false`                               |
 | ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | no                                          | `fail`                                |
+| ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | no                                          | `fail`                                |
+| ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | no                                          | `fail`                                |
 | DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                          | `false`                               |
 
 # Develop
@@ -112,6 +117,22 @@ The default url/credentials to access to PrestaShop's back office defined in `./
 | -------- | -------------------- |
 | Login    | admin@prestashop.com |
 | Password | prestashop           |
+
+## Exit codes
+
+On error, PrestaShop Flashlight can quit with these exit codes:
+
+| Exit Code | Description                                                                      |
+| --------- | -------------------------------------------------------------------------------- |
+| 0         | graceful exit, probably running dry mode or after a SIGKILL                      |
+| 1         | reserved for nginx                                                               |
+| 2         | Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT                                  |
+| 3         | Ngrok domain cannot be guessed                                                   |
+| 4         | Cannot find PrestaShop configuration file in $PS_FOLDER                          |
+| 5         | SQL dump is missing                                                              |
+| 6         | some module installation failed (with $ON_INSTALL_MODULES_FAILURE set to `fail`) |
+| 7         | some init script failed (with $ON_INIT_SCRIPT_FAILURE set to `fail`)             |
+| 8         | some post script failed (with $ON_POST_SCRIPT_FAILURE set to `fail`)             |
 
 ## Q&A
 

@@ -6,10 +6,11 @@ services:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
-      - INSTALL_MODULES_DIR=/ps-modules
-      - ON_INSTALL_MODULES_FAILURE=fail
+      - CUSTOM_FOO=bar
+      - CUSTOM_MUSH=room
+      - INIT_SCRIPTS_DIR=/tmp/init-scripts
     volumes:
-      - ./modules:/ps-modules
+      - ./init-scripts:/tmp/init-scripts
     ports:
       - 8000:80
 
