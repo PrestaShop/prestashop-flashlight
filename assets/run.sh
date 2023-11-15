@@ -137,7 +137,7 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
         echo "--> Unzipping and installing $module from $file..."
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
         run_user unzip -qq "$file" -d /var/www/html/modules
-        if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
+        if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
           (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
         else
           (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
@@ -162,7 +162,7 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
         (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
@@ -198,7 +198,7 @@ if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
       if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
         (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 6; }
+        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";

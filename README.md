@@ -118,6 +118,22 @@ The default url/credentials to access to PrestaShop's back office defined in `./
 | Login    | admin@prestashop.com |
 | Password | prestashop           |
 
+## Exit codes
+
+On error, PrestaShop Flashlight can quit with these exit codes:
+
+| Exit Code | Description                                                                      |
+| --------- | -------------------------------------------------------------------------------- |
+| 0         | graceful exit, probably running dry mode or after a SIGKILL                      |
+| 1         | reserved for nginx                                                               |
+| 2         | Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT                                  |
+| 3         | Ngrok domain cannot be guessed                                                   |
+| 4         | Cannot find PrestaShop configuration file in $PS_FOLDER                          |
+| 5         | SQL dump is missing                                                              |
+| 6         | some module installation failed (with $ON_INSTALL_MODULES_FAILURE set to `fail`) |
+| 7         | some init script failed (with $ON_INIT_SCRIPT_FAILURE set to `fail`)             |
+| 8         | some post script failed (with $ON_POST_SCRIPT_FAILURE set to `fail`)             |
+
 ## Q&A
 
 ## Does Flashlight support PrestaShop 1.6?
