@@ -7,6 +7,7 @@ services:
     environment:
       - PS_DOMAIN=localhost:8000
       - INSTALL_MODULES_DIR=/ps-modules
+      - ON_INSTALL_MODULES_FAILURE=fail
     volumes:
       - ./modules:/ps-modules
     ports:

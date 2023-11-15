@@ -37,3 +37,22 @@ auto-install-modules-prestashop-1  | * Starting nginx...
 auto-install-modules-prestashop-1  | * Nginx started
 auto-install-modules-prestashop-1  | * No post script(s) found
 ```
+
+If you try to install an invalid module, you will get an `exit 6` error like so:
+
+```sh
+auto-install-modules-prestashop-1  | --> Unzipping and installing ps_accounts.zip from /ps-modules/ps_accounts.zip...
+auto-install-modules-prestashop-1  | 17:18:12 ERROR     [console] Error thrown while running command "prestashop:module --no-interaction install 'ps_accounts.zip'". Message: "The module ps_accounts.zip could not be found on Addons." ["exception" => PrestaShop\PrestaShop\Core\Domain\Theme\Exception\FailedToEnableThemeModuleException { …},"command" => "prestashop:module --no-interaction install 'ps_accounts.zip'","message" => "The module ps_accounts.zip could not be found on Addons."]
+auto-install-modules-prestashop-1  |
+auto-install-modules-prestashop-1  | In ModuleManager.php line 299:
+auto-install-modules-prestashop-1  |
+auto-install-modules-prestashop-1  |   The module ps_accounts.zip could not be found on Addons.
+auto-install-modules-prestashop-1  |
+auto-install-modules-prestashop-1  |
+auto-install-modules-prestashop-1  | prestashop:module [-h|--help] [-q|--quiet] [-v|vv|vvv|--verbose] [-V|--version] [--ansi] [--no-ansi] [-n|--no-interaction] [-e|--env ENV] [--no-debug] [--id_shop [ID_SHOP]] [--id_shop_group [ID_SHOP_GROUP]] [--] <command> <action> <module name> [<file path>]
+auto-install-modules-prestashop-1  |
+auto-install-modules-prestashop-1  | x module installation failed. Sleep and exit.
+auto-install-modules-prestashop-1 exited with code 6
+```
+
+Unless you decide to skip this behaviour with `ON_INSTALL_MODULES_FAILURE=continue`
