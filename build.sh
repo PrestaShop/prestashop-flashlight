@@ -93,7 +93,12 @@ get_target_images() {
   local LATEST=${6:-};
   declare RES;
   [ "$LATEST" = "true" ] && [ "$OS_FLAVOUR" = "alpine" ] && RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
-  [[ "$PHP_FLAVOUR" == *"$DEFAULT_OS" ]] && RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
+  if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
+    if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
+      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}"; 
+    fi
+  fi
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   echo "$RES";
