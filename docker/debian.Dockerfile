@@ -51,12 +51,12 @@ COPY ./php-flavours.json /tmp
 
 # Install phpunit
 RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < php-flavours.json) \ 
-  && wget -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar" \
+  && wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar" \
   && chmod +x /usr/bin/phpunit
 
 # Install phpstan
 RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < php-flavours.json) \ 
-  && wget -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
+  && wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
   && chmod a+x /usr/bin/phpstan
 
 # --------------------------------
