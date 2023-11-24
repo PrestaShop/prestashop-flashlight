@@ -17,9 +17,9 @@ RUN apk --no-cache add -U \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo
 
-# Install PHP requirements
+# Install PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
-RUN apk --no-cache add -U zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev libmcrypt-dev \
+RUN apk --no-cache add -U composer zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev libmcrypt-dev \
   && if [ "7.1" = "$PHP_VERSION" ]; then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir && docker-php-ext-install gd pdo_mysql zip intl mcrypt; \
   else \
   docker-php-ext-configure gd --with-jpeg && docker-php-ext-install gd pdo_mysql zip intl; \
@@ -41,6 +41,17 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
   && chown www-data:www-data /var/log/php /var/run/php
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
+COPY ./php-flavours.json /tmp
+
+# Install phpunit
+RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < /tmp/php-flavours.json) \
+  && wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar" \
+  && chmod +x /usr/bin/phpunit
+
+# Install phpstan
+RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < /tmp/php-flavours.json) \
+  && wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
+  && chmod a+x /usr/bin/phpstan
 
 # --------------------------------
 # Flashlight install and dump SQL

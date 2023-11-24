@@ -1,34 +1,50 @@
 {
   "7.1": {
+    "alpine": "7.1-fpm-alpine",
     "debian": "7.1-fpm-buster",
-    "alpine": "7.1-fpm-alpine"
+    "phpstan": "1.4.10",
+    "phpunit": "7.5.20"
   },
   "7.2": {
+    "alpine": "7.2-fpm-alpine",
     "debian": "7.2-fpm-buster",
-    "alpine": "7.2-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "8.5.34"
   },
   "7.3": {
+    "alpine": "7.3-fpm-alpine",
     "debian": "7.3-fpm-buster",
-    "alpine": "7.3-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "9.6.13"
   },
   "7.4": {
+    "alpine": "7.4-fpm-alpine",
     "debian": "7.4-fpm-buster",
-    "alpine": "7.4-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "9.6.13"
   },
   "8.0": {
+    "alpine": "8.0-fpm-alpine",
     "debian": "8.0-fpm-bullseye",
-    "alpine": "8.0-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "9.6.13"
   },
   "8.1": {
+    "alpine": "8.1-fpm-alpine",
     "debian": "8.1-fpm-bookworm",
-    "alpine": "8.1-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "10.4.2"
   },
   "8.2": {
+    "alpine": "8.2-fpm-alpine",
     "debian": "8.2-fpm-bookworm",
-    "alpine": "8.2-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "10.4.2"
   },
   "8.3": {
+    "alpine": "8.3-fpm-alpine",
     "debian": "8.3-fpm-bookworm",
-    "alpine": "8.3-fpm-alpine"
+    "phpstan": "HEAD",
+    "phpunit": "10.4.2"
   }
 }
