@@ -12,12 +12,12 @@ ENV PS_FOLDER=/var/www/html
 # Install base tools
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
-  bash less vim git tzdata zip unzip curl jq netcat-traditional ca-certificates \
+  bash less vim git tzdata zip unzip curl wget jq netcat-traditional ca-certificates \
   lsb-release libgnutls30 gnupg libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
 
-# Install PHP requirements
+# Install PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
 # see: https://stackoverflow.com/a/73834081
 # see: https://packages.sury.org/php/dists/
@@ -33,6 +33,10 @@ RUN apt-get update \
   else \
   docker-php-ext-configure gd --with-jpeg && docker-php-ext-install gd pdo_mysql zip intl; \
   fi;
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
+  && php composer-setup.php \
+  && php -r "unlink('composer-setup.php');" \ 
+  && mv ./composer.phar /usr/bin/composer;
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
@@ -43,6 +47,17 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
   && chown www-data:www-data /var/log/php /var/run/php
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
+COPY ./php-flavours.json /tmp
+
+# Install phpunit
+RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < php-flavours.json) \ 
+  && wget -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar" \
+  && chmod +x /usr/bin/phpunit
+
+# Install phpstan
+RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < php-flavours.json) \ 
+  && wget -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
+  && chmod a+x /usr/bin/phpstan
 
 # --------------------------------
 # Flashlight install and dump SQL

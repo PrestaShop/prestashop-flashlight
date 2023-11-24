@@ -43,3 +43,18 @@ jobs:
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
         env:
           DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+
+      - name: Test the image tooling(composer)
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint composer $DOCKER_IMAGE --version
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+
+      - name: Test the image tooling(phpunit)
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpunit $DOCKER_IMAGE --version
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+
+      - name: Test the image tooling(phpstan)
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan $DOCKER_IMAGE --version
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
