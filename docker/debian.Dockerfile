@@ -50,12 +50,12 @@ COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp
 
 # Install phpunit
-RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < php-flavours.json) \ 
+RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < /tmp/php-flavours.json) \
   && wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar" \
   && chmod +x /usr/bin/phpunit
 
 # Install phpstan
-RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < php-flavours.json) \ 
+RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < /tmp/php-flavours.json) \
   && wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
   && chmod a+x /usr/bin/phpstan
 
