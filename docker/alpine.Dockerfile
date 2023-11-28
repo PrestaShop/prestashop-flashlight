@@ -12,7 +12,7 @@ ENV PS_FOLDER=/var/www/html
 
 # Install base tools
 RUN apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq \
+  bash less vim geoip git tzdata zip curl jq make \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo

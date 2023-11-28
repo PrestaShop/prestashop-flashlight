@@ -12,7 +12,7 @@ ENV PS_FOLDER=/var/www/html
 # Install base tools
 RUN apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
-  bash less vim git tzdata zip unzip curl wget jq netcat-traditional ca-certificates \
+  bash less vim git tzdata zip unzip curl wget make jq netcat-traditional ca-certificates \
   lsb-release libgnutls30 gnupg libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
