@@ -59,6 +59,11 @@ RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < /tmp/php-flavours.
   && wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar" \
   && chmod a+x /usr/bin/phpstan
 
+# Install php-cs-fixer
+RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavours.json) \
+  && wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar" \
+  && chmod a+x /usr/bin/php-cs-fixer
+
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------

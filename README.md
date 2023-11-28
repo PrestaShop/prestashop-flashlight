@@ -221,3 +221,6 @@ server {
 - https://github.com/PrestaShop/PrestaShop
 - https://github.com/PrestaShop/performance-project
 - https://github.com/jokesterfr/docker-prestashop
+- https://github.com/PHP-CS-Fixer/PHP-CS-Fixer
+- https://github.com/sebastianbergmann/phpunit
+- https://github.com/phpstan/phpstan
