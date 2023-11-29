@@ -72,6 +72,7 @@ get_php_version() {
 #
 # if the build is for the latest image of the default OS with the recommended PHP version, these tags will be like:
 # * latest
+# * php-8.2
 # * 8.1.1
 # * 8.1.1-8.2
 # * 8.1.1-8.2-alpine
@@ -89,6 +90,7 @@ get_target_images() {
     RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
     if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
       RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}";
+      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
     fi
   fi
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
