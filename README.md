@@ -66,7 +66,7 @@ A few examples are available in the [examples](./examples) folder.
 | ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | no                                          | `fail`                                |
 | DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                          | `false`                               |
 
-# Develop
+# Contribute
 
 ## Build
 
