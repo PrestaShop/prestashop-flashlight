@@ -66,7 +66,7 @@ A few examples are available in the [examples](./examples) folder.
 | ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | no                                          | `fail`                                |
 | DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                          | `false`                               |
 
-# Develop
+# Contribute
 
 ## Build
 
@@ -216,11 +216,18 @@ server {
 }
 ```
 
+# Compatibility
+
+PrestaShop Flashlight is based on the official compatibility charts:
+
+- PrestaShop 1.6-1.7.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/1.7/basics/installation/system-requirements/#php-compatibility-chart)
+- PrestaShop 8.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/8/basics/installation/system-requirements/#php-compatibility-chart)
+
+You can check this implementation anytime in [prestashop-version.json](./prestashop-version.json).
+
 # Credits
 
 - https://github.com/PrestaShop/PrestaShop
 - https://github.com/PrestaShop/performance-project
 - https://github.com/jokesterfr/docker-prestashop
-- https://github.com/PHP-CS-Fixer/PHP-CS-Fixer
-- https://github.com/sebastianbergmann/phpunit
-- https://github.com/phpstan/phpstan
+- https://github.com/PrestaShop/php-dev-tools
