@@ -122,6 +122,10 @@ ENV MYSQL_DATABASE=prestashop
 ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
+ENV COMPOSER_HOME=/var/composer
+
+RUN mkdir $COMPOSER_HOME \
+  && chown www-data:www-data $COMPOSER_HOME
 
 # Get the installed sources
 COPY \
@@ -137,7 +141,7 @@ COPY --chown=www-data:www-data \
 # The new default runner
 COPY ./assets/run.sh /run.sh
 
-HEALTHCHECK --interval=30s --timeout=5s --retries=10 --start-period=10s \
+HEALTHCHECK --interval=5s --timeout=5s --retries=10 --start-period=10s \
   CMD curl -Isf http://localhost:80/robots.txt || exit 1
 EXPOSE 80
 STOPSIGNAL SIGQUIT
