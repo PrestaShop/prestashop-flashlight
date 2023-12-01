@@ -153,9 +153,9 @@ else
 fi
 
 # Init scripts
-if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
-  if [ -d "$INIT_SCRIPTS_DIR" ]; then
-    printf "* Running init script(s)..."
+if [ -d "$INIT_SCRIPTS_DIR" ]; then
+  if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
+    printf "* Running init-script(s)..."
     # shellcheck disable=SC2016
     find "$INIT_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
@@ -167,11 +167,11 @@ if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
   else
-    echo "* No init script(s) found"
+    echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
   fi
   touch $INIT_SCRIPTS_LOCK
 else
-  echo "* Init scripts already run (see INIT_SCRIPTS_ON_RESTART)"
+  echo "* No init-script(s) found"
 fi
 
 if [ "$DRY_RUN" = "true" ]; then
@@ -189,9 +189,9 @@ sleep 1;
 echo "* Nginx started"
 
 # Post-run scripts
-if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
-  if [ -d "$POST_SCRIPTS_DIR" ]; then
-    printf "* Running post script(s)..."
+if [ -d "$POST_SCRIPTS_DIR" ]; then
+  if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
+    printf "* Running post-script(s)..."
     # shellcheck disable=SC2016
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
@@ -203,11 +203,11 @@ if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
   else
-    echo "* No post script(s) found"
+    echo "* Post scripts already run (see POST_SCRIPTS_ON_RESTART)"
   fi
   touch $POST_SCRIPTS_LOCK
 else
-  echo "* Post scripts already run (see POST_SCRIPTS_ON_RESTART)"
+  echo "* No post-script(s) found"
 fi
 
 # set back nginx to front process
