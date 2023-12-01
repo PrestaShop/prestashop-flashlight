@@ -100,5 +100,5 @@ mkdir /var/opt/prestashop
 if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
   cp "$PS_FOLDER/app/config/parameters.php" /var/opt/prestashop/parameters.php
 elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
-  cp "$PS_FOLDER/app/config/parameters.php" /var/opt/prestashop/parameters.php
+  cp "$PS_FOLDER/config/settings.inc.php" /var/opt/prestashop/parameters.php
 fi
