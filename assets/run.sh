@@ -76,7 +76,22 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
   echo "* PHP PDO connectivity checked"
 
-  if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
+  echo "* Editing PrestaShop configuration..."
+  PS_CONFIG_PARAMETERS="$PS_FOLDER/app/config/parameters.php"
+  PS_16_CONFIG_PARAMETERS="$PS_FOLDER/config/settings.inc.php"
+
+  # User is probably doing a volume mount on $PS_FOLDER
+  if [ ! -f "$PS_FOLDER/app/config/parameters.php" ] && [ ! -f "$PS_FOLDER/config/settings.inc.php" ]; then 
+    echo "Warning: could not configure PrestaShop (config file not found). Using our backup plan!"
+    if [ -d "$(dirname "$PS_CONFIG_PARAMETERS")" ]; then
+      cp /var/opt/prestashop/parameters.php "$PS_CONFIG_PARAMETERS"
+    else 
+      cp /var/opt/prestashop/parameters.php "$PS_16_CONFIG_PARAMETERS"
+    fi
+  fi
+
+  if [ -f "$PS_CONFIG_PARAMETERS" ]; then
+    [ ! -f "$PS_CONFIG_PARAMETERS.bak" ] && cp "$PS_CONFIG_PARAMETERS" "$PS_CONFIG_PARAMETERS.bak";
     run_user sed -i \
         -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
         -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
@@ -85,19 +100,16 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
         -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
         -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
       "$PS_FOLDER/app/config/parameters.php"
-  elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
+  elif [ -f "$PS_16_CONFIG_PARAMETERS" ]; then
+    [ ! -f "$PS_16_CONFIG_PARAMETERS.bak" ] && cp "$PS_16_CONFIG_PARAMETERS" "$PS_16_CONFIG_PARAMETERS.bak";
     run_user sed -i \
         -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
         -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
         -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
         -e "s/_DB_PASSWD_', 'prestashop/_DB_PASSWD_', '$MYSQL_PASSWORD/" \
-      "$PS_FOLDER/config/settings.inc.php"
-  else
-    echo "Error: could not configure PrestaShop (config file not found). Exiting"
-    sleep 3
-    exit 4
+      "$PS_16_CONFIG_PARAMETERS"
   fi
-  echo "* PrestaShop MySQL client configuration set"
+  echo "* PrestaShop MySQL configuration set"
 
   # If debug mode is enabled
   if [ "$DEBUG_MODE" = "true" ]; then
