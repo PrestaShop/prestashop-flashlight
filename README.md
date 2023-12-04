@@ -28,7 +28,7 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 # Use
 
-PrestaShop Flashlight can be used as a development environment, or a CI/CD asset to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of useful ressources and examples to get you started:
+PrestaShop Flashlight can be used as a development environment, a CI/CD asset to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of useful ressources and examples to get you started:
 
 - [Develop PrestaShop](./examples/develop-prestashop/)
 - [Develop a PrestaShop Module](./examples/develop-a-module/)
@@ -37,6 +37,8 @@ PrestaShop Flashlight can be used as a development environment, or a CI/CD asset
 - [Auto installation of modules](./examples/auto-install-modules/)
 - Develop a PrestaShop Theme (coming soon)
 - Use in a Github Action (coming soon)
+
+PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This is not a big deal if you give a close look to the _docker-compose.yml_ examples provided!
 
 ## Compatibility
 
