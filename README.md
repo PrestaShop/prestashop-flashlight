@@ -113,10 +113,10 @@ find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
 
 The default url/credentials to access to PrestaShop's back office defined in `./assets/hydrate.sh` and are set to:
 
-| Url      | {PS_DOMAIN}/ps-admin |
-| -------- | -------------------- |
-| Login    | admin@prestashop.com |
-| Password | prestashop           |
+| Url      | {PS_DOMAIN}/admin-dev |
+| -------- | --------------------- |
+| Login    | admin@prestashop.com  |
+| Password | prestashop            |
 
 ## Exit codes
 

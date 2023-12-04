@@ -17,7 +17,7 @@ export PS_DOMAIN="replace-me.com" \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
   PS_COUNTRY=GB \
-  PS_FOLDER_ADMIN=ps-admin \
+  PS_FOLDER_ADMIN=admin-dev \
   DB_SOCKET=/run/mysqld/mysqld.sock
 
 # 2. Start a MySQL server
