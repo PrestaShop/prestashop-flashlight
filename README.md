@@ -218,7 +218,7 @@ Requirements:
 ./lint.sh
 ```
 
-## Credits
+# Credits
 
 - https://github.com/PrestaShop/PrestaShop
 - https://github.com/PrestaShop/performance-project
