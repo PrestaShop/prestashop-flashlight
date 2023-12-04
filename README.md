@@ -2,50 +2,52 @@
 
 Spin a Prestashop testing instance in seconds!
 
-PrestaShop Flashlight is fast: the installation process with default content for a PrestaShop is tackled at build time, compiling the result to a single database dump.
+PrestaShop Flashlight is fast: the PrestaShop installation process is tackled at build time, compiling the result to a single database dump. You will get all the content (catalog, orders...) of the usual PrestaShop development seed.
 
 Supported architectures:
 
 - linux/amd64 (akka `x86_64`)
 - linux/arm64/v8 (akka `arm64`)
 
-At runtime the dump is tweaked and consumed, providing a fast instance bootstrap.
+> **⚡ Disclaimer**: this tool is provided in the unique purpose of bootstraping a development or testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
-> **⚠️ Disclaimer**: the following tool is provided in the sole purpose of bootstraping a PrestaShop testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
+# How to get PrestaShop Flashlight?
 
-> **Note**: no MySQL server is shipped in the resulting image, you have to provide your own instance for the backup to be dumped during the first connection.
+This project can [be locally built](#build) anytime, but it is easier to use our pre-built Docker image available on the [Docker Hub](https://hub.docker.com/r/prestashop/prestashop-flashlight).
 
-## Where do I find pre-built images?
+You may browse a wide variety of tags, some of them being:
 
-Here: https://hub.docker.com/r/prestashop/prestashop-flashlight
+- `latest`
+- `nightly` (coming soon)
+- `1.7.8.10` if you want PrestaShop 1.7.8.10 with its recommended PHP version and tools
+- `1.7.8.10-debian` same as above, but shipped with Debian Linux (_Alpine Linux_ is the default)
+- `1.7.8.10-7.4` PrestaShop version 1.7.8.10 with PHP 7.4 and Alpine Linux
+- `php-8.1` to get the latest PrestaShop version recommending PHP 8.1
 
-## Use
+Some tags may not be built yet, feel free to [fill an issue](./issues) to request it.
 
-Start the environment:
+# Use
 
-```sh
-cp .env.dist .env
-edit .env
-docker compose up
-```
+PrestaShop Flashlight can be used as a development environment, or a CI/CD asset to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of useful ressources and examples to get you started:
 
-You can also tweak the provided `docker-compose.yml` file, and for example, add init scripts:
+- [Develop PrestaShop](./examples/develop-prestashop/)
+- [Develop a PrestaShop Module](./examples/develop-a-module/)
+- [Custom init-scripts](./examples/with-init-scripts/)
+- [Custom post-scripts](./examples/with-post-scripts/)
+- [Auto installation of modules](./examples/auto-install-modules/)
+- Develop a PrestaShop Theme (coming soon)
+- Use in a Github Action (coming soon)
 
-```yaml
-services:
-  prestashop:
-    image: prestashop/prestashop-flashlight:8.1.0-8.1
-    volumes:
-      - ./init-scripts:/tmp/init-scripts:ro
-```
+## Compatibility
 
-**⚠️ Note:** your scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
+PrestaShop Flashlight is based on the official compatibility charts:
 
-## Examples
+- PrestaShop 1.6-1.7.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/1.7/basics/installation/system-requirements/#php-compatibility-chart)
+- PrestaShop 8.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/8/basics/installation/system-requirements/#php-compatibility-chart)
 
-A few examples are available in the [examples](./examples) folder.
+You can check this implementation anytime in [prestashop-version.json](./prestashop-version.json).
 
-## Run environment variables
+## Environment variables
 
 | Variable                   | Description                                                                                              | Required                                    | Default value                         |
 | -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------- |
@@ -65,45 +67,6 @@ A few examples are available in the [examples](./examples) folder.
 | ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | no                                          | `fail`                                |
 | ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | no                                          | `fail`                                |
 | DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                          | `false`                               |
-
-# Contribute
-
-## Build
-
-Requirements:
-
-- [jq](https://jqlang.github.io/jq/)
-
-To build the latest PrestaShop version, simply:
-
-```sh
-./build.sh
-```
-
-For a custom multiplatform build & push:
-
-```sh
-PS_VERSION=8.1.0 \
-PLATFORM=linux/amd64,linux/arm64 \
-PUSH=true \
-TARGET_IMAGE=my-own-repo/testing:latest \
-./build.sh
-```
-
-The `OS_FLAVOUR` defaults to `alpine` (see [Alpine Linux](https://www.alpinelinux.org/)) and `SERVER_FLAVOUR` to `nginx` (see [Nginx](https://www.nginx.com/)).
-
-For more documentation about available build variables, please see [./build.sh](./build.sh).
-
-## Lint
-
-Requirements:
-
-- [shellcheck](https://github.com/koalaman/shellcheck)
-- [hadolint](https://github.com/hadolint/hadolint)
-
-```sh
-./lint.sh
-```
 
 ## Back office access information
 
@@ -130,7 +93,7 @@ On error, PrestaShop Flashlight can quit with these exit codes:
 | 7         | some init script failed (with $ON_INIT_SCRIPT_FAILURE set to `fail`)             |
 | 8         | some post script failed (with $ON_POST_SCRIPT_FAILURE set to `fail`)             |
 
-## Q&A
+# Q&A
 
 ## Does Flashlight support PrestaShop 1.6?
 
@@ -212,16 +175,48 @@ server {
 }
 ```
 
-# Compatibility
+# Contribute
 
-PrestaShop Flashlight is based on the official compatibility charts:
+This Project is under the [MIT Licence](./LICENCE), your contribution and new use cases are very welcome.
 
-- PrestaShop 1.6-1.7.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/1.7/basics/installation/system-requirements/#php-compatibility-chart)
-- PrestaShop 8.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/8/basics/installation/system-requirements/#php-compatibility-chart)
+## Build
 
-You can check this implementation anytime in [prestashop-version.json](./prestashop-version.json).
+Requirements:
 
-# Credits
+- [jq](https://jqlang.github.io/jq/)
+
+To build the latest PrestaShop version:
+
+```sh
+./build.sh
+```
+
+For a custom multi-platform build & push:
+
+```sh
+PS_VERSION=8.1.0 \
+TARGETPLATFORM=linux/amd64,linux/arm64 \
+PUSH=true \
+TARGET_IMAGE=my-own-repo/testing:latest \
+./build.sh
+```
+
+The `OS_FLAVOUR` defaults to `alpine` (see [Alpine Linux](https://www.alpinelinux.org/)) and `SERVER_FLAVOUR` to `nginx` (see [Nginx](https://www.nginx.com/)).
+
+For more documentation about available build variables, please see [./build.sh](./build.sh).
+
+## Lint
+
+Requirements:
+
+- [shellcheck](https://github.com/koalaman/shellcheck)
+- [hadolint](https://github.com/hadolint/hadolint)
+
+```sh
+./lint.sh
+```
+
+## Credits
 
 - https://github.com/PrestaShop/PrestaShop
 - https://github.com/PrestaShop/performance-project
