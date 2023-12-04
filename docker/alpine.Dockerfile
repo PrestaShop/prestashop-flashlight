@@ -1,13 +1,18 @@
-# -------------------------------------
-#  PrestaShop Flashlight: Alpine image
-# -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR
 ARG GIT_SHA
+ARG NODE_VERSION
+ARG TARGET_PLATFORM
+
+# -------------------------------------
+#  PrestaShop Flashlight: Alpine image
+# -------------------------------------
 FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
+ARG NODE_VERSION
+ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 
 # Install base tools
@@ -24,15 +29,6 @@ RUN apk --no-cache add -U composer zlib-dev libjpeg-turbo-dev libpng-dev libzip-
   else \
   docker-php-ext-configure gd --with-jpeg && docker-php-ext-install gd pdo_mysql zip intl; \
   fi;
-
-# TODO check opcache configuration
-# RUN docker-php-ext-enable opcache
-# RUN echo '\
-#   opcache.interned_strings_buffer=16\n\
-#   opcache.load_comments=Off\n\
-#   opcache.max_accelerated_files=16000\n\
-#   opcache.save_comments=Off\n\
-#   ' >> /usr/local/etc/php/conf.d/docker-php-ext-opcache.ini
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
@@ -57,6 +53,19 @@ RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < /tmp/php-flavours.
 RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavours.json) \
   && wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar" \
   && chmod a+x /usr/bin/php-cs-fixer
+
+# Install Node.js and pnpm (yarn and npm are included)
+RUN apk --no-cache add -U gcompat && \
+  if [ "linux/arm64" = "$TARGET_PLATFORM" ]; \
+  then export DISTRO="linux-arm64"; \
+  else export DISTRO="linux-x64"; \
+  fi \
+  && curl --silent --show-error --fail --location --output /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
+  && mkdir /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
+  && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs && rmdir /tmp/nodejs \
+  && rm -f /tmp/node.tar.xz \
+  && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g pnpm@latest --force
+ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 
 # --------------------------------
 # Flashlight install and dump SQL

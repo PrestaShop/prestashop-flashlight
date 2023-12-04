@@ -3,6 +3,9 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
+env:
+  TARGET_PLATFORM: "linux/amd64"
+
 jobs:
   lint_shell:
     name: "Lint: shell"
@@ -38,6 +41,7 @@ jobs:
         env:
           OS_FLAVOUR: ${{ matrix.os_flavour }}
           PS_VERSION: ${{ matrix.ps_version }}
+          TARGET_PLATFORM: ${{ env.TARGET_PLATFORM }}
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE

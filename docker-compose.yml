@@ -39,7 +39,7 @@ services:
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "curl", "-Ss", "http://localhost/robots.txt"]
+      test: ["CMD", "curl", "-Isf", "http://localhost/robots.txt"]
       interval: 30s
       timeout: 10s
       retries: 5

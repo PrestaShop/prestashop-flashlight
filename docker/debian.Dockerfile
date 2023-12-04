@@ -1,12 +1,19 @@
-# -------------------------------------
-#  PrestaShop Flashlight: Debian image
-# -------------------------------------
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR
+ARG GIT_SHA
+ARG NODE_VERSION
+ARG TARGET_PLATFORM
+
+# -------------------------------------
+#  PrestaShop Flashlight: Debian image
+# -------------------------------------
 FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
+ARG GIT_SHA
+ARG NODE_VERSION
+ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 
 # Install base tools
@@ -21,8 +28,7 @@ RUN apt-get update \
 # see: https://olvlvl.com/2019-06-install-php-ext-source
 # see: https://stackoverflow.com/a/73834081
 # see: https://packages.sury.org/php/dists/
-RUN curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg \
-  && . /etc/os-release \
+RUN . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
   && rm /etc/apt/preferences.d/no-debian-php;
 RUN apt-get update \
@@ -63,6 +69,18 @@ RUN PHPSTAN_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpstan' < /tmp/php-flavours.
 RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavours.json) \
   && wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar" \
   && chmod a+x /usr/bin/php-cs-fixer
+
+# Install Node.js and pnpm (yarn and npm are included)
+RUN if [ "linux/arm64" = "$TARGET_PLATFORM" ]; \
+  then export DISTRO="linux-arm64"; \
+  else export DISTRO="linux-x64"; \
+  fi \
+  && curl --silent --show-error --fail --location --output /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
+  && mkdir /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
+  && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs && rmdir /tmp/nodejs \
+  && rm -f /tmp/node.tar.xz \
+  && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g pnpm@latest --force
+ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 
 # --------------------------------
 # Flashlight install and dump SQL

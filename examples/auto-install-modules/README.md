@@ -8,7 +8,7 @@ Add a module like this:
 
 ```sh
 mkdir -p ./modules
-curl -s -L -o modules/psxmarketingwithgoogle-v1.61.1.zip "https://github.com/PrestaShopCorp/psxmarketingwithgoogle/releases/download/v1.61.1/psxmarketingwithgoogle-v1.61.1.zip"
+curl --silent --show-error --fail --location --output modules/psxmarketingwithgoogle-v1.61.1.zip "https://github.com/PrestaShopCorp/psxmarketingwithgoogle/releases/download/v1.61.1/psxmarketingwithgoogle-v1.61.1.zip"
 ```
 
 The expected output of this example is:
