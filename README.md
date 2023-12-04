@@ -102,11 +102,7 @@ Requirements:
 - [hadolint](https://github.com/hadolint/hadolint)
 
 ```sh
-# Lint bash scripts
-find . -type f \( -name '*.sh' \) | xargs shellcheck -x -s bash;
-
-# Lint docker files
-find . -type f \( -name '*.Dockerfile' \) | xargs hadolint;
+./lint.sh
 ```
 
 ## Back office access information
