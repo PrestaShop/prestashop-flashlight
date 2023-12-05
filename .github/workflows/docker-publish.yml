@@ -61,7 +61,7 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: ${{ env.TARGET_PLATFORMS }}
+          platforms: ${{ env.TARGET_PLATFORM }}
           use: true
 
       - name: Login to Docker Hub
@@ -73,7 +73,7 @@ jobs:
       - name: Build and push
         run: ./build.sh
         env:
-          PLATFORM: ${{ inputs.target_platforms }}
+          TARGET_PLATFORM: ${{ inputs.target_platforms }}
           PS_VERSION: ${{ inputs.ps_version }}
           PHP_VERSION: ${{ inputs.php_version }}
           OS_FLAVOUR: ${{ inputs.os_flavour }}

@@ -8,7 +8,8 @@ declare PS_VERSION;      # -- PrestaShop version, defaults to latest
 declare PHP_VERSION;     # -- PHP version, defaults to recommended version for PrestaShop
 declare OS_FLAVOUR;      # -- either "alpine" (default) or "debian"
 declare SERVER_FLAVOUR;  # -- not implemented, either "nginx" (default) or "apache"
-declare PLATFORM;        # -- a comma separated list of target platforms (defaults to "linux/amd64")
+declare TARGET_PLATFORM;  # -- a comma separated list of target platforms (defaults to "linux/amd64")
+declare PLATFORM;        # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;            # -- set it to "true" if you want to push the resulting image
 
@@ -19,6 +20,8 @@ DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
 DEFAULT_PLATFORM=linux/amd64
 GIT_SHA=$(git rev-parse HEAD)
+TARGET_PLATFORM="${TARGET_PLATFORM:-$DEFAULT_PLATFORM}"
+[ -n "$PLATFORM" ] && TARGET_PLATFORM=$PLATFORM;
 
 error() {
   echo -e "\e[1;31m${1:-Unknown error}\e[0m"
@@ -26,7 +29,7 @@ error() {
 }
 
 get_latest_prestashop_version() {
-  curl --silent --location --request GET \
+  curl --silent --show-error --fail --location --request GET \
     'https://api.github.com/repos/prestashop/prestashop/releases/latest' | jq -r '.tag_name'
 }
 
@@ -37,6 +40,19 @@ get_recommended_php_version() {
   while IFS= read -r regExp; do
     if [[ $PS_VERSION =~ $regExp ]]; then
       RECOMMENDED_VERSION=$(jq -r '."'"${regExp}"'".php.recommended' <prestashop-versions.json)
+      break;
+    fi
+  done <<<"$REGEXP_LIST"
+  echo "$RECOMMENDED_VERSION";
+}
+
+get_recommended_nodejs_version() {
+  local PS_VERSION=$1;
+  local RECOMMENDED_VERSION=;
+  REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
+  while IFS= read -r regExp; do
+    if [[ $PS_VERSION =~ $regExp ]]; then
+      RECOMMENDED_VERSION=$(jq -r '."'"${regExp}"'".nodejs.recommended' <prestashop-versions.json)
       break;
     fi
   done <<<"$REGEXP_LIST"
@@ -108,6 +124,7 @@ fi
 OS_FLAVOUR=${OS_FLAVOUR:-$DEFAULT_OS};
 SERVER_FLAVOUR=${SERVER_FLAVOUR:-$DEFAULT_SERVER};
 PHP_FLAVOUR=$(get_php_flavour "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
+NODE_VERSION=$(get_recommended_nodejs_version "$PS_VERSION");
 if [ "$PHP_FLAVOUR" == "null" ]; then
   error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2;
 fi
@@ -123,13 +140,15 @@ CACHE_IMAGE=${TARGET_IMAGES[1]}
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
 docker buildx build \
   --file "./docker/${OS_FLAVOUR}.Dockerfile" \
-  --platform "${PLATFORM:-$DEFAULT_PLATFORM}" \
+  --platform "$TARGET_PLATFORM" \
   --cache-from type=registry,ref="$CACHE_IMAGE" \
   --cache-to type=inline \
   --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
   --build-arg PS_VERSION="$PS_VERSION" \
   --build-arg PHP_VERSION="$PHP_VERSION" \
   --build-arg GIT_SHA="$GIT_SHA" \
+  --build-arg NODE_VERSION="$NODE_VERSION" \
+  --build-arg TARGET_PLATFORM="$TARGET_PLATFORM" \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
