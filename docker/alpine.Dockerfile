@@ -65,7 +65,7 @@ RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   && mkdir /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
   && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs \
   && rm -rf /tmp/nodejs /tmp/node.tar.xz \
-  && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g pnpm@latest --force
+  && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g yarn@latest pnpm@latest --force
 ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 
 # --------------------------------
