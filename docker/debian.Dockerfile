@@ -157,6 +157,10 @@ COPY --chown=www-data:www-data \
   --from=build-and-dump \
   /dump.sql /dump.sql
 
+# Opt directory
+COPY --from=build-and-dump \
+  /var/opt/prestashop /var/opt/prestashop
+
 # The new default runner
 COPY ./assets/run.sh /run.sh
 

@@ -82,11 +82,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
 
   # User is probably doing a volume mount on $PS_FOLDER
   if [ ! -f "$PS_FOLDER/app/config/parameters.php" ] && [ ! -f "$PS_FOLDER/config/settings.inc.php" ]; then 
-    echo "Warning: could not configure PrestaShop (config file not found). Using our backup plan!"
+    echo "⚠ Warning: PrestaShop config file not found, using our backup plan!"
     if [ -d "$(dirname "$PS_CONFIG_PARAMETERS")" ]; then
       cp /var/opt/prestashop/parameters.php "$PS_CONFIG_PARAMETERS"
     else 
-      cp /var/opt/prestashop/parameters.php "$PS_16_CONFIG_PARAMETERS"
+      cp /var/opt/prestashop/settings.inc.php "$PS_16_CONFIG_PARAMETERS"
     fi
   fi
 

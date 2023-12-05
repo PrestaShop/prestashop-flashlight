@@ -5,7 +5,8 @@ set -eu
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
-DUMP_FILE="/dump.sql"
+PS_OPT_DIR=/var/opt/prestashop
+DUMP_FILE=/dump.sql
 
 export PS_DOMAIN="replace-me.com" \
   DB_SERVER=127.0.0.1 \
@@ -96,9 +97,9 @@ mkdir -p "$PS_CACHE_DIR" "$PS_LOGS_DIR"
 chown -R www-data:www-data "$PS_CACHE_DIR" "$PS_LOGS_DIR"
 
 # 12. Protect our settings against a volume mount on $PS_FOLDER
-mkdir /var/opt/prestashop
+mkdir -p "$PS_OPT_DIR"
 if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
-  cp "$PS_FOLDER/app/config/parameters.php" /var/opt/prestashop/parameters.php
+  cp "$PS_FOLDER/app/config/parameters.php" "$PS_OPT_DIR/parameters.php"
 elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
-  cp "$PS_FOLDER/config/settings.inc.php" /var/opt/prestashop/parameters.php
+  cp "$PS_FOLDER/config/settings.inc.php" "$PS_OPT_DIR/settings.inc.php"
 fi
