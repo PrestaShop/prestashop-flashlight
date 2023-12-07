@@ -1,6 +1,6 @@
 ![PrestaShop Flashlight logo](./assets/prestashop_flashlight_logo.png)
 
-Spin a Prestashop testing instance in seconds!
+Spin a PrestaShop testing instance in seconds!
 
 PrestaShop Flashlight is fast: the PrestaShop installation process is tackled at build time, compiling the result to a single database dump. You will get all the content (catalog, orders...) of the usual PrestaShop development seed.
 
@@ -28,15 +28,17 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 # Use
 
-PrestaShop Flashlight can be used as a development environment, a CI/CD asset to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of useful ressources and examples to get you started:
+PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of ressources and examples to get you started:
 
+- [Basic Example](./examples/basic-example/)
 - [Develop PrestaShop](./examples/develop-prestashop/)
 - [Develop a PrestaShop Module](./examples/develop-a-module/)
 - [Custom init-scripts](./examples/with-init-scripts/)
 - [Custom post-scripts](./examples/with-post-scripts/)
+- [Ngrok tunneling](./examples/ngrok-tunnel)
 - [Auto installation of modules](./examples/auto-install-modules/)
 - Develop a PrestaShop Theme (coming soon)
-- Use in a Github Action (coming soon)
+- Use in Github Action (coming soon)
 
 PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This is not a big deal if you give a close look to the _docker-compose.yml_ examples provided!
 

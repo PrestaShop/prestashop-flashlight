@@ -8,3 +8,5 @@ modules/
 # Sonar
 .scannerwork
 sonar-project.properties
+
+PrestaShop/
