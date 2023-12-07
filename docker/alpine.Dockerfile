@@ -33,7 +33,10 @@ RUN apk --no-cache add -U \
   else \
   docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install $PS_PHP_EXT; \
-  fi;
+  fi \
+  && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
+  && sed -i 's/memory_limit = .*/memory_limit = -1/' $PHP_INI_DIR/php.ini \
+  && rm -rf /etc/php* /usr/lib/php*
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
