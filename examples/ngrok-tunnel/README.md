@@ -27,3 +27,11 @@ ngrok-tunnel-prestashop-1  | * Starting nginx...
 ngrok-tunnel-prestashop-1  | * Nginx started
 ngrok-tunnel-prestashop-1  | * No post script(s) found
 ```
+
+From the logs you can guess where to connect to:
+
+- http://4452-37-170-242-21.ngrok-free.app
+
+But you will also be redirected to the public URL by PrestaShop if you make a local local to:
+
+- http://localhost:8000
