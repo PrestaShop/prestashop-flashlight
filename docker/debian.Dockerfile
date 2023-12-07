@@ -17,7 +17,15 @@ ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 ENV COMPOSER_HOME=/var/composer
 
-# Install base tools, PHP requirements and dev-tools
+# Update certificates
+RUN apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
+  ca-certificates bash less vim git tzdata zip unzip curl wget make jq netcat-traditional \
+  lsb-release libgnutls30 gnupg libiconv-hook1 \
+  nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
+  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
+
+# PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
 # see: https://stackoverflow.com/a/73834081
 # see: https://packages.sury.org/php/dists/
@@ -26,10 +34,6 @@ RUN . /etc/os-release \
   && rm /etc/apt/preferences.d/no-debian-php \
   && DEBIAN_FRONTEND=noninteractive apt-get update \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
-  bash less vim git tzdata zip unzip curl wget make jq netcat-traditional ca-certificates \
-  lsb-release libgnutls30 gnupg libiconv-hook1 \
-  nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
