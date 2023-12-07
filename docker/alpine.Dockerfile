@@ -14,6 +14,8 @@ ARG PHP_VERSION
 ARG NODE_VERSION
 ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
+ENV PHP_INI_DIR=/usr/local/etc/php
+ENV COMPOSER_HOME=/var/composer
 
 # Install base tools, PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -22,7 +24,7 @@ RUN apk --no-cache add -U \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo \
-  composer zlib-dev libjpeg-turbo-dev libpng-dev \
+  zlib-dev libjpeg-turbo-dev libpng-dev \
   libzip-dev icu-dev libmcrypt-dev libxml2 libxml2-dev \
   && export PS_PHP_EXT="gd pdo_mysql zip intl fileinfo simplexml" \
   && if [ "7.1" = "$PHP_VERSION" ]; \
@@ -41,6 +43,10 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp
+
+# Install composer
+RUN curl -s https://getcomposer.org/installer | php \
+  && mv composer.phar /usr/bin/composer
 
 # Install phpunit
 RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < /tmp/php-flavours.json) \
@@ -127,7 +133,6 @@ ENV MYSQL_DATABASE=prestashop
 ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
-ENV COMPOSER_HOME=/var/composer
 
 RUN mkdir $COMPOSER_HOME \
   && chown www-data:www-data $COMPOSER_HOME

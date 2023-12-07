@@ -15,6 +15,7 @@ ARG GIT_SHA
 ARG NODE_VERSION
 ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
+ENV COMPOSER_HOME=/var/composer
 
 # Install base tools, PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
@@ -40,10 +41,6 @@ RUN . /etc/os-release \
   docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install $PS_PHP_EXT; \
   fi;
-RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
-  && php composer-setup.php \
-  && php -r "unlink('composer-setup.php');" \ 
-  && mv ./composer.phar /usr/bin/composer;
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
@@ -55,6 +52,10 @@ RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp
+
+# Install composer
+RUN curl -s https://getcomposer.org/installer | php \
+  && mv composer.phar /usr/bin/composer
 
 # Install phpunit
 RUN PHPUNIT_VERSION=$(jq -r '."'"${PHP_VERSION}"'".phpunit' < /tmp/php-flavours.json) \
@@ -142,7 +143,6 @@ ENV MYSQL_DATABASE=prestashop
 ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
-ENV COMPOSER_HOME=/var/composer
 
 RUN mkdir $COMPOSER_HOME \
   && chown www-data:www-data $COMPOSER_HOME
