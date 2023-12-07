@@ -32,6 +32,6 @@ From the logs you can guess where to connect to:
 
 - http://4452-37-170-242-21.ngrok-free.app
 
-But you will also be redirected to the public URL by PrestaShop if you make a local local to:
+But you will also be redirected to the public URL by PrestaShop if you make a local call to:
 
 - http://localhost:8000
