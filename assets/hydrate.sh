@@ -5,7 +5,6 @@ set -eu
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
-PS_OPT_DIR=/var/opt/prestashop
 DUMP_FILE=/dump.sql
 
 export PS_DOMAIN="replace-me.com" \
