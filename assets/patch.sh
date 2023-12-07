@@ -7,8 +7,8 @@ PS_OPT_DIR=/var/opt/prestashop
 
 patch_1_6 () {
   # Add robots file
-  echo "User-agent: *" > "$PS_FOLDER/ps-admin/robots.txt"
-  echo "Disallow: /" >> "$PS_FOLDER/ps-admin/robots.txt"
+  echo "User-agent: *" > "$PS_FOLDER/admin-dev/robots.txt"
+  echo "Disallow: /" >> "$PS_FOLDER/admin-dev/robots.txt"
 
   # Protect our settings against a volume mount on $PS_FOLDER
   mkdir -p "$PS_OPT_DIR"
