@@ -7,14 +7,14 @@ Flashlight can help you bootstraping an environment to perform live development 
 Clone PrestaShop sources:
 
 ```sh
-git clone git@github.com:PrestaShop/PrestaShop.git
+git clone --depth 1 https://github.com/PrestaShop/PrestaShop.git
 ```
 
 Get in your sources and copy this example:
 
 ```sh
 cd ./PrestaShop
-git clone git@github.com:PrestaShop/PrestaShop-Flashlight.git
+git clone --depth 1 https://github.com/PrestaShop/PrestaShop-Flashlight.git
 mv ./PrestaShop-Flashlight/examples/develop-prestashop ./e2e-env
 rm -rf ./PrestaShop-Flashlight
 ```
