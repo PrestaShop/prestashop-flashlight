@@ -14,6 +14,8 @@ ON_INSTALL_MODULES_FAILURE=${ON_INSTALL_MODULES_FAILURE:-fail}
 MYSQL_VERSION=${MYSQL_VERSION:-5.7}
 INIT_SCRIPTS_DIR=${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}
 POST_SCRIPTS_DIR=${POST_SCRIPTS_DIR:-/tmp/post-scripts/}
+INIT_SCRIPTS_USER=${INIT_SCRIPTS_USER:-www-data}
+POST_SCRIPTS_USER=${POST_SCRIPTS_USER:-www-data}
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -172,9 +174,9 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
     find "$INIT_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
       if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
+        (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
+        (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
@@ -208,9 +210,9 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
       if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Skipping."; }
+        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -g www-data -u www-data -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
+        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
