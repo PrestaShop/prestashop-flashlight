@@ -16,28 +16,29 @@ ARG NODE_VERSION
 ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 
-# Install base tools
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
-  bash less vim git tzdata zip unzip curl wget make jq netcat-traditional ca-certificates \
-  lsb-release libgnutls30 gnupg libiconv-hook1 \
-  nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo
-
-# Install PHP requirements and dev-tools
+# Install base tools, PHP requirements and dev-tools
 # see: https://olvlvl.com/2019-06-install-php-ext-source
 # see: https://stackoverflow.com/a/73834081
 # see: https://packages.sury.org/php/dists/
 RUN . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
-  && rm /etc/apt/preferences.d/no-debian-php;
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev \
+  && rm /etc/apt/preferences.d/no-debian-php \
+  && DEBIAN_FRONTEND=noninteractive apt-get update \
+  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
+  bash less vim git tzdata zip unzip curl wget make jq netcat-traditional ca-certificates \
+  lsb-release libgnutls30 gnupg libiconv-hook1 \
+  nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
+  libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
+  php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
-  && if [ "7.1" = "$PHP_VERSION" ]; then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir && docker-php-ext-install gd pdo_mysql zip intl mcrypt; \
+  && export PS_PHP_EXT="gd pdo_mysql zip intl fileinfo simplexml" \
+  && if [ "7.1" = "$PHP_VERSION" ]; \
+  then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
+  && docker-php-ext-install $PS_PHP_EXT mcrypt; \
   else \
-  docker-php-ext-configure gd --with-jpeg && docker-php-ext-install gd pdo_mysql zip intl; \
+  docker-php-ext-configure gd --with-jpeg \
+  && docker-php-ext-install $PS_PHP_EXT; \
   fi;
 RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" \
   && php composer-setup.php \
@@ -165,7 +166,7 @@ COPY --from=build-and-dump \
 COPY ./assets/run.sh /run.sh
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 --start-period=10s \
-  CMD curl -Isf http://localhost:80/robots.txt || exit 1
+  CMD curl -Isf http://localhost:80/admin-dev/robots.txt || exit 1
 EXPOSE 80
 STOPSIGNAL SIGQUIT
 ENTRYPOINT ["/run.sh"]

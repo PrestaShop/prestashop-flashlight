@@ -15,19 +15,22 @@ ARG NODE_VERSION
 ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 
-# Install base tools
+# Install base tools, PHP requirements and dev-tools
+# see: https://olvlvl.com/2019-06-install-php-ext-source
 RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq make \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  gnu-libiconv php-common mariadb-client sudo
-
-# Install PHP requirements and dev-tools
-# see: https://olvlvl.com/2019-06-install-php-ext-source
-RUN apk --no-cache add -U composer zlib-dev libjpeg-turbo-dev libpng-dev libzip-dev icu-dev libmcrypt-dev \
-  && if [ "7.1" = "$PHP_VERSION" ]; then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir && docker-php-ext-install gd pdo_mysql zip intl mcrypt; \
+  gnu-libiconv php-common mariadb-client sudo \
+  composer zlib-dev libjpeg-turbo-dev libpng-dev \
+  libzip-dev icu-dev libmcrypt-dev libxml2 libxml2-dev \
+  && export PS_PHP_EXT="gd pdo_mysql zip intl fileinfo simplexml" \
+  && if [ "7.1" = "$PHP_VERSION" ]; \
+  then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
+  && docker-php-ext-install $PS_PHP_EXT mcrypt; \
   else \
-  docker-php-ext-configure gd --with-jpeg && docker-php-ext-install gd pdo_mysql zip intl; \
+  docker-php-ext-configure gd --with-jpeg \
+  && docker-php-ext-install $PS_PHP_EXT; \
   fi;
 
 # Configure php-fpm and nginx
@@ -148,7 +151,7 @@ COPY --from=build-and-dump \
 COPY ./assets/run.sh /run.sh
 
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 --start-period=10s \
-  CMD curl -Isf http://localhost:80/robots.txt || exit 1
+  CMD curl -Isf http://localhost:80/admin-dev/robots.txt || exit 1
 EXPOSE 80
 STOPSIGNAL SIGQUIT
 ENTRYPOINT ["/run.sh"]
