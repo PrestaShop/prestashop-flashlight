@@ -95,11 +95,3 @@ rm -rf \
   "$PS_LOGS_DIR"
 mkdir -p "$PS_CACHE_DIR" "$PS_LOGS_DIR"
 chown -R www-data:www-data "$PS_CACHE_DIR" "$PS_LOGS_DIR"
-
-# 12. Protect our settings against a volume mount on $PS_FOLDER
-mkdir -p "$PS_OPT_DIR"
-if [ -f "$PS_FOLDER/app/config/parameters.php" ]; then
-  cp "$PS_FOLDER/app/config/parameters.php" "$PS_OPT_DIR/parameters.php"
-elif [ -f "$PS_FOLDER/config/settings.inc.php" ]; then
-  cp "$PS_FOLDER/config/settings.inc.php" "$PS_OPT_DIR/settings.inc.php"
-fi
