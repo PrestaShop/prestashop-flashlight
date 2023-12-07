@@ -1,0 +1,11 @@
+version: 2
+region: eu
+log_level: debug
+web_addr: 0.0.0.0:4040
+tunnels:
+  prestashop:
+    proto: http
+    addr: prestashop:80
+    inspect: true
+    schemes:
+      - https
