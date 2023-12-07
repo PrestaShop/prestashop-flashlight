@@ -79,7 +79,7 @@ RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   else export DISTRO="linux-x64"; \
   fi \
   && curl --silent --show-error --fail --location --output /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
-  && mkdir /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
+  && mkdir -p /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
   && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs \
   && rm -rf /tmp/nodejs /tmp/node.tar.xz \
   && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g yarn@latest pnpm@latest --force
@@ -144,7 +144,7 @@ ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
-RUN mkdir $COMPOSER_HOME \
+RUN mkdir -p $COMPOSER_HOME \
   && chown www-data:www-data $COMPOSER_HOME
 
 # Get the installed sources
