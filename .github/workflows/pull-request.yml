@@ -31,7 +31,7 @@ jobs:
     strategy:
       matrix:
         os_flavour: ["alpine", "debian"]
-        ps_version: ["1.6.1.24", "1.7.8.10", "8.1.1"]
+        ps_version: ["1.6.1.24", "1.7.8.10", "8.1.2"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
