@@ -3,7 +3,6 @@ ARG PHP_VERSION
 ARG PHP_FLAVOUR
 ARG GIT_SHA
 ARG NODE_VERSION
-ARG TARGET_PLATFORM
 
 # -------------------------------------
 #  PrestaShop Flashlight: Alpine image
@@ -12,7 +11,6 @@ FROM php:${PHP_FLAVOUR} AS base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG NODE_VERSION
-ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 ENV PHP_INI_DIR=/usr/local/etc/php
 ENV COMPOSER_HOME=/var/composer
@@ -70,9 +68,9 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
 ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   && apk --no-cache add -U gcompat \
-  && if [ "linux/arm64" = "$TARGET_PLATFORM" ]; \
-  then export DISTRO="linux-arm64"; \
-  else export DISTRO="linux-x64"; \
+  && if [ "$(arch)" = "x86_64" ]; \
+  then export DISTRO="linux-x64"; \
+  else export DISTRO="linux-arm64"; \
   fi \
   && curl --silent --show-error --fail --location --output /tmp/node.tar.xz \
   "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \

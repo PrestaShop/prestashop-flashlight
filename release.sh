@@ -1,7 +1,8 @@
 #!/bin/sh
 publish() {
   gh workflow run docker-publish.yml \
-  --repo prestashop/prestashop-flashlight "$@"
+  --repo prestashop/prestashop-flashlight \
+  --field target_platforms=linux/amd64,linux/arm64 "$@"
 }
 
 publish --field ps_version=latest

@@ -201,7 +201,7 @@ For a custom multi-platform build & push:
 
 ```sh
 PS_VERSION=8.1.0 \
-TARGETPLATFORM=linux/amd64,linux/arm64 \
+TARGET_PLATFORM=linux/amd64,linux/arm64 \
 PUSH=true \
 TARGET_IMAGE=my-own-repo/testing:latest \
 ./build.sh
