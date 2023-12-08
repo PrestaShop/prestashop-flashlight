@@ -7,6 +7,7 @@ services:
     environment:
       - PS_DOMAIN=localhost:8000
       - INIT_SCRIPTS_DIR=/tmp/init-scripts
+      - INIT_SCRIPTS_USER=root
     volumes:
       - ..:/var/www/html:rw
       - ./init-scripts:/tmp/init-scripts:ro
