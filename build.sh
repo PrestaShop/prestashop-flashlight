@@ -18,7 +18,8 @@ declare PUSH;            # -- set it to "true" if you want to push the resulting
 DEFAULT_OS="alpine";
 DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
-DEFAULT_PLATFORM=linux/amd64
+DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
+docker system info --format '{{.OSType}}/{{.Architecture}}'
 GIT_SHA=$(git rev-parse HEAD)
 TARGET_PLATFORM="${TARGET_PLATFORM:-$DEFAULT_PLATFORM}"
 [ -n "$PLATFORM" ] && TARGET_PLATFORM=$PLATFORM;
@@ -148,7 +149,6 @@ docker buildx build \
   --build-arg PHP_VERSION="$PHP_VERSION" \
   --build-arg GIT_SHA="$GIT_SHA" \
   --build-arg NODE_VERSION="$NODE_VERSION" \
-  --build-arg TARGET_PLATFORM="$TARGET_PLATFORM" \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \

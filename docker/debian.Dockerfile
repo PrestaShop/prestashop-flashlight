@@ -3,7 +3,6 @@ ARG PHP_VERSION
 ARG PHP_FLAVOUR
 ARG GIT_SHA
 ARG NODE_VERSION
-ARG TARGET_PLATFORM
 
 # -------------------------------------
 #  PrestaShop Flashlight: Debian image
@@ -13,7 +12,6 @@ ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
 ARG NODE_VERSION
-ARG TARGET_PLATFORM
 ENV PS_FOLDER=/var/www/html
 ENV COMPOSER_HOME=/var/composer
 
@@ -82,9 +80,9 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
 # Install Node.js and pnpm (yarn and npm are included)
 ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
-  && if [ "linux/arm64" = "$TARGET_PLATFORM" ]; \
-  then export DISTRO="linux-arm64"; \
-  else export DISTRO="linux-x64"; \
+  && if [ "$(arch)" = "x86_64" ]; \
+  then export DISTRO="linux-x64"; \
+  else export DISTRO="linux-arm64"; \
   fi \
   && curl --silent --show-error --fail --location --output /tmp/node.tar.xz \
   "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
