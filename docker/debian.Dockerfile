@@ -80,17 +80,18 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
   && chmod a+x /usr/bin/php-cs-fixer
 
 # Install Node.js and pnpm (yarn and npm are included)
+ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   && if [ "linux/arm64" = "$TARGET_PLATFORM" ]; \
   then export DISTRO="linux-arm64"; \
   else export DISTRO="linux-x64"; \
   fi \
-  && curl --silent --show-error --fail --location --output /tmp/node.tar.xz "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
+  && curl --silent --show-error --fail --location --output /tmp/node.tar.xz \
+  "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
   && mkdir -p /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
   && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs \
   && rm -rf /tmp/nodejs /tmp/node.tar.xz \
-  && PATH="$PATH:/usr/local/lib/nodejs/bin" npm install -g yarn@latest pnpm@latest --force
-ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
+  && npm install -g yarn@latest pnpm@latest --force
 
 # --------------------------------
 # Flashlight install and dump SQL
