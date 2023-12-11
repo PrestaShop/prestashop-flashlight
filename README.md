@@ -198,7 +198,7 @@ To build Flashlight for the latest PrestaShop version available:
 ./build.sh
 ```
 
-Same but for a predefined PHP an PrestaShop version:
+Same but for a predefined PHP and PrestaShop version:
 
 ```sh
 PS_VERSION=8.1.0 \
