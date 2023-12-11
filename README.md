@@ -190,20 +190,35 @@ This Project is under the [MIT Licence](./LICENCE), your contribution and new us
 Requirements:
 
 - [jq](https://jqlang.github.io/jq/)
+- [Docker buildx](https://github.com/docker/buildx)
 
-To build the latest PrestaShop version:
+To build Flashlight for the latest PrestaShop version available:
 
 ```sh
 ./build.sh
 ```
 
-For a custom multi-platform build & push:
+Same but for a predefined PHP an PrestaShop version:
 
 ```sh
 PS_VERSION=8.1.0 \
-TARGET_PLATFORM=linux/amd64,linux/arm64 \
-PUSH=true \
+PHP_VERSION=8.1 \
 TARGET_IMAGE=my-own-repo/testing:latest \
+./build.sh
+```
+
+### Cross compiling for another architecture
+
+Init buildx:
+
+```sh
+docker buildx create --use
+```
+
+Then:
+
+```sh
+TARGET_PLATFORM=linux/amd64,linux/arm64 \
 ./build.sh
 ```
 

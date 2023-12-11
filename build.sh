@@ -19,10 +19,8 @@ DEFAULT_OS="alpine";
 DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
 DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
-docker system info --format '{{.OSType}}/{{.Architecture}}'
 GIT_SHA=$(git rev-parse HEAD)
-TARGET_PLATFORM="${TARGET_PLATFORM:-$DEFAULT_PLATFORM}"
-[ -n "$PLATFORM" ] && TARGET_PLATFORM=$PLATFORM;
+TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 
 error() {
   echo -e "\e[1;31m${1:-Unknown error}\e[0m"
@@ -140,6 +138,7 @@ fi
 CACHE_IMAGE=${TARGET_IMAGES[1]}
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
 docker buildx build \
+  --progress=plain \
   --file "./docker/${OS_FLAVOUR}.Dockerfile" \
   --platform "$TARGET_PLATFORM" \
   --cache-from type=registry,ref="$CACHE_IMAGE" \
