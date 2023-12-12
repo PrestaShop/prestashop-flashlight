@@ -41,7 +41,7 @@ PrestaShop Flashlight can be used as a **development environment**, a **CI/CD as
 - Develop a PrestaShop Theme (coming soon)
 - Use in Github Action (coming soon)
 
-PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This can easily be achieved using docker compose : _docker-compose.yml_ files are provided in the provided [examples](./examples) folder.
+PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This can easily be achieved using docker compose : _docker-compose.yml_ files are provided in [examples](./examples).
 
 ## Compatibility
 
