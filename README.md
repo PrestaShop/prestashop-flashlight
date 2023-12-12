@@ -1,21 +1,22 @@
 ![PrestaShop Flashlight logo](./assets/prestashop_flashlight_logo.png)
 
-Spin a PrestaShop testing instance in seconds!
+Spin up a PrestaShop testing instance in seconds!
 
-PrestaShop Flashlight is fast: the PrestaShop installation process is tackled at build time, compiling the result to a single database dump. You will get all the content (catalog, orders...) of the usual PrestaShop development seed.
+PrestaShop Flashlight is fast: the PrestaShop installation wizard is run at build time, compiling the result to a single database dump. You will get all the content (catalog, orders...) of the usual PrestaShop development seed.
 
 Supported architectures:
 
-- linux/amd64 (akka `x86_64`)
-- linux/arm64/v8 (akka `arm64`)
+- linux/amd64 (aka `x86_64`)
+- linux/arm64/v8 (aka `arm64`)
 
-> **⚡ Disclaimer**: this tool is provided in the unique purpose of bootstraping a development or testing environment. <br>If you look for a production grade image, please refer to https://github.com/PrestaShop/docker.
+> **⚡ Disclaimer**: this tool is provided with the sole purpose of bootstraping a **development or testing environment** and is **unsuitable for production**.  
+If you're looking for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
 # How to get PrestaShop Flashlight?
 
-This project can [be locally built](#build) anytime, but it is easier to use our pre-built Docker image available on the [Docker Hub](https://hub.docker.com/r/prestashop/prestashop-flashlight).
+This project can [be built locally](#build) anytime, but it's easier to use our pre-built Docker image available on the [Docker Hub](https://hub.docker.com/r/prestashop/prestashop-flashlight).
 
-You may browse a wide variety of tags, some of them being:
+You may browse a wide variety of tags, including:
 
 - `latest`
 - `nightly` (coming soon)
@@ -28,7 +29,7 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 # Use
 
-PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment... Or any use case you can think of. Hence a list of ressources and examples to get you started:
+PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment, or any use case you can think of. Following is a list of resources and examples to get you started:
 
 - [Basic Example](./examples/basic-example/)
 - [Develop PrestaShop](./examples/develop-prestashop/)
@@ -40,14 +41,14 @@ PrestaShop Flashlight can be used as a **development environment**, a **CI/CD as
 - Develop a PrestaShop Theme (coming soon)
 - Use in Github Action (coming soon)
 
-PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This is not a big deal if you give a close look to the _docker-compose.yml_ examples provided!
+PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This can easily be achieved using docker compose : _docker-compose.yml_ files are provided in the provided [examples](./examples) folder.
 
 ## Compatibility
 
 PrestaShop Flashlight is based on the official compatibility charts:
 
-- PrestaShop 1.6-1.7.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/1.7/basics/installation/system-requirements/#php-compatibility-chart)
-- PrestaShop 8.x [PHP compatiblity chart](https://devdocs.prestashop-project.org/8/basics/installation/system-requirements/#php-compatibility-chart)
+- PrestaShop 1.6-1.7.x [PHP compatibility chart](https://devdocs.prestashop-project.org/1.7/basics/installation/system-requirements/#php-compatibility-chart)
+- PrestaShop 8.x [PHP compatibility chart](https://devdocs.prestashop-project.org/8/basics/installation/system-requirements/#php-compatibility-chart)
 
 You can check this implementation anytime in [prestashop-version.json](./prestashop-version.json).
 
@@ -76,7 +77,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 
 ## Back office access information
 
-The default url/credentials to access to PrestaShop's back office defined in `./assets/hydrate.sh` and are set to:
+The default url/credentials to access to PrestaShop's back office defined in [`./assets/hydrate.sh`](./assets/hydrate.sh) and are set to:
 
 | Url      | {PS_DOMAIN}/admin-dev |
 | -------- | --------------------- |
@@ -103,11 +104,11 @@ On error, PrestaShop Flashlight can quit with these exit codes:
 
 ## Does Flashlight support PrestaShop 1.6?
 
-Partially yes. As there is no console whithin the sources, the modules cannot be automatically installed right now. Feel free to contribute!
+Partially yes. As there is no console within the sources, the modules cannot be automatically installed right now. Feel free to contribute!
 
 ## Api calls within a docker network
 
-**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint, unless... You set the ` Host` or the `id_shop` you are targeting.
+**Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint unless you set the `Host` or the `id_shop` you are targeting.
 
 Let's explain this subtle - rather mandatory - knowledge:
 
@@ -187,7 +188,7 @@ This Project is under the [MIT Licence](./LICENCE), your contribution and new us
 
 ## Build
 
-Requirements:
+Dependencies:
 
 - [jq](https://jqlang.github.io/jq/)
 - [Docker buildx](https://github.com/docker/buildx)

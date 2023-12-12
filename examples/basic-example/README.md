@@ -1,8 +1,8 @@
 # Example: basic example
 
-This example runs the latest PrestaShop Flashlight available image, which is based on the latest upstream release of PrestaShop.
+This example runs the latest available image of PrestaShop Flashlight, which is based on the latest upstream release of PrestaShop.
 
-## Test the example
+## Test this example
 
 The expected output of this example is:
 
@@ -29,15 +29,15 @@ basic-example-prestashop-1  | * No post script(s) found
 
 You can access to PrestaShop in your browser:
 
-- http://localhost:8000
-- http://localhost:8000/admin-dev/ (back office, login/password described [here](../../README.md))
+- [](http://localhost:8000)
+- [](http://localhost:8000/admin-dev/) (back office, login/password described [here](../../README.md))
 
-## Same with phpMyAdmin
+## Running phpMyAdmin
 
-If you want to start a phpMyAdmin tool, this can be done easily like so:
+If you want to start a phpMyAdmin instance, it can be done easily like so:
 
 ```sh
 docker compose up # or "docker compose up prestashop php-my-admin"
 ```
 
-Now you can access to phpMyAdmin here: http://localhost:6060
+Now you can access to phpMyAdmin at [](http://localhost:6060)
