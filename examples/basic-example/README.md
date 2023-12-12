@@ -29,8 +29,8 @@ basic-example-prestashop-1  | * No post script(s) found
 
 You can access to PrestaShop in your browser:
 
-- [](http://localhost:8000)
-- [](http://localhost:8000/admin-dev/) (back office, login/password described [here](../../README.md))
+- http://localhost:8000
+- http://localhost:8000/admin-dev/ (back office, login/password described [here](../../README.md))
 
 ## Running phpMyAdmin
 
@@ -40,4 +40,4 @@ If you want to start a phpMyAdmin instance, it can be done easily like so:
 docker compose up # or "docker compose up prestashop php-my-admin"
 ```
 
-Now you can access to phpMyAdmin at [](http://localhost:6060)
+Now you can access to phpMyAdmin at http://localhost:6060

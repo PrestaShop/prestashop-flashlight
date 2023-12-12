@@ -34,4 +34,4 @@ From the logs you can guess where to connect to:
 
 But you will also be redirected to the public URL by PrestaShop if you make a local call to:
 
-- [](http://localhost:8000)
+- http://localhost:8000

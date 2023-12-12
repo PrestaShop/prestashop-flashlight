@@ -1,7 +1,7 @@
 # Example: with init scripts
 
 This is an example of a running PrestaShop Flashlight with custom init scripts.
-See [](./init-scripts).
+See [./init-scripts](./init-scripts).
 
 **⚠️ Note:** your init-scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
 
