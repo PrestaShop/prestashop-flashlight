@@ -1,6 +1,6 @@
 # Example: develop prestashop
 
-Flashlight can help you bootstraping an environment to perform live development of PrestaShop itself. We hope the tool to help your contribution, with a fast and switchable environment!
+Flashlight can help you bootstrap an environment to perform live development of PrestaShop itself. We hope the tool to help your contribution, with a fast and flexible environment!
 
 ## Test the example
 
@@ -19,7 +19,7 @@ mv ./PrestaShop-Flashlight/examples/develop-prestashop ./e2e-env
 rm -rf ./PrestaShop-Flashlight
 ```
 
-You are now ready to run PrestaShop within Flashlight environment:
+You are now ready to run PrestaShop within your Flashlight environment:
 
 ```
 cd e2e-env
