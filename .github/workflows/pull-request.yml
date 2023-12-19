@@ -62,3 +62,17 @@ jobs:
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan $DOCKER_IMAGE --version
         env:
           DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+
+  docker_build_cross_compile:
+    name: "Docker build x-compile for aarch64"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Test the docker build chain while cross compiling to aarch64
+        run: ./build.sh
+        env:
+          OS_FLAVOUR: "alpine"
+          PS_VERSION: "8.1.2"
+          TARGET_PLATFORM: "linux/arm64"
