@@ -3,54 +3,36 @@
     "php": {
       "recommended": "7.1",
       "compatible": ["5.2", "5.3", "5.4", "5.5", "5.6", "7.0", "7.1"]
-    },
-    "nodejs": {
-      "recommended": "0.0.0"
     }
   },
   "^1.7.[0-3]": {
     "php": {
       "recommended": "7.1",
       "compatible": ["5.4", "5.5", "5.6", "7.0", "7.1"]
-    },
-    "nodejs": {
-      "recommended": "10.24.1"
     }
   },
   "^1.7.7.4": {
     "php": {
       "recommended": "7.1",
       "compatible": ["5.6", "7.0", "7.1"]
-    },
-    "nodejs": {
-      "recommended": "10.24.1"
     }
   },
   "^1.7.[5-6]": {
     "php": {
       "recommended": "7.2",
       "compatible": ["5.6", "7.0", "7.1", "7.2"]
-    },
-    "nodejs": {
-      "recommended": "10.24.1"
     }
   },
   "^1.7.7": {
     "php": {
       "recommended": "7.3",
       "compatible": ["7.1", "7.2", "7.3"]
-    },
-    "nodejs": {
-      "recommended": "10.24.1"
     }
   },
   "^1.7.8": {
     "php": {
       "recommended": "7.4",
       "compatible": ["7.1", "7.2", "7.3", "7.4"]
-    },
-    "nodejs": {
-      "recommended": "14.19.0"
     }
   },
   "^8.0": {
