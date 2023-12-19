@@ -1,3 +1,4 @@
+name: flashlight-develop-a-module
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
