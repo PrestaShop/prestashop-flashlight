@@ -1,3 +1,4 @@
+name: flashlight-init-scripts
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest

@@ -1,3 +1,4 @@
+name: flashlight-basic-example
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest

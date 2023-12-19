@@ -1,3 +1,4 @@
+name: flashlight-ngrok-tunnel
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
