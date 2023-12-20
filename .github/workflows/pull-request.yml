@@ -70,6 +70,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: "linux/amd64,linux/arm64"
+          use: true
+
       - name: Test the docker build chain while cross compiling to aarch64
         run: ./build.sh
         env:
