@@ -16,8 +16,9 @@ ENV PS_FOLDER=/var/www/html
 ENV COMPOSER_HOME=/var/composer
 
 # Update certificates
-RUN apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
+RUN export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get install --no-install-recommends -qqy \
   ca-certificates bash less vim git tzdata zip unzip curl wget make jq netcat-traditional \
   lsb-release libgnutls30 gnupg libiconv-hook1 \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
@@ -30,8 +31,9 @@ RUN apt-get update \
 RUN . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
   && rm /etc/apt/preferences.d/no-debian-php \
-  && DEBIAN_FRONTEND=noninteractive apt-get update \
-  && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -qqy \
+  && export DEBIAN_FRONTEND=noninteractive \
+  && apt-get update \
+  && apt-get install --no-install-recommends -qqy \
   php-gd libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
@@ -78,17 +80,12 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
   && chmod a+x /usr/bin/php-cs-fixer
 
 # Install Node.js and pnpm (yarn and npm are included)
-ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
-  && if [ "$(arch)" = "x86_64" ]; \
-  then export DISTRO="linux-x64"; \
-  else export DISTRO="linux-arm64"; \
-  fi \
-  && curl --silent --show-error --fail --location --output /tmp/node.tar.xz \
-  "https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-${DISTRO}.tar.xz" \
-  && mkdir -p /tmp/nodejs && tar -xJf /tmp/node.tar.xz -C /tmp/nodejs \
-  && mv "/tmp/nodejs/node-v${NODE_VERSION}-${DISTRO}" /usr/local/lib/nodejs \
-  && rm -rf /tmp/nodejs /tmp/node.tar.xz \
+  && export DEBIAN_FRONTEND=noninteractive \ 
+  && apt-get update \
+  && apt-get install --no-install-recommends -qqy nodejs python3 \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/* \
   && npm install -g yarn@latest pnpm@latest --force
 
 # --------------------------------
