@@ -1,3 +1,4 @@
+name: flashlight-auto-install-modules
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest

@@ -147,7 +147,7 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
   if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
     if [ -f "$PS_FOLDER/bin/console" ]; then
       for file in "$INSTALL_MODULES_DIR"/*.zip; do
-        module=$(basename "$file" | tr "-" "\n" | head -n 1)
+        module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
         echo "--> Unzipping and installing $module from $file..."
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
         run_user unzip -qq "$file" -d /var/www/html/modules

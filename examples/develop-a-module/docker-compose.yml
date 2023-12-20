@@ -1,4 +1,4 @@
-name: flashlight-basic-example
+name: flashlight-develop-a-module
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
@@ -9,6 +9,10 @@ services:
       - PS_DOMAIN=localhost:8000
     ports:
       - 8000:80
+    volumes:
+      - type: bind
+        source: ./modules/testmodule # local path to the module
+        target: /var/www/html/modules/testmodule # path to be mounted in the container
 
   mysql:
     image: mariadb:lts
@@ -32,22 +36,3 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=prestashop
-
-  phpmyadmin:
-    image: phpmyadmin:latest
-    depends_on:
-      mysql:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-Isf", "http://localhost/robots.txt"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-    environment:
-      - PMA_HOST=mysql
-      - PMA_PORT=3306
-      - PMA_USER=prestashop
-      - PMA_PASSWORD=prestashop
-      - MYSQL_ROOT_PASSWORD=prestashop
-    ports:
-      - 6060:80
