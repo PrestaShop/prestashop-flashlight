@@ -51,7 +51,7 @@ get_recommended_nodejs_version() {
   REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
   while IFS= read -r regExp; do
     if [[ $PS_VERSION =~ $regExp ]]; then
-      RECOMMENDED_VERSION=$(jq -r '."'"${regExp}"'".nodejs.recommended' <prestashop-versions.json)
+      RECOMMENDED_VERSION=$(jq -r '."'"${regExp}"'" | if has("nodejs") then .nodejs.recommended else "0.0.0" end' <prestashop-versions.json)
       break;
     fi
   done <<<"$REGEXP_LIST"
