@@ -83,7 +83,7 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   && export DEBIAN_FRONTEND=noninteractive \ 
   && apt-get update \
-  && apt-get install --no-install-recommends -qqy nodejs python3 \
+  && apt-get install --no-install-recommends -qqy nodejs python3 npm \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && npm install -g yarn@latest pnpm@latest --force

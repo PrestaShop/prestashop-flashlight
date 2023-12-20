@@ -65,10 +65,9 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
   && chmod a+x /usr/bin/php-cs-fixer
 
 # Install Node.js and pnpm (yarn and npm are included)
-ENV PATH "$PATH:/usr/local/lib/nodejs/bin"
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
-  && apk --no-cache add -U python3 nodejs \
-  && npm install -g yarn@latest pnpm@latest --force
+  && apk --no-cache add -U python3 nodejs npm yarn \
+  && npm install -g pnpm@latest
 
 # --------------------------------
 # Flashlight install and dump SQL
