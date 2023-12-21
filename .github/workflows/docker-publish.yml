@@ -70,7 +70,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push ${{ inputs.ps_version }} ${{ inputs.os_flavour }}
         run: ./build.sh
         env:
           TARGET_PLATFORM: ${{ inputs.target_platforms }}
