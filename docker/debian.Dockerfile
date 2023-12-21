@@ -41,7 +41,10 @@ RUN . /etc/os-release \
   && if [ "7.1" = "$PHP_VERSION" ]; \
   then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
   && docker-php-ext-install $PS_PHP_EXT mcrypt; \
-  else \
+  elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; \
+  then docker-php-ext-configure gd --with-jpeg-dir --with-zlib-dir \
+  && docker-php-ext-install $PS_PHP_EXT; \
+  else \  
   docker-php-ext-configure gd --with-jpeg \
   && docker-php-ext-install $PS_PHP_EXT; \
   fi \
