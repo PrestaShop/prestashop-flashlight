@@ -3,9 +3,6 @@ on:
   pull_request:
     types: [opened, reopened, synchronize]
 
-env:
-  TARGET_PLATFORM: "linux/amd64"
-
 jobs:
   lint_shell:
     name: "Lint: shell"
@@ -26,12 +23,11 @@ jobs:
           dockerfile: "*.Dockerfile"
 
   docker_build:
-    name: "Docker build: ${{ matrix.os_flavour }} for ${{ matrix.ps_version }}"
+    name: "Docker build: ${{ matrix.os_flavour }} for alpine"
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        os_flavour: ["alpine", "debian"]
-        ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.10", "", "8.1.2"]
+        ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.10", "8.1.2"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -39,29 +35,40 @@ jobs:
       - name: Call the docker build chain
         run: ./build.sh
         env:
-          OS_FLAVOUR: ${{ matrix.os_flavour }}
           PS_VERSION: ${{ matrix.ps_version }}
-          TARGET_PLATFORM: ${{ env.TARGET_PLATFORM }}
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
         env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
 
       - name: Test the image tooling(composer)
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint composer $DOCKER_IMAGE --version
         env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
 
       - name: Test the image tooling(phpunit)
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpunit $DOCKER_IMAGE --version
         env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
 
       - name: Test the image tooling(phpstan)
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan $DOCKER_IMAGE --version
         env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-${{ matrix.os_flavour }}
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+
+  docker_build_debian:
+    name: "Docker build: 8.1.2 for debian"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Call the docker build chain
+        run: ./build.sh
+        env:
+          OS_FLAVOUR: "debian"
+          PS_VERSION: "8.1.2"
 
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
@@ -79,6 +86,4 @@ jobs:
       - name: Test the docker build chain while cross compiling to aarch64
         run: ./build.sh
         env:
-          OS_FLAVOUR: "alpine"
-          PS_VERSION: "8.1.2"
           TARGET_PLATFORM: "linux/arm64"
