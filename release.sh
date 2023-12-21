@@ -6,11 +6,12 @@ publish() {
 }
 
 publish --field ps_version=latest
-publish --field ps_version=1.7.8.10
+publish --field ps_version=8.1.3
+publish --field ps_version=1.7.8.11
 publish --field ps_version=1.6.1.24
 
 publish --field os_flavour=debian --field ps_version=latest
-publish --field os_flavour=debian --field ps_version=1.7.8.10
+publish --field os_flavour=debian --field ps_version=1.7.8.11
 publish --field os_flavour=debian --field ps_version=1.6.1.24
 
 # Minor versions from 1.7
