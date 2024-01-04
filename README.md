@@ -213,7 +213,7 @@ TARGET_IMAGE=my-own-repo/testing:latest \
 Init buildx:
 
 ```sh
-docker buildx create --use
+docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64 
 ```
 
 Then:
