@@ -10,7 +10,7 @@ Supported architectures:
 - linux/arm64/v8 (aka `arm64`)
 
 > **⚡ Disclaimer**: this tool is provided with the sole purpose of bootstraping a **development or testing environment** and is **unsuitable for production**.  
-If you're looking for a production grade image, please refer to https://github.com/PrestaShop/docker.
+> If you're looking for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
 # How to get PrestaShop Flashlight?
 
@@ -20,9 +20,9 @@ You may browse a wide variety of tags, including:
 
 - `latest`
 - `nightly` (coming soon)
-- `1.7.8.10` if you want PrestaShop 1.7.8.10 with its recommended PHP version and tools
-- `1.7.8.10-debian` same as above, but shipped with Debian Linux (_Alpine Linux_ is the default)
-- `1.7.8.10-7.4` PrestaShop version 1.7.8.10 with PHP 7.4 and Alpine Linux
+- `1.7.8.11` if you want PrestaShop 1.7.8.11 with its recommended PHP version and tools
+- `1.7.8.11-debian` same as above, but shipped with Debian Linux (_Alpine Linux_ is the default)
+- `1.7.8.11-7.4` PrestaShop version 1.7.8.11 with PHP 7.4 and Alpine Linux
 - `php-8.1` to get the latest PrestaShop version recommending PHP 8.1
 
 Some tags may not be built yet, feel free to [fill an issue](./issues) to request it.
