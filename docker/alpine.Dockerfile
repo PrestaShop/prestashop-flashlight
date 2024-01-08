@@ -16,7 +16,8 @@ ENV PHP_INI_DIR=/usr/local/etc/php
 ENV COMPOSER_HOME=/var/composer
 
 # Install base tools, PHP requirements and dev-tools
-# see: https://olvlvl.com/2019-06-install-php-ext-source
+ENV PHP_ENV=development
+COPY ./assets/php-configuration.sh /tmp/
 RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq make \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
@@ -24,20 +25,7 @@ RUN apk --no-cache add -U \
   gnu-libiconv php-common mariadb-client sudo \
   zlib-dev libjpeg-turbo-dev libpng-dev \
   libzip-dev icu-dev libmcrypt-dev libxml2 libxml2-dev \
-  && export PS_PHP_EXT="gd pdo_mysql zip intl fileinfo simplexml" \
-  && if [ "7.1" = "$PHP_VERSION" ]; \
-  then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
-  && docker-php-ext-install $PS_PHP_EXT mcrypt; \
-  elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; \
-  then docker-php-ext-configure gd --with-jpeg-dir --with-zlib-dir \
-  && docker-php-ext-install $PS_PHP_EXT; \
-  else \
-  docker-php-ext-configure gd --with-jpeg \
-  && docker-php-ext-install $PS_PHP_EXT; \
-  fi \
-  && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
-  && sed -i 's/memory_limit = .*/memory_limit = -1/' $PHP_INI_DIR/php.ini \
-  && rm -rf /etc/php* /usr/lib/php*
+  && /tmp/php-configuration.sh
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
