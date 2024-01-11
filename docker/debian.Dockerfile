@@ -103,6 +103,7 @@ ARG PS_FOLDER=/var/www/html
 ARG ZIP_SOURCE
 
 # Get PrestaShop source code
+# hadolint ignore=DL3020
 ADD ${ZIP_SOURCE} /tmp/prestashop.zip
 
 # Extract the souces
