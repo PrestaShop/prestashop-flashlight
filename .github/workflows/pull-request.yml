@@ -22,6 +22,38 @@ jobs:
           recursive: true
           dockerfile: "*.Dockerfile"
 
+  docker_dry_build:
+    name: "Docker build dry-run "
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get the latest PrestaShop version
+        id: get_latest_ps_version
+        run: echo "PS_VERSION=curl -s -S -f -L -G $API | jq -r '.tag_name'" >> $GITHUB_OUTPUT
+        env:
+          API: https://api.github.com/repos/prestashop/prestashop/releases/latest
+
+      - name: Should give the "latest" tag for the latest version available
+        run: ./build.sh | grep "prestashop/prestashop-flashlight:latest"
+        env:
+          DRY_RUN: 1
+          PS_VERSION: ${{ steps.get_latest_ps_version.outputs.PS_VERSION }}
+
+      - name: Should not give the "latest" tag to 8.1.2
+        run: ./build.sh | grep -v "prestashop/prestashop-flashlight:latest"
+        env:
+          DRY_RUN: 1
+          PS_VERSION: 8.1.2
+
+      - name: Should not give the "latest" tag if PHP version is not recommended
+        run: ./build.sh | grep -v "prestashop/prestashop-flashlight:latest"
+        env:
+          DRY_RUN: 1
+          PS_VERSION: ${{ steps.get_latest_ps_version.outputs.PS_VERSION }}
+          PHP_VERSION: 7.2
+
   docker_build:
     name: "Docker build: ${{ matrix.os_flavour }} for alpine"
     runs-on: ubuntu-latest
