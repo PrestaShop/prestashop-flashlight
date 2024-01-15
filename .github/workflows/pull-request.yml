@@ -34,7 +34,7 @@ jobs:
 
       - name: Get the latest PrestaShop version
         id: get_latest_ps_version
-        run: echo "PS_VERSION=curl -s -S -f -L -G $API | jq -r '.tag_name'" >> $GITHUB_OUTPUT
+        run: echo "PS_VERSION=$(curl -s -S -f -L -G $API | jq -r '.tag_name')" >> $GITHUB_OUTPUT
         env:
           API: https://api.github.com/repos/prestashop/prestashop/releases/latest
 
