@@ -8,9 +8,11 @@ services:
     environment:
       - PS_DOMAIN=localhost:8000
       - INSTALL_MODULES_DIR=/ps-modules
-      - ON_INSTALL_MODULES_FAILURE=fail
+      - DEBUG_MODE=true
+      - INIT_SCRIPTS_USER=root
     volumes:
       - ./modules:/ps-modules
+      - ./init-scripts:/tmp/init-scripts:ro
     ports:
       - 8000:80
 
