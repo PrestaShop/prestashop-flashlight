@@ -3,7 +3,6 @@
 .DS_Store
 .*.swp
 *.sql
-modules/
 
 # Sonar
 .scannerwork
