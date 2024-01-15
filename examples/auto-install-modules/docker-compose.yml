@@ -8,7 +8,6 @@ services:
     environment:
       - PS_DOMAIN=localhost:8000
       - INSTALL_MODULES_DIR=/ps-modules
-      - DEBUG_MODE=true
       - INIT_SCRIPTS_USER=root
     volumes:
       - ./modules:/ps-modules
