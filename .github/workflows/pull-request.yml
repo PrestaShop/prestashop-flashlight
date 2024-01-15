@@ -25,6 +25,7 @@ jobs:
   docker_dry_build:
     name: "Docker build dry-run "
     runs-on: ubuntu-latest
+    needs: [lint_shell, lint_dockerfile]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -60,10 +61,11 @@ jobs:
   docker_build:
     name: "Docker build: ${{ matrix.os_flavour }} for alpine"
     runs-on: ubuntu-latest
+    needs: [docker_dry_build]
     strategy:
+      fail-fast: true
       matrix:
         ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.11", "8.1.3"]
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -96,6 +98,7 @@ jobs:
   docker_build_debian:
     name: "Docker build: 8.1.2 for debian"
     runs-on: ubuntu-latest
+    needs: [docker_dry_build]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -109,6 +112,7 @@ jobs:
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
     runs-on: ubuntu-latest
+    needs: docker_build_debian
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
