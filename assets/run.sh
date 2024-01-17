@@ -1,21 +1,21 @@
 #!/bin/sh
 set -eu
 
-DRY_RUN=${DRY_RUN:-false}
-DEBUG_MODE=${DEBUG_MODE:-false}
-INIT_ON_RESTART=${INIT_ON_RESTART:-false}
-DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
-INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
-INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
-POST_SCRIPTS_ON_RESTART=${POST_SCRIPTS_ON_RESTART:-false}
-SSL_REDIRECT=${SSL_REDIRECT:-false}
-ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
-ON_INSTALL_MODULES_FAILURE=${ON_INSTALL_MODULES_FAILURE:-fail}
-MYSQL_VERSION=${MYSQL_VERSION:-5.7}
-INIT_SCRIPTS_DIR=${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}
-POST_SCRIPTS_DIR=${POST_SCRIPTS_DIR:-/tmp/post-scripts/}
-INIT_SCRIPTS_USER=${INIT_SCRIPTS_USER:-www-data}
-POST_SCRIPTS_USER=${POST_SCRIPTS_USER:-www-data}
+export DRY_RUN=${DRY_RUN:-false}
+export DEBUG_MODE=${DEBUG_MODE:-false}
+export INIT_ON_RESTART=${INIT_ON_RESTART:-false}
+export DUMP_ON_RESTART=${DUMP_ON_RESTART:-false}
+export INSTALL_MODULES_ON_RESTART=${INSTALL_MODULES_ON_RESTART:-false}
+export INIT_SCRIPTS_ON_RESTART=${INIT_SCRIPTS_ON_RESTART:-false}
+export POST_SCRIPTS_ON_RESTART=${POST_SCRIPTS_ON_RESTART:-false}
+export SSL_REDIRECT=${SSL_REDIRECT:-false}
+export ON_INIT_SCRIPT_FAILURE=${ON_INIT_SCRIPT_FAILURE:-fail}
+export ON_INSTALL_MODULES_FAILURE=${ON_INSTALL_MODULES_FAILURE:-fail}
+export MYSQL_VERSION=${MYSQL_VERSION:-5.7}
+export INIT_SCRIPTS_DIR=${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}
+export POST_SCRIPTS_DIR=${POST_SCRIPTS_DIR:-/tmp/post-scripts/}
+export INIT_SCRIPTS_USER=${INIT_SCRIPTS_USER:-www-data}
+export POST_SCRIPTS_USER=${POST_SCRIPTS_USER:-www-data}
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -83,11 +83,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   PS_16_CONFIG_PARAMETERS="$PS_FOLDER/config/settings.inc.php"
 
   # User is probably doing a volume mount on $PS_FOLDER
-  if [ ! -f "$PS_FOLDER/app/config/parameters.php" ] && [ ! -f "$PS_FOLDER/config/settings.inc.php" ]; then 
+  if [ ! -f "$PS_FOLDER/app/config/parameters.php" ] && [ ! -f "$PS_FOLDER/config/settings.inc.php" ]; then
     echo "⚠ Warning: PrestaShop config file not found, using our backup plan!"
     if [ -d "$(dirname "$PS_CONFIG_PARAMETERS")" ]; then
       cp /var/opt/prestashop/parameters.php "$PS_CONFIG_PARAMETERS"
-    else 
+    else
       cp /var/opt/prestashop/settings.inc.php "$PS_16_CONFIG_PARAMETERS"
     fi
   fi
@@ -210,9 +210,9 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
       if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
-        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
+        (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
+        (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
