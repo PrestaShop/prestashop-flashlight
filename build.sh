@@ -99,7 +99,7 @@ get_target_images() {
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
   declare RES;
-  set -x
+
   if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
     RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
   fi
@@ -113,8 +113,6 @@ get_target_images() {
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
   RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   echo "$RES";
-
-  set +x
 }
 
 # Applying configuration
