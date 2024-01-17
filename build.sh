@@ -12,7 +12,7 @@ declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaul
 declare PLATFORM;        # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;            # -- set it to "true" if you want to push the resulting image
-declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance 
+declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 
 # Static configuration
 # --------------------
@@ -99,6 +99,7 @@ get_target_images() {
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
   declare RES;
+
   if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
     RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
   fi
