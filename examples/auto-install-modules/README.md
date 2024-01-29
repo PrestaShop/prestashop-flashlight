@@ -1,14 +1,13 @@
 # Example: auto installing modules
 
 This is an example auto-installing modules at _PrestaShop Flashlight_ startup.
+It will statically install all modules provided in the `./module` directory,
+and install one module dynamically (see `./init-scripts`).
 
 ## Test the example
 
-Add a module like this:
-
 ```sh
-mkdir -p ./modules
-curl --silent --show-error --fail --location --output modules/psxmarketingwithgoogle-v1.61.1.zip "https://github.com/PrestaShopCorp/psxmarketingwithgoogle/releases/download/v1.61.1/psxmarketingwithgoogle-v1.61.1.zip"
+docker-compose up prestashop
 ```
 
 The expected output of this example is:

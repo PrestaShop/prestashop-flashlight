@@ -13,6 +13,7 @@ declare PLATFORM;        # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;            # -- set it to "true" if you want to push the resulting image
 declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
+declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 
 # Static configuration
 # --------------------
@@ -99,7 +100,8 @@ get_target_images() {
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
   declare RES;
-  if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+
+  if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
     RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
   fi
   if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
@@ -142,6 +144,11 @@ fi
 # Build the docker image
 # ----------------------
 CACHE_IMAGE=${TARGET_IMAGES[1]}
+if [ -n "${DRY_RUN}" ]; then
+  docker() {
+    echo docker "$@"
+  }
+fi
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
 docker buildx build \
   --progress=plain \
