@@ -37,8 +37,8 @@ RUN apk --no-cache add -U \
   fi \
   && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
   && sed -i 's/memory_limit = .*/memory_limit = -1/' $PHP_INI_DIR/php.ini \
-  && sed -i 's/upload_max_filesize = .*/upload_max_filesize = 20M/' $PHP_INI_DIR/php.ini \
-  && sed -i 's/post_max_size = .*/post_max_size = 20M/' $PHP_INI_DIR/php.ini \
+  && sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' $PHP_INI_DIR/php.ini \
+  && sed -i 's/post_max_size = .*/post_max_size = 40M/' $PHP_INI_DIR/php.ini \
   && rm -rf /etc/php* /usr/lib/php*
 
 # Configure php-fpm and nginx
