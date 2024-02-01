@@ -57,9 +57,7 @@ done < "$PRESTASHOP_MINOR_TAGS"
 
 # Compatible PHP for every minor tag (alpine only)
 while IFS= read -r PS_VERSION; do
-  echo "$PS_VERSION:"
   while IFS= read -r PHP_VERSION; do
-    echo "--> $PHP_VERSION"
-    publish --field ps_version="$PS_VERSION" --filed php_version="$PHP_VERSION"
+    publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
   done <<<"$(get_compatible_php_version "$PS_VERSION")"
 done < "$PRESTASHOP_MINOR_TAGS"
