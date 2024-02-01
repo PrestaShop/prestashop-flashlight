@@ -7,7 +7,7 @@ This example runs the latest available image of PrestaShop Flashlight, which is 
 The expected output of this example is:
 
 ```sh
-docker compose up prestashop
+docker compose up prestashop --force-recreate
 [+] Building 0.0s (0/0)                                                                docker-container:thirsty_khorana
 [+] Running 3/3
  ✔ Network basic-example_default         Created            0.0s
