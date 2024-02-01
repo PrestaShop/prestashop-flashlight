@@ -103,7 +103,7 @@ ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/pre
 RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
   && ([ -f /tmp/unzip-ps/prestashop.zip ] \
-  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d "$PS_FOLDER"\
+  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d "$PS_FOLDER" \
   || mv /tmp/unzip-ps/prestashop/* "$PS_FOLDER") \
   && chown -R www-data:www-data "$PS_FOLDER" \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
