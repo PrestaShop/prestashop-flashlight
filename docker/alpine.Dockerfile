@@ -16,30 +16,16 @@ ENV PHP_INI_DIR=/usr/local/etc/php
 ENV COMPOSER_HOME=/var/composer
 
 # Install base tools, PHP requirements and dev-tools
-# see: https://olvlvl.com/2019-06-install-php-ext-source
+ENV PHP_ENV=development
+COPY ./assets/php-configuration.sh /tmp/
 RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq make \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo \
-  zlib-dev libjpeg-turbo-dev libpng-dev \
+  zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev \
   libzip-dev icu-dev libmcrypt-dev libxml2 libxml2-dev \
-  && export PS_PHP_EXT="gd pdo_mysql zip intl fileinfo simplexml" \
-  && if [ "7.1" = "$PHP_VERSION" ]; \
-  then docker-php-ext-configure gd --with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir \
-  && docker-php-ext-install $PS_PHP_EXT mcrypt; \
-  elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; \
-  then docker-php-ext-configure gd --with-jpeg-dir --with-zlib-dir \
-  && docker-php-ext-install $PS_PHP_EXT; \
-  else \
-  docker-php-ext-configure gd --with-jpeg \
-  && docker-php-ext-install $PS_PHP_EXT; \
-  fi \
-  && mv $PHP_INI_DIR/php.ini-development $PHP_INI_DIR/php.ini \
-  && sed -i 's/memory_limit = .*/memory_limit = -1/' $PHP_INI_DIR/php.ini \
-  && sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' $PHP_INI_DIR/php.ini \
-  && sed -i 's/post_max_size = .*/post_max_size = 40M/' $PHP_INI_DIR/php.ini \
-  && rm -rf /etc/php* /usr/lib/php*
+  && /tmp/php-configuration.sh
 
 # Configure php-fpm and nginx
 RUN rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d \
@@ -87,10 +73,12 @@ ARG PS_FOLDER=/var/www/html
 ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
 
 # Extract the souces
-RUN mkdir -p $PS_FOLDER /tmp/unzip-ps \
+RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
-  && ([ -f /tmp/unzip-ps/prestashop.zip ] && unzip -n -q /tmp/unzip-ps/prestashop.zip -d $PS_FOLDER || mv /tmp/unzip-ps/prestashop/* $PS_FOLDER) \
-  && chown -R www-data:www-data $PS_FOLDER \
+  && ([ -f /tmp/unzip-ps/prestashop.zip ] \
+  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d "$PS_FOLDER" \
+  || mv /tmp/unzip-ps/prestashop/* "$PS_FOLDER") \
+  && chown -R www-data:www-data "$PS_FOLDER" \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
 # Install and configure MariaDB
