@@ -14,9 +14,8 @@ error() {
 [ -z "$PHP_ENV" ] && error "PHP_ENV is not set" 2
 [ -z "$PHP_VERSION" ] && error "PHP_VERSION is not set" 3
 
-PS_PHP_EXT="bcmath fileinfo gd intl mbstring pdo_mysql simplexml soap zip";
+PS_PHP_EXT="gd pdo_mysql zip intl fileinfo mbstring simplexml soap bcmath"
 PHP_GD_CONFIG="--with-jpeg";
-#gd --with-freetype=/usr/include/ --with-jpeg=/usr/include/ --with-webp=/usr/include
 
 if [ "7.1" = "$PHP_VERSION" ]; then
   PS_PHP_EXT="$PS_PHP_EXT mcrypt";

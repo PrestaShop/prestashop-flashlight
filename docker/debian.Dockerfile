@@ -20,7 +20,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
   && apt-get install --no-install-recommends -qqy \
   ca-certificates bash less vim git tzdata zip unzip curl wget make jq netcat-traditional \
-  lsb-release libgnutls30 gnupg libiconv-hook1 \
+  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
   && apt-get clean \
