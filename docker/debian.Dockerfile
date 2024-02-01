@@ -24,10 +24,11 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
   && apt-get clean \
-  && rm -rf /var/lib/apt/lists/* \
+  && rm -rf /var/lib/apt/lists/*
 
-  # PHP requirements and dev-tools
-  ENV PHP_ENV=development
+# PHP requirements and dev-tools
+ENV PHP_ENV=development
+
 COPY ./assets/php-configuration.sh /tmp/
 RUN . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
