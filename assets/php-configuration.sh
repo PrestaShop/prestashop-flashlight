@@ -31,13 +31,17 @@ docker-php-ext-configure gd $PHP_GD_CONFIG
 docker-php-ext-install $PS_PHP_EXT;
 
 if [ "production" = "$PHP_ENV" ]; then
-  mv "${PHP_INI_DIR}/php.ini-production" "${PHP_INI_DIR}/php.ini"
-  rm -f "${PHP_INI_DIR}/php.ini-development";
+  mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+  rm -f "$PHP_INI_DIR/php.ini-development";
 else
-  mv "${PHP_INI_DIR}/php.ini-development" "${PHP_INI_DIR}/php.ini"
-  rm -f "${PHP_INI_DIR}/php.ini-production";
-  sed -i 's/memory_limit = .*/memory_limit = -1/' "${PHP_INI_DIR}/php.ini"
+  mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
+  rm -f "$PHP_INI_DIR/php.ini-production";
 fi
+
+# Flashlight is a testinf platform, keep things simple
+sed -i 's/memory_limit = .*/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
+sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' "$PHP_INI_DIR/php.ini"
+sed -i 's/post_max_size = .*/post_max_size = 40M/' "$PHP_INI_DIR/php.ini"
 
 # Remove php assets that might have been installed by package unaware of $PHP_INI_DIR
 rm -rf /etc/php* /usr/lib/php*
