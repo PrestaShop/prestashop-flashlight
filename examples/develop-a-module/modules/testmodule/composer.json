@@ -1,0 +1,32 @@
+{
+  "name": "prestashopcorp/testmodule",
+  "description": "a simple module example",
+  "type": "prestashop-module",
+  "authors": [
+    {
+      "name": "Clément Désiles",
+      "email": "main@jokester.fr"
+    }
+  ],
+  "license": "AFL-3.0",
+  "autoload": {
+    "classmap": [
+      "testmodule.php"
+    ],
+    "psr-4": {
+      "PrestaShop\\Module\\TestModule\\": "src/"
+    }
+  },
+  "config": {
+    "preferred-install": "dist",
+    "platform": {
+      "php": "7.2.5"
+    },
+    "optimize-autoloader": true,
+    "prepend-autoloader": false,
+    "platform-check": false
+  },
+  "require": {
+    "php": ">=7.2.5"
+  }
+}

@@ -10,7 +10,7 @@ See [./post-scripts](./post-scripts).
 The expected output of this example is:
 
 ```sh
-docker compose up prestashop
+docker compose up prestashop --force-recreate
 [+] Building 0.0s (0/0)
 [+] Running 2/2
  ✔ Container with-post-scripts-mysql-1       Running                                                                                                                                                                                                           0.0s

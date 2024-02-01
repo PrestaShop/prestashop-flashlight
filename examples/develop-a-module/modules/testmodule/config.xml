@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <module>
-    <name>testmodule</name>
-    <displayName><![CDATA[TestModule]]></displayName>
+    <name>modulea</name>
+    <displayName><![CDATA[Testmodule]]></displayName>
     <version><![CDATA[1.0.0]]></version>
-    <description><![CDATA[TestModule module description]]></description>
+    <description><![CDATA[Test module description]]></description>
     <author><![CDATA[PrestaShop]]></author>
     <tab><![CDATA[]]></tab>
     <is_configurable>0</is_configurable>
