@@ -7,6 +7,7 @@ services:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
+      # - DEBUG_MODE=true
     ports:
       - 8000:80
 

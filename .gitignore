@@ -3,10 +3,10 @@
 .DS_Store
 .*.swp
 *.sql
-modules/
 
 # Sonar
 .scannerwork
 sonar-project.properties
 
 PrestaShop/
+vendor/

@@ -26,8 +26,8 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
 
-# PHP requirements and dev-tools
-ENV PHP_ENV=development
+  # PHP requirements and dev-tools
+  ENV PHP_ENV=development
 COPY ./assets/php-configuration.sh /tmp/
 RUN . /etc/os-release \
   && echo "deb [trusted=yes] https://packages.sury.org/php/ ${VERSION_CODENAME} main" > /etc/apt/sources.list.d/php.list \
@@ -35,14 +35,14 @@ RUN . /etc/os-release \
   && export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
   && apt-get install --no-install-recommends -qqy \
-    php-gd \
-    libghc-zlib-dev \
-    libjpeg-dev \
-    libpng-dev \
-    libzip-dev \
-    libicu-dev \
-    libmcrypt-dev \
-    libxml2-dev \
+  php-gd \
+  libghc-zlib-dev \
+  libjpeg-dev \
+  libpng-dev \
+  libzip-dev \
+  libicu-dev \
+  libmcrypt-dev \
+  libxml2-dev \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/* \
   && /tmp/php-configuration.sh
@@ -102,8 +102,8 @@ ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/pre
 RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
   && ([ -f /tmp/unzip-ps/prestashop.zip ] \
-    && unzip -n -q /tmp/unzip-ps/prestashop.zip -d "$PS_FOLDER"\
-    || mv /tmp/unzip-ps/prestashop/* "$PS_FOLDER") \
+  && unzip -n -q /tmp/unzip-ps/prestashop.zip -d "$PS_FOLDER"\
+  || mv /tmp/unzip-ps/prestashop/* "$PS_FOLDER") \
   && chown -R www-data:www-data "$PS_FOLDER" \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
