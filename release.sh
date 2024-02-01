@@ -26,14 +26,16 @@ get_prestashop_minor_tags() {
 }
 
 get_compatible_php_version() {
-  local PS_VERSION=$1;
   REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
   while IFS= read -r regExp; do
-    if [[ $PS_VERSION =~ $regExp ]]; then
+    # shellcheck disable=SC3010
+    if [[ $1 =~ $regExp ]]; then
       jq -r '."'"${regExp}"'".php.compatible[]' <prestashop-versions.json
       break;
     fi
-  done <<<"$REGEXP_LIST"
+  done <<EOF
+$REGEXP_LIST
+EOF
 }
 
 publish() {
@@ -59,5 +61,7 @@ done < "$PRESTASHOP_MINOR_TAGS"
 while IFS= read -r PS_VERSION; do
   while IFS= read -r PHP_VERSION; do
     publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
-  done <<<"$(get_compatible_php_version "$PS_VERSION")"
+  done <<EOF
+$(get_compatible_php_version "$PS_VERSION")
+EOF
 done < "$PRESTASHOP_MINOR_TAGS"
