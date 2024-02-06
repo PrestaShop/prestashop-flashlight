@@ -15,13 +15,13 @@ error() {
 [ -z "$PHP_VERSION" ] && error "PHP_VERSION is not set" 3
 
 PS_PHP_EXT="gd pdo_mysql zip intl fileinfo mbstring simplexml soap bcmath"
-PHP_GD_CONFIG="--with-jpeg";
+PHP_GD_CONFIG="--with-jpeg --with-freetype";
 
 if [ "7.1" = "$PHP_VERSION" ]; then
   PS_PHP_EXT="$PS_PHP_EXT mcrypt";
-  PHP_GD_CONFIG="--with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir";
+  PHP_GD_CONFIG="--with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir --with-freetype-dir";
 elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; then
-  PHP_GD_CONFIG="--with-jpeg-dir --with-zlib-dir";
+  PHP_GD_CONFIG="--with-jpeg-dir --with-zlib-dir --with-freetype-dir";
 fi
 
 # shellcheck disable=SC2086
