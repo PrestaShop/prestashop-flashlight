@@ -15,11 +15,13 @@ ARG NODE_VERSION
 ENV PS_FOLDER=/var/www/html
 ENV COMPOSER_HOME=/var/composer
 
-# Update certificates
+# Update certificates and install base deps
 RUN export DEBIAN_FRONTEND=noninteractive \
+  && curl -s -L -H "Content-Type: application/octet-stream" --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" "https://packages.sury.org/php/apt.gpg" \
   && apt-get update \
-  && apt-get install --no-install-recommends -qqy \
-  ca-certificates bash less vim git tzdata zip unzip curl wget make jq netcat-traditional \
+  && apt-get install --no-install-recommends -qqy ca-certificates \
+  && apt-get install --no-install-recommends -qqy bash less vim git \
+  tzdata zip unzip curl wget make jq netcat-traditional \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
@@ -37,6 +39,7 @@ RUN . /etc/os-release \
   && apt-get update \
   && apt-get install --no-install-recommends -qqy \
   php-gd \
+  libfreetype-dev \
   libghc-zlib-dev \
   libjpeg-dev \
   libpng-dev \

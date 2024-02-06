@@ -22,7 +22,7 @@ RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq make \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  gnu-libiconv php-common mariadb-client sudo \
+  gnu-libiconv php-common mariadb-client sudo freetype-dev \
   zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev \
   libzip-dev icu-dev libmcrypt-dev libxml2 libxml2-dev \
   && /tmp/php-configuration.sh
