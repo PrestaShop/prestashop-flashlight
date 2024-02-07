@@ -9,3 +9,6 @@
 sonar-project.properties
 
 PrestaShop/
+vendor/
+.prestashop-tags
+.prestashop-minor-tags

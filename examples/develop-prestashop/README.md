@@ -23,7 +23,7 @@ You are now ready to run PrestaShop within your Flashlight environment:
 
 ```
 cd e2e-env
-docker compose up prestashop
+docker compose up prestashop --force-recreate
 [+] Building 0.0s (0/0)                             docker-container:thirsty_khorana
 [+] Running 3/3
  ✔ Network e2e-env_default         Created                                      0.1s

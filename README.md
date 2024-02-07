@@ -106,6 +106,10 @@ On error, PrestaShop Flashlight can quit with these exit codes:
 
 Partially yes. As there is no console within the sources, the modules cannot be automatically installed right now. Feel free to contribute!
 
+## Developing a module with RW (known Linux issue)
+
+The [develop-a-module](https://github.com/PrestaShop/prestashop-flashlight/tree/main/examples/develop-a-module) example is provided as a local environment for a developer. At PrestaShop we could successfully use it with Mac OSx and Windows, but due to the nature of the Docker implementation on Linux (no virtualization), we could not yet allow the module to write content from PrestaShop to the host. Will keep you posted here, feel free to suggest your ideas in this project issues.
+
 ## Api calls within a docker network
 
 **Disclaimer**: PrestaShop is sensitive to the `Host` header of your client, and can behave surprisingly. In fact, since the Multi-shop feature is available, you cannot just call any front controller from any endpoint unless you set the `Host` or the `id_shop` you are targeting.

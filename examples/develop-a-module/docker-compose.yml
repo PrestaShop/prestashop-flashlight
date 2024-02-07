@@ -7,9 +7,11 @@ services:
         condition: service_healthy
     environment:
       - PS_DOMAIN=localhost:8000
+      - INIT_SCRIPTS_DIR=/tmp/init-scripts
     ports:
       - 8000:80
     volumes:
+      - ./init-scripts:/tmp/init-scripts:ro
       - type: bind
         source: ./modules/testmodule # local path to the module
         target: /var/www/html/modules/testmodule # path to be mounted in the container
