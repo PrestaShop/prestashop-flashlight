@@ -9,7 +9,7 @@ Supported architectures:
 - linux/amd64 (aka `x86_64`)
 - linux/arm64/v8 (aka `arm64`)
 
-> **⚡ Disclaimer**: this tool is provided with the sole purpose of bootstraping a **development or testing environment** and is **unsuitable for production**.  
+> **⚡ Disclaimer**: this tool is provided with the sole purpose of bootstrapping a **development or testing environment** and is **unsuitable for production**.  
 > If you're looking for a production grade image, please refer to https://github.com/PrestaShop/docker.
 
 # How to get PrestaShop Flashlight?
@@ -39,9 +39,9 @@ PrestaShop Flashlight can be used as a **development environment**, a **CI/CD as
 - [Ngrok tunneling](./examples/ngrok-tunnel)
 - [Auto installation of modules](./examples/auto-install-modules/)
 - Develop a PrestaShop Theme (coming soon)
-- Use in Github Action (coming soon)
+- Use in GitHub Action (coming soon)
 
-PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This can easily be achieved using docker compose : _docker-compose.yml_ files are provided in [examples](./examples).
+PrestaShop Flashlight embeds `nginx` and `php-fpm`, however the `MySQL` server has to be provided separately. This can easily be achieved using docker compose: _docker-compose.yml_ files are provided in [examples](./examples).
 
 ## Compatibility
 
@@ -55,7 +55,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 ## Environment variables
 
 | Variable                   | Description                                                                                              | Required                                    | Default value                         |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------- |
+|----------------------------|----------------------------------------------------------------------------------------------------------|---------------------------------------------|---------------------------------------|
 | PS_DOMAIN                  | the public domain (and port) to reach your PrestaShop instance                                           | yes, unles using `NGROK_TUNNEL_AUTO_DETECT` | N/A (example: `localhost:8000`)       |
 | NGROK_TUNNEL_AUTO_DETECT   | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | yes, unless using `PS_DOMAIN`               | N/A (example `http://ngrok:4040`)     |
 | SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | no                                          | `false` (example: `true`)             |
@@ -80,7 +80,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 The default url/credentials to access to PrestaShop's back office defined in [`./assets/hydrate.sh`](./assets/hydrate.sh) and are set to:
 
 | Url      | {PS_DOMAIN}/admin-dev |
-| -------- | --------------------- |
+|----------|-----------------------|
 | Login    | admin@prestashop.com  |
 | Password | prestashop            |
 
@@ -89,7 +89,7 @@ The default url/credentials to access to PrestaShop's back office defined in [`.
 On error, PrestaShop Flashlight can quit with these exit codes:
 
 | Exit Code | Description                                                                      |
-| --------- | -------------------------------------------------------------------------------- |
+|-----------|----------------------------------------------------------------------------------|
 | 0         | graceful exit, probably running dry mode or after a SIGKILL                      |
 | 1         | reserved for nginx                                                               |
 | 2         | Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT                                  |
@@ -108,7 +108,7 @@ Partially yes. As there is no console within the sources, the modules cannot be 
 
 ## Developing a module with RW (known Linux issue)
 
-The [develop-a-module](https://github.com/PrestaShop/prestashop-flashlight/tree/main/examples/develop-a-module) example is provided as a local environment for a developer. At PrestaShop we could successfully use it with Mac OSx and Windows, but due to the nature of the Docker implementation on Linux (no virtualization), we could not yet allow the module to write content from PrestaShop to the host. Will keep you posted here, feel free to suggest your ideas in this project issues.
+The [develop-a-module](https://github.com/PrestaShop/prestashop-flashlight/tree/main/examples/develop-a-module) example is provided as a local environment for a developer. At PrestaShop, we could successfully use it with Mac OSx and Windows, but due to the nature of the Docker implementation on Linux (no virtualization), we could not yet allow the module to write content from PrestaShop to the host. Will keep you posted here, feel free to suggest your ideas in this project issues.
 
 ## Api calls within a docker network
 
@@ -132,7 +132,7 @@ Is working as expected. But what about the same request performed within the doc
 curl: (7) Failed to connect to localhost port 32000 after 5 ms: Couldn't connect to server
 ```
 
-Indeed, this **WON'T WORK**, the container port is 80, only the host know about 8000 in our use case. Let's talk to it:
+Indeed, this **WON'T WORK**, the container port is 80, only the host knows about 8000 in our use case. Let's talk about it:
 
 ```sh
 > docker exec -t prestashop curl -i 'http://localhost/index.php?fc=module&module=mymodule&controller=myctrl'
