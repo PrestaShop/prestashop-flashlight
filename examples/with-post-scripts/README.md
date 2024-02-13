@@ -1,9 +1,9 @@
-# Example: with post scripts
+# Example: with post-scripts
 
 This is an example of a running PrestaShop Flashlight with custom post scripts.
 See [./post-scripts](./post-scripts).
 
-**⚠️ Note:** your post-scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise they would be ignored.
+**⚠️ Note:** your post-scripts **MUST** be executable, and have a [shebang](<https://en.wikipedia.org/wiki/Shebang_(Unix)>) to be run by flashlight at startup. Otherwise, they would be ignored.
 
 ## Test the example
 

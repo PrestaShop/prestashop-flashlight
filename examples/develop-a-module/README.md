@@ -34,7 +34,7 @@ You can go to modules > install and install your module, or install it with cli:
 docker ps
 ```
 
-2. execute the install module command in the container:
+2. execute the installation module command in the container:
 
 ```sh
 docker exec -ti container_name php /var/www/html/bin/console prestashop:module install testmodule

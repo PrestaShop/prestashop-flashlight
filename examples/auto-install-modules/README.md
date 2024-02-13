@@ -1,6 +1,6 @@
 # Example: auto installing modules
 
-This is an example auto-installing modules at _PrestaShop Flashlight_ startup.
+This is an example of auto-installing modules at _PrestaShop Flashlight_ startup.
 It will statically install all modules provided in the `./module` directory,
 and install one module dynamically (see `./init-scripts`).
 
@@ -54,4 +54,4 @@ auto-install-modules-prestashop-1  | x module installation failed. Sleep and exi
 auto-install-modules-prestashop-1 exited with code 6
 ```
 
-Unless you decide to skip this behaviour with `ON_INSTALL_MODULES_FAILURE=continue`
+Unless you decide to skip this behavior with `ON_INSTALL_MODULES_FAILURE=continue`

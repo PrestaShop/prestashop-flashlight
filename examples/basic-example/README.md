@@ -40,4 +40,4 @@ If you want to start a phpMyAdmin instance, it can be done easily like so:
 docker compose up # or "docker compose up prestashop php-my-admin"
 ```
 
-Now you can access to phpMyAdmin at http://localhost:6060
+Now you can access phpMyAdmin at http://localhost:6060

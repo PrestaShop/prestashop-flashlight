@@ -1,6 +1,6 @@
 # Example: develop prestashop
 
-Flashlight can help you bootstrap an environment to perform live development of PrestaShop itself. We hope the tool to help your contribution, with a fast and flexible environment!
+Flashlight can help you bootstrap an environment to perform live development of PrestaShop itself. We hope the tool to help your contribution with a fast and flexible environment!
 
 ## Test the example
 

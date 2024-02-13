@@ -4,11 +4,11 @@
 
 ## Test the example
 
-1. First you will have to Sign up to your ngrok account. For this simple use case the free plan is sufficient. Once it's done, on the left menu clic on "Getting Started > Your Authtoken".
+1. First, you will have to Sign up to your ngrok account. For this use case, the free plan is sufficient. Once it's done, on the left menu clic on "Getting Started > Your Auth token"
 
-2. Copy this token to the your own .env file (`mv .env.dist .env`)
+2. Copy this token to your own .env file (`mv .env.dist .env`)
 
-3. Run PrestaShop Flashlight alongside with an Ngrok agent:
+3. Run PrestaShop Flashlight alongside a Ngrok agent:
 
 ```sh
 docker compose up prestashop --force-recreate
