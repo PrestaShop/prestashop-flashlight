@@ -1,0 +1,54 @@
+name: flashlight-basic-example
+services:
+  prestashop:
+    image: prestashop/prestashop-flashlight:nightly
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - PS_DOMAIN=localhost:8000
+      # - DEBUG_MODE=true
+    ports:
+      - 8000:80
+
+  mysql:
+    image: mariadb:lts
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "--host=localhost",
+          "--user=root",
+          "--password=prestashop",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_USER=prestashop
+      - MYSQL_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=prestashop
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-Isf", "http://localhost/robots.txt"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    environment:
+      - PMA_HOST=mysql
+      - PMA_PORT=3306
+      - PMA_USER=prestashop
+      - PMA_PASSWORD=prestashop
+      - MYSQL_ROOT_PASSWORD=prestashop
+    ports:
+      - 6060:80

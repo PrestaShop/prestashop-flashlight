@@ -100,19 +100,26 @@ get_target_images() {
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
   declare RES;
-
-  if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
-    RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
-  fi
-  if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
-    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
-    if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
-      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}";
-      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
+  if [ "$PS_VERSION" == "nightly" ]; then
+    if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:nightly";
+    else 
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:nightly-${OS_FLAVOUR}";
     fi
+  else
+    if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
+    fi
+    if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
+      if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
+        RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}";
+        RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
+      fi
+    fi
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   fi
-  RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
-  RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   echo "$RES";
 }
 
