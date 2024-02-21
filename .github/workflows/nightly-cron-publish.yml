@@ -1,5 +1,5 @@
 ---
-name: E2E
+name: Nightly cron publish
 
 on:
   schedule:
