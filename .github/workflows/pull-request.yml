@@ -109,6 +109,18 @@ jobs:
           OS_FLAVOUR: "debian"
           PS_VERSION: "8.1.2"
 
+  docker_build_nightly:
+    name: "Docker build: PS nightly"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Call the docker build chain
+        run: ./build.sh
+        env:
+          PS_VERSION: "nightly"
+
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
     runs-on: ubuntu-latest

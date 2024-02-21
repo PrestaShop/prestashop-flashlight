@@ -212,12 +212,14 @@ TARGET_IMAGE=my-own-repo/testing:latest \
 ./build.sh
 ```
 
+To get more documentation on the available build options, please consider reading the [build.sh](./build.sh) top file `Available variables` section.
+
 ### Cross compiling for another architecture
 
 Init buildx:
 
 ```sh
-docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64 
+docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64
 ```
 
 Then:

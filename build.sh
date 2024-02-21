@@ -12,6 +12,7 @@ declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaul
 declare PLATFORM;        # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;            # -- set it to "true" if you want to push the resulting image
+declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
 declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 
 # Static configuration
@@ -134,6 +135,11 @@ if [ -z "${TARGET_IMAGE:+x}" ]; then
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
+if [ "$PS_VERSION" == "nightly" ]; then
+  ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
+else
+  ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+fi
 
 # Build the docker image
 # ----------------------
@@ -155,6 +161,7 @@ docker buildx build \
   --build-arg PHP_VERSION="$PHP_VERSION" \
   --build-arg GIT_SHA="$GIT_SHA" \
   --build-arg NODE_VERSION="$NODE_VERSION" \
+  --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
