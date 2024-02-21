@@ -31,7 +31,8 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment, or any use case you can think of. Following is a list of resources and examples to get you started:
 
-- [Basic Example](./examples/basic-example/)
+- [Basic example](./examples/basic-example/)
+- [Nightly example](./examples/nightly-example/)
 - [Develop PrestaShop](./examples/develop-prestashop/)
 - [Develop a PrestaShop Module](./examples/develop-a-module/)
 - [Custom init-scripts](./examples/with-init-scripts/)
@@ -55,7 +56,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 ## Environment variables
 
 | Variable                   | Description                                                                                              | Required                                     | Default value                         |
-|----------------------------|----------------------------------------------------------------------------------------------------------|----------------------------------------------|---------------------------------------|
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------------- | ------------------------------------- |
 | PS_DOMAIN                  | the public domain (and port) to reach your PrestaShop instance                                           | yes, unless using `NGROK_TUNNEL_AUTO_DETECT` | N/A (example: `localhost:8000`)       |
 | NGROK_TUNNEL_AUTO_DETECT   | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | yes, unless using `PS_DOMAIN`                | N/A (example `http://ngrok:4040`)     |
 | SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | no                                           | `false` (example: `true`)             |
@@ -80,7 +81,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 The default url/credentials to access to PrestaShop's back office defined in [`./assets/hydrate.sh`](./assets/hydrate.sh) and are set to:
 
 | Url      | {PS_DOMAIN}/admin-dev |
-|----------|-----------------------|
+| -------- | --------------------- |
 | Login    | admin@prestashop.com  |
 | Password | prestashop            |
 
@@ -89,7 +90,7 @@ The default url/credentials to access to PrestaShop's back office defined in [`.
 On error, PrestaShop Flashlight can quit with these exit codes:
 
 | Exit Code | Description                                                                      |
-|-----------|----------------------------------------------------------------------------------|
+| --------- | -------------------------------------------------------------------------------- |
 | 0         | graceful exit, probably running dry mode or after a SIGKILL                      |
 | 1         | reserved for nginx                                                               |
 | 2         | Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT                                  |
