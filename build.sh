@@ -12,6 +12,7 @@ declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaul
 declare PLATFORM;        # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;            # -- set it to "true" if you want to push the resulting image
+declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
 declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 
 # Static configuration
@@ -99,19 +100,26 @@ get_target_images() {
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
   declare RES;
-
-  if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
-    RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
-  fi
-  if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
-    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
-    if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
-      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}";
-      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
+  if [ "$PS_VERSION" == "nightly" ]; then
+    if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:nightly";
+    else 
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:nightly-${OS_FLAVOUR}";
     fi
+  else
+    if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
+      RES="-t ${DEFAULT_DOCKER_IMAGE}:latest";
+    fi
+    if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
+      RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}";
+      if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
+        RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}";
+        RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
+      fi
+    fi
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   fi
-  RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
-  RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   echo "$RES";
 }
 
@@ -134,6 +142,11 @@ if [ -z "${TARGET_IMAGE:+x}" ]; then
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
+if [ "$PS_VERSION" == "nightly" ]; then
+  ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
+else
+  ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+fi
 
 # Build the docker image
 # ----------------------
@@ -155,6 +168,7 @@ docker buildx build \
   --build-arg PHP_VERSION="$PHP_VERSION" \
   --build-arg GIT_SHA="$GIT_SHA" \
   --build-arg NODE_VERSION="$NODE_VERSION" \
+  --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \

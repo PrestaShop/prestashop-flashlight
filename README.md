@@ -19,7 +19,7 @@ This project can [be built locally](#build) anytime, but it's easier to use our 
 You may browse a wide variety of tags, including:
 
 - `latest`
-- `nightly` (coming soon)
+- `nightly`
 - `1.7.8.11` if you want PrestaShop 1.7.8.11 with its recommended PHP version and tools
 - `1.7.8.11-debian` same as above, but shipped with Debian Linux (_Alpine Linux_ is the default)
 - `1.7.8.11-7.4` PrestaShop version 1.7.8.11 with PHP 7.4 and Alpine Linux
@@ -31,7 +31,8 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment, or any use case you can think of. Following is a list of resources and examples to get you started:
 
-- [Basic Example](./examples/basic-example/)
+- [Basic example](./examples/basic-example/)
+- [Nightly example](./examples/nightly-example/)
 - [Develop PrestaShop](./examples/develop-prestashop/)
 - [Develop a PrestaShop Module](./examples/develop-a-module/)
 - [Custom init-scripts](./examples/with-init-scripts/)
@@ -54,33 +55,38 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 
 ## Environment variables
 
-| Variable                   | Description                                                                                              | Required                                     | Default value                         |
-|----------------------------|----------------------------------------------------------------------------------------------------------|----------------------------------------------|---------------------------------------|
-| PS_DOMAIN                  | the public domain (and port) to reach your PrestaShop instance                                           | yes, unless using `NGROK_TUNNEL_AUTO_DETECT` | N/A (example: `localhost:8000`)       |
-| NGROK_TUNNEL_AUTO_DETECT   | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | yes, unless using `PS_DOMAIN`                | N/A (example `http://ngrok:4040`)     |
-| SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | no                                           | `false` (example: `true`)             |
-| DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | no                                           | `false`                               |
-| INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | no                                           | empty string (example: `/ps-modules`) |
-| INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                             | no                                           | `/tmp/init-scripts`                   |
-| POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                            | no                                           | `/tmp/post-scripts`                   |
-| INIT_SCRIPTS_USER          | the user running the executable files to be run prior to PrestaShop startup                              | no                                           | `www-data`                            |
-| POST_SCRIPTS_USER          | the user running the executable files to be run after the PrestaShop startup                             | no                                           | `www-data`                            |
-| INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | no                                           | `false`                               |
-| DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | no                                           | `false`                               |
-| INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | no                                           | `false`                               |
-| INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | no                                           | `false`                               |
-| POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                     | no                                           | `false`                               |
-| ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | no                                           | `fail`                                |
-| ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | no                                           | `fail`                                |
-| ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | no                                           | `fail`                                |
-| DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | no                                           | `false`                               |
+| Variable                   | Description                                                                                              | Default value                         |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------- |
+| PS_DOMAIN¹                 | the public domain (and port) to reach your PrestaShop instance                                           | N/A (example: `localhost:8000`)       |
+| NGROK_TUNNEL_AUTO_DETECT²  | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | N/A (example `http://ngrok:4040`)     |
+| SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | `false` (example: `true`)             |
+| DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | `false`                               |
+| INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | empty string (example: `/ps-modules`) |
+| INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                             | `/tmp/init-scripts`                   |
+| POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                            | `/tmp/post-scripts`                   |
+| INIT_SCRIPTS_USER          | the user running the executable files to be run prior to PrestaShop startup                              | `www-data`                            |
+| POST_SCRIPTS_USER          | the user running the executable files to be run after the PrestaShop startup                             | `www-data`                            |
+| INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | `false`                               |
+| DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | `false`                               |
+| INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | `false`                               |
+| INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | `false`                               |
+| POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                     | `false`                               |
+| ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | `fail`                                |
+| ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | `fail`                                |
+| ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | `fail`                                |
+| DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | `false`                               |
+
+> Note:
+>
+> - ¹required (mutually exclusive with `NGROK_TUNNEL_AUTO_DETECT`)
+> - ²required (mutually exclusive with `PS_DOMAIN`)
 
 ## Back office access information
 
 The default url/credentials to access to PrestaShop's back office defined in [`./assets/hydrate.sh`](./assets/hydrate.sh) and are set to:
 
 | Url      | {PS_DOMAIN}/admin-dev |
-|----------|-----------------------|
+| -------- | --------------------- |
 | Login    | admin@prestashop.com  |
 | Password | prestashop            |
 
@@ -89,7 +95,7 @@ The default url/credentials to access to PrestaShop's back office defined in [`.
 On error, PrestaShop Flashlight can quit with these exit codes:
 
 | Exit Code | Description                                                                      |
-|-----------|----------------------------------------------------------------------------------|
+| --------- | -------------------------------------------------------------------------------- |
 | 0         | graceful exit, probably running dry mode or after a SIGKILL                      |
 | 1         | reserved for nginx                                                               |
 | 2         | Missing $PS_DOMAIN or $NGROK_TUNNEL_AUTO_DETECT                                  |
@@ -212,12 +218,14 @@ TARGET_IMAGE=my-own-repo/testing:latest \
 ./build.sh
 ```
 
+To get more documentation on the available build options, please consider reading the [build.sh](./build.sh) top file `Available variables` section.
+
 ### Cross compiling for another architecture
 
 Init buildx:
 
 ```sh
-docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64 
+docker buildx create --name mybuilder --use --platform linux/amd64,linux/arm64
 ```
 
 Then:

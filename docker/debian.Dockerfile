@@ -3,6 +3,7 @@ ARG PHP_VERSION
 ARG PHP_FLAVOUR
 ARG GIT_SHA
 ARG NODE_VERSION
+ARG ZIP_SOURCE
 
 # -------------------------------------
 #  PrestaShop Flashlight: Debian image
@@ -98,9 +99,11 @@ ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
 ARG PS_FOLDER=/var/www/html
+ARG ZIP_SOURCE
 
 # Get PrestaShop source code
-ADD https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip /tmp/prestashop.zip
+# hadolint ignore=DL3020
+ADD ${ZIP_SOURCE} /tmp/prestashop.zip
 
 # Extract the souces
 RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
