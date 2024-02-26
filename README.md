@@ -19,7 +19,7 @@ This project can [be built locally](#build) anytime, but it's easier to use our 
 You may browse a wide variety of tags, including:
 
 - `latest`
-- `nightly` (coming soon)
+- `nightly`
 - `1.7.8.11` if you want PrestaShop 1.7.8.11 with its recommended PHP version and tools
 - `1.7.8.11-debian` same as above, but shipped with Debian Linux (_Alpine Linux_ is the default)
 - `1.7.8.11-7.4` PrestaShop version 1.7.8.11 with PHP 7.4 and Alpine Linux
