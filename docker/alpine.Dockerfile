@@ -21,7 +21,7 @@ ENV PHP_ENV=development
 COPY ./assets/php-configuration.sh /tmp/
 RUN apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq make autoconf g++ \
-  nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
+  linux-headers nginx nginx-mod-http-headers-more nginx-mod-http-geoip\
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo freetype-dev \
   zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev \
