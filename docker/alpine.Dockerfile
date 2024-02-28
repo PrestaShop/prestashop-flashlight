@@ -56,6 +56,10 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
   && wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar" \
   && chmod a+x /usr/bin/php-cs-fixer
 
+# Install xdebug
+RUN PHP_XDEBUG=$(jq -r '."'"${PHP_VERSION}"'".xdebug' < /tmp/php-flavours.json) \
+  && pecl install xdebug-${PHP_XDEBUG}
+
 # Install Node.js and pnpm (yarn and npm are included)
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
   && apk --no-cache add -U python3 nodejs npm yarn \

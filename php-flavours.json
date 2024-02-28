@@ -4,55 +4,63 @@
     "debian": "7.1-fpm-buster",
     "php_cs_fixer": "v3.3.0",
     "phpstan": "1.4.10",
-    "phpunit": "7.5.20"
+    "phpunit": "7.5.20",
+    "xdebug": "2.9.8"
   },
   "7.2": {
     "alpine": "7.2-fpm-alpine",
     "debian": "7.2-fpm-buster",
     "php_cs_fixer": "v3.4.0",
     "phpstan": "HEAD",
-    "phpunit": "8.5.34"
+    "phpunit": "8.5.34",
+    "xdebug": "3.1.6"
   },
   "7.3": {
     "alpine": "7.3-fpm-alpine",
     "debian": "7.3-fpm-buster",
     "php_cs_fixer": "v3.4.0",
     "phpstan": "HEAD",
-    "phpunit": "9.6.13"
+    "phpunit": "9.6.13",
+    "xdebug": "3.1.6"
   },
   "7.4": {
     "alpine": "7.4-fpm-alpine",
     "debian": "7.4-fpm-buster",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
-    "phpunit": "9.6.13"
+    "phpunit": "9.6.13",
+    "xdebug": "3.1.6"
   },
   "8.0": {
     "alpine": "8.0-fpm-alpine",
     "debian": "8.0-fpm-bullseye",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
-    "phpunit": "9.6.13"
+    "phpunit": "9.6.13",
+    "xdebug": "3.3.1"
   },
   "8.1": {
     "alpine": "8.1-fpm-alpine",
     "debian": "8.1-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
-    "phpunit": "10.4.2"
+    "phpunit": "10.4.2",
+    "xdebug": "3.3.1"
   },
   "8.2": {
     "alpine": "8.2-fpm-alpine",
     "debian": "8.2-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
-    "phpunit": "10.4.2"
+    "phpunit": "10.4.2",
+    "xdebug": "3.3.1"
   },
   "8.3": {
     "alpine": "8.3-fpm-alpine",
     "debian": "8.3-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
-    "phpunit": "10.4.2"
+    "phpunit": "10.4.2",
+    "xdebug": "3.3.1"
   }
 }
