@@ -20,7 +20,7 @@ ENV COMPOSER_HOME=/var/composer
 ENV PHP_ENV=development
 COPY ./assets/php-configuration.sh /tmp/
 RUN apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq make \
+  bash less vim geoip git tzdata zip curl jq make autoconf \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo freetype-dev \
@@ -58,7 +58,8 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
 
 # Install xdebug
 RUN PHP_XDEBUG=$(jq -r '."'"${PHP_VERSION}"'".xdebug' < /tmp/php-flavours.json) \
-  && pecl install xdebug-${PHP_XDEBUG}
+  && pecl install xdebug-${PHP_XDEBUG} \
+  && docker-php-ext-enable xdebug
 
 # Install Node.js and pnpm (yarn and npm are included)
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \

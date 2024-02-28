@@ -23,7 +23,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get install --no-install-recommends -qqy ca-certificates \
   && apt-get install --no-install-recommends -qqy bash less vim git \
   tzdata zip unzip curl wget make jq netcat-traditional \
-  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev \
+  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev autoconf \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \
   && apt-get clean \
@@ -84,7 +84,8 @@ RUN PHP_CS_FIXER=$(jq -r '."'"${PHP_VERSION}"'".php_cs_fixer' < /tmp/php-flavour
 
 # Install xdebug
 RUN PHP_XDEBUG=$(jq -r '."'"${PHP_VERSION}"'".xdebug' < /tmp/php-flavours.json) \
-  && pecl install xdebug-${PHP_XDEBUG}
+  && pecl install xdebug-${PHP_XDEBUG} \
+  && docker-php-ext-enable xdebug
 
 # Install Node.js and pnpm (yarn and npm are included)
 RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
