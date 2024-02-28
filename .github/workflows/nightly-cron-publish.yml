@@ -4,8 +4,6 @@ name: Nightly cron publish
 on:
   schedule:
     - cron: "2 0 * * *"
-  workflow_dispatch:
-  workflow_call:
 
 jobs:
   build_and_publish:
@@ -35,7 +33,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push ${{ inputs.ps_version }} ${{ inputs.os_flavour }}
+      - name: Build and push the nightly
         run: ./build.sh
         env:
           TARGET_PLATFORM: "linux/amd64,linux/arm64"
