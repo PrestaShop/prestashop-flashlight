@@ -22,7 +22,7 @@ RUN export DEBIAN_FRONTEND=noninteractive \
   && apt-get update \
   && apt-get install --no-install-recommends -qqy ca-certificates \
   && apt-get install --no-install-recommends -qqy bash less vim git \
-  tzdata zip unzip curl wget make jq netcat-traditional \
+  tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev autoconf \
   nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream mariadb-client sudo \

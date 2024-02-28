@@ -24,3 +24,8 @@ docker compose up prestashop
 # Usage
 
 @TODO: describe here some IDE configurations
+
+# External ressources
+
+- xdebug with VSCode: https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug
+- xdebug with PHPStorm: https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html
