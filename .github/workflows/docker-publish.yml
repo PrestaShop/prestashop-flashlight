@@ -47,6 +47,7 @@ jobs:
   build_and_publish:
     name: Build and publish docker
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     permissions:
       contents: read
       packages: write

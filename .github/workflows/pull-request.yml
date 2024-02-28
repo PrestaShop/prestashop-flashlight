@@ -7,6 +7,7 @@ jobs:
   lint_shell:
     name: "Lint: shell"
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - name: Run ShellCheck
@@ -15,6 +16,7 @@ jobs:
   lint_dockerfile:
     name: "Lint: dockerfile"
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
       - uses: hadolint/hadolint-action@v3.1.0
@@ -25,6 +27,7 @@ jobs:
   docker_dry_build:
     name: "Docker build dry-run "
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     needs: [lint_shell, lint_dockerfile]
     steps:
       - name: Checkout repository
@@ -61,6 +64,7 @@ jobs:
   docker_build:
     name: "Docker build: ${{ matrix.os_flavour }} for alpine"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [docker_dry_build]
     strategy:
       fail-fast: true
@@ -98,6 +102,7 @@ jobs:
   docker_build_debian:
     name: "Docker build: 8.1.2 for debian"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     needs: [docker_dry_build]
     steps:
       - name: Checkout repository
@@ -112,6 +117,7 @@ jobs:
   docker_build_nightly:
     name: "Docker build: PS nightly"
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -124,6 +130,7 @@ jobs:
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     needs: docker_build_debian
     steps:
       - name: Checkout repository
