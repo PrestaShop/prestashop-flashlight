@@ -7,7 +7,7 @@ on:
 jobs:
   lint_shell:
     name: "Lint: shell"
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -16,7 +16,7 @@ jobs:
 
   lint_dockerfile:
     name: "Lint: dockerfile"
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
@@ -27,7 +27,7 @@ jobs:
 
   docker_dry_build:
     name: "Docker build dry-run "
-    runs-on: macos-14
+    runs-on: ubuntu-latest
     timeout-minutes: 5
     needs: [lint_shell, lint_dockerfile]
     steps:
