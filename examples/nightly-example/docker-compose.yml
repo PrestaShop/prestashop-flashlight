@@ -1,4 +1,4 @@
-name: flashlight-basic-example
+name: flashlight-nightly-example
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:nightly
