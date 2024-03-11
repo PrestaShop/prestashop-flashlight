@@ -36,7 +36,7 @@ services:
       - MYSQL_DATABASE=prestashop
 
   ngrok:
-    image: ngrok/ngrok
+    image: ngrok/ngrok:latest
     env_file:
       - .env
     healthcheck:
