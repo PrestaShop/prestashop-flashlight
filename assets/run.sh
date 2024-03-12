@@ -9,7 +9,7 @@ export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
 export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
-export PS_PROTOCOL="${SSL_REDIRECT:-http}"
+export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
 export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
@@ -64,6 +64,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
 
   [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
   if [ "$PS_PROTOCOL" = "https" ]; then
+    export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
