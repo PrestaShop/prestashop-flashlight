@@ -55,26 +55,34 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 
 ## Environment variables
 
-| Variable                   | Description                                                                                              | Default value                         |
-| -------------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------- |
-| PS_DOMAIN¹                 | the public domain (and port) to reach your PrestaShop instance                                           | N/A (example: `localhost:8000`)       |
-| NGROK_TUNNEL_AUTO_DETECT²  | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | N/A (example `http://ngrok:4040`)     |
-| SSL_REDIRECT               | if enabled and using PS_DOMAIN, PrestaShop will redirect all inbound traffic to `https://$PS_DOMAIN`     | `false` (example: `true`)             |
-| DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | `false`                               |
-| INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | empty string (example: `/ps-modules`) |
-| INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                             | `/tmp/init-scripts`                   |
-| POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                            | `/tmp/post-scripts`                   |
-| INIT_SCRIPTS_USER          | the user running the executable files to be run prior to PrestaShop startup                              | `www-data`                            |
-| POST_SCRIPTS_USER          | the user running the executable files to be run after the PrestaShop startup                             | `www-data`                            |
-| INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | `false`                               |
-| DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | `false`                               |
-| INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | `false`                               |
-| INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | `false`                               |
-| POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                     | `false`                               |
-| ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | `fail`                                |
-| ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | `fail`                                |
-| ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | `fail`                                |
-| DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | `false`                               |
+| Variable                   | Description                                                                                              | Default value                          |
+| -------------------------- | -------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| PS_DOMAIN¹                 | the public domain (and port) to reach your PrestaShop instance                                           | N/A (example: `localhost:8000`)        |
+| NGROK_TUNNEL_AUTO_DETECT²  | the ngrok agent base API url, to guess the tunnel domain of your shop                                    | N/A (example `http://ngrok:4040`)      |
+| PS_PROTOCOL                | if PS_PROTOCOL equals `https` the public URL will be `https://$PS_DOMAIN`                                | `http` (example: `https`)              |
+| SSL_REDIRECT               | if enabled the public URL will be `https://$PS_DOMAIN` (if not using `PS_PROTOCOL`)                      | `false` (example: `true`)              |
+| DEBUG_MODE                 | if enabled the Debug mode will be enabled on PrestaShop                                                  | `false`                                |
+| INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                 | empty string (example: `/ps-modules`)  |
+| INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                             | `/tmp/init-scripts`                    |
+| POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                            | `/tmp/post-scripts`                    |
+| INIT_SCRIPTS_USER          | the user running the executable files to be run prior to PrestaShop startup                              | `www-data`                             |
+| POST_SCRIPTS_USER          | the user running the executable files to be run after the PrestaShop startup                             | `www-data`                             |
+| INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                  | `false`                                |
+| DUMP_ON_RESTART            | if enabled the dump restoration replayed on container restart                                            | `false`                                |
+| INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                          | `false`                                |
+| INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                     | `false`                                |
+| POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                     | `false`                                |
+| ON_INIT_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight will continue the boot process even if an init script failed | `fail`                                 |
+| ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                         | `fail`                                 |
+| ON_INSTALL_MODULES_FAILURE | if set to `continue`, module installation failure will not block the init process                        | `fail`                                 |
+| DRY_RUN                    | if enabled, the run.sh script will exit without really starting a web server                             | `false`                                |
+| MYSQL_HOST                 | MySQL host                                                                                               | `mysql`                                |
+| MYSQL_USER                 | MySQL user                                                                                               | `prestashop`                           |
+| MYSQL_PASSWORD             | MySQL password                                                                                           | `prestashop`                           |
+| MYSQL_PORT                 | MySQL server port                                                                                        | `3306`                                 |
+| MYSQL_DATABASE             | MySQL database name                                                                                      | `prestashop`                           |
+| MYSQL_EXTRA_DUMP           | extra SQL dump to be restored in PrestaShop                                                              | empty string (example: `/tmp/foo.sql`) |
+| PS_FOLDER                  | prestashop sources directory                                                                             | `/var/www/html`                        |
 
 > Note:
 >

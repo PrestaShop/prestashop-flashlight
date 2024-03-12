@@ -9,7 +9,7 @@ services:
         condition: service_started
     environment:
       - PS_DOMAIN=${TUNNEL_NAME}
-      - SSL_REDIRECT=true
+      - PS_PROTOCOL=https
     ports:
       - 8000:80
 
