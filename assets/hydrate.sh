@@ -83,7 +83,7 @@ else
 fi
 
 # 10. Tear down mysql
-killall --wait --quiet mysqld | true
+killall --quiet mysqld | true
 
 # 11. Some clean up
 mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
