@@ -1,4 +1,4 @@
-name: flashlight-develop-prestashop
+name: flashlight-xdebug-prestashop
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
