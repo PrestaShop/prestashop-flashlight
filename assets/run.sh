@@ -16,6 +16,8 @@ export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export POST_SCRIPTS_DIR="${POST_SCRIPTS_DIR:-/tmp/post-scripts/}"
 export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
 export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
+export DEV_ORIGIN="${DEV_ORIGIN:-git@github.com:PrestaShop/PrestaShop.git}"
+declare DEV_BRANCH=${DEV_BRANCH:-false}
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -77,6 +79,19 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   }
   while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
   echo "* PHP PDO connectivity checked"
+
+  # DEV_ORIGIN=git@github.com:jolelievre/PrestaShop
+  # DEV_BRANCH=oauth-endpoint
+
+  if [ ! "$DEV_BRANCH" = "false" ]; then
+    echo "* Removing PrestaShop build from Flashlight..."
+    rm -rf "$PS_FOLDER"
+    echo "* Cloning $DEV_ORIGIN $DEV_BRANCH..."
+    git clone --depth 1 --branch "$DEV_BRANCH" "$DEV_ORIGIN" "$PS_FOLDER"
+    echo "* Building PrestaShop..."
+    cd "$PS_FOLDER"
+    make
+  fi
 
   echo "* Editing PrestaShop configuration..."
   PS_CONFIG_PARAMETERS="$PS_FOLDER/app/config/parameters.php"
