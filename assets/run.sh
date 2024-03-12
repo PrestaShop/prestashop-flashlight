@@ -58,7 +58,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s/replace-me.com/$PS_DOMAIN/g" /dump.sql
+  sed -i "s~replace-me.com~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
   if [ "$SSL_REDIRECT" = "true" ]; then
@@ -95,27 +95,27 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ -f "$PS_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_CONFIG_PARAMETERS.bak" ] && cp "$PS_CONFIG_PARAMETERS" "$PS_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
-        -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
-        -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
-        -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
-        -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
-        -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
+        -e "s~host' => '127.0.0.1'~host' => '$MYSQL_HOST'~" \
+        -e "s~port' => ''~port' => '$MYSQL_PORT'~" \
+        -e "s~name' => 'prestashop'~name' => '$MYSQL_DATABASE'~" \
+        -e "s~user' => 'root'~user' => '$MYSQL_USER'~" \
+        -e "s~password' => 'prestashop'~password' => '$MYSQL_PASSWORD'~" \
+        -e "s~database_engine' => 'InnoDB',~database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',~" \
       "$PS_FOLDER/app/config/parameters.php"
   elif [ -f "$PS_16_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_16_CONFIG_PARAMETERS.bak" ] && cp "$PS_16_CONFIG_PARAMETERS" "$PS_16_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
-        -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
-        -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
-        -e "s/_DB_PASSWD_', 'prestashop/_DB_PASSWD_', '$MYSQL_PASSWORD/" \
+        -e "s~127.0.0.1:3306~$MYSQL_HOST:$MYSQL_PORT~" \
+        -e "s~_DB_NAME_', 'prestashop~_DB_NAME_', '$MYSQL_DATABASE~" \
+        -e "s~_DB_USER_', 'root~_DB_USER_', '$MYSQL_USER~" \
+        -e "s~_DB_PASSWD_', 'prestashop~_DB_PASSWD_', '$MYSQL_PASSWORD~" \
       "$PS_16_CONFIG_PARAMETERS"
   fi
   echo "* PrestaShop MySQL configuration set"
 
   # If debug mode is enabled
   if [ "$DEBUG_MODE" = "true" ]; then
-    sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
+    sed -ie "s~define('_PS_MODE_DEV_', false);~define('_PS_MODE_DEV_',\ true);~g" "$PS_FOLDER/config/defines.inc.php"
     echo "* Debug mode set"
   fi
   touch $INIT_LOCK
