@@ -1,4 +1,4 @@
-# Example: ngrok tunnel example
+# Example: ngrok tunnel
 
 [Ngrok](https://ngrok.com) is a handy http tunnel you can use to expose your local environment to the Web and inspect incoming requests.
 
