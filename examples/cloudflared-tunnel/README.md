@@ -1,6 +1,6 @@
 # Example: cloudflared tunnel
 
-Cloudflare implement 2 ways of tunneling traffic from its edge ip to your local PrestaShop instance:
+Cloudflare implements two ways of tunneling traffic from its edge ip to your local PrestaShop instance:
 
 1. Quick Tunnels
 2. Named Tunnels
