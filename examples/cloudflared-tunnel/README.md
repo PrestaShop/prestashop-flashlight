@@ -9,7 +9,7 @@ Only the Named tunnels (2) are supported in this example for now. Feel free to c
 
 # Setting up
 
-First you have to setup the credentials files:
+First, you have to set up the credential files:
 
 ```bash
 cp credentials.dist.json credentials.json
