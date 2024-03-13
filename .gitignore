@@ -12,3 +12,6 @@ PrestaShop/
 vendor/
 .prestashop-tags
 .prestashop-minor-tags
+
+# cloudflared credentials
+credentials.json
