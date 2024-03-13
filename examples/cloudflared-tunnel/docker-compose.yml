@@ -1,4 +1,4 @@
-name: flashlight-ngrok-tunnel
+name: flashlight-cloudflared-tunnel
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
