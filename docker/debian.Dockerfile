@@ -8,7 +8,7 @@ ARG ZIP_SOURCE
 # -------------------------------------
 #  PrestaShop Flashlight: Debian image
 # -------------------------------------
-FROM php:${PHP_FLAVOUR} AS base-prestashop
+FROM php:${PHP_FLAVOUR} AS debian-base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
@@ -99,7 +99,7 @@ RUN if [ "0.0.0" = "$NODE_VERSION" ]; then exit 0; fi \
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
-FROM base-prestashop AS build-and-dump
+FROM debian-base-prestashop AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
@@ -142,7 +142,7 @@ RUN sh /patch.sh
 # -----------------------
 # Flashlight final image
 # -----------------------
-FROM base-prestashop AS prestashop-flashlight
+FROM debian-base-prestashop AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR

@@ -9,6 +9,7 @@ export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
 export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
+export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
 export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
@@ -35,6 +36,10 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     exit 2
   fi
 
+  case "$PS_DOMAIN" in
+    http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
+  esac
+
   # Check if a tunnel autodetection mechanism should be involved
   if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
     echo "* Auto-detecting domain with ngrok client api on ${NGROK_TUNNEL_AUTO_DETECT}..."
@@ -58,10 +63,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s/replace-me.com/$PS_DOMAIN/g" /dump.sql
+  sed -i "s~replace-me.com~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
-  if [ "$SSL_REDIRECT" = "true" ]; then
+  [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
+  if [ "$PS_PROTOCOL" = "https" ]; then
+    export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
@@ -95,27 +102,27 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ -f "$PS_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_CONFIG_PARAMETERS.bak" ] && cp "$PS_CONFIG_PARAMETERS" "$PS_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
-        -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
-        -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
-        -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
-        -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
-        -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
+        -e "s~host' => '127.0.0.1'~host' => '$MYSQL_HOST'~" \
+        -e "s~port' => ''~port' => '$MYSQL_PORT'~" \
+        -e "s~name' => 'prestashop'~name' => '$MYSQL_DATABASE'~" \
+        -e "s~user' => 'root'~user' => '$MYSQL_USER'~" \
+        -e "s~password' => 'prestashop'~password' => '$MYSQL_PASSWORD'~" \
+        -e "s~database_engine' => 'InnoDB',~database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',~" \
       "$PS_FOLDER/app/config/parameters.php"
   elif [ -f "$PS_16_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_16_CONFIG_PARAMETERS.bak" ] && cp "$PS_16_CONFIG_PARAMETERS" "$PS_16_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
-        -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
-        -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
-        -e "s/_DB_PASSWD_', 'prestashop/_DB_PASSWD_', '$MYSQL_PASSWORD/" \
+        -e "s~127.0.0.1:3306~$MYSQL_HOST:$MYSQL_PORT~" \
+        -e "s~_DB_NAME_', 'prestashop~_DB_NAME_', '$MYSQL_DATABASE~" \
+        -e "s~_DB_USER_', 'root~_DB_USER_', '$MYSQL_USER~" \
+        -e "s~_DB_PASSWD_', 'prestashop~_DB_PASSWD_', '$MYSQL_PASSWORD~" \
       "$PS_16_CONFIG_PARAMETERS"
   fi
   echo "* PrestaShop MySQL configuration set"
 
   # If debug mode is enabled
   if [ "$DEBUG_MODE" = "true" ]; then
-    sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
+    sed -ie "s~define('_PS_MODE_DEV_', false);~define('_PS_MODE_DEV_',\ true);~g" "$PS_FOLDER/config/defines.inc.php"
     echo "* Debug mode set"
   fi
   touch $INIT_LOCK
