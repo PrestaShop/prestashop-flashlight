@@ -131,7 +131,7 @@ jobs:
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     needs: docker_build_debian
     steps:
       - name: Checkout repository
