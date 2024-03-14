@@ -36,6 +36,7 @@ else
   mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
   rm -f "$PHP_INI_DIR/php.ini-production";
 fi
+pear config-set php_ini "$PHP_INI_DIR/php.ini"
 
 # Flashlight is a testinf platform, keep things simple
 sed -i 's/memory_limit = .*/memory_limit = -1/' "$PHP_INI_DIR/php.ini"

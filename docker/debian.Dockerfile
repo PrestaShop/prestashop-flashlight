@@ -15,8 +15,8 @@ ARG GIT_SHA
 ARG NODE_VERSION
 ENV PS_FOLDER=/var/www/html
 ENV COMPOSER_HOME=/var/composer
-
 ENV PHP_ENV=development
+
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp

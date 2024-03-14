@@ -12,25 +12,28 @@ rm -rf /usr/share/doc \
   /usr/share/man \
   /usr/share/locale
 
+# Get debian version and codename
+# shellcheck disable=SC1091
+. /etc/os-release
+
 # Update certificates and install base deps
 export DEBIAN_FRONTEND=noninteractive
-apt-key adv --fetch-keys 'https://packages.sury.org/php/apt.gpg' > /dev/null 2>&1
+curl -s -L -H "Content-Type: application/octet-stream" \
+  --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
+  "https://packages.sury.org/php/apt.gpg"
 apt-get update
 apt-get install --no-install-recommends -qqy ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream;
-
-# shellcheck disable=SC1091
-. /etc/os-release
 echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
 apt-get install --no-install-recommends -qqy \
   php-gd \
   libfreetype-dev \
-  libghc-zlib-dev \
+  zlib1g-dev \
   libjpeg-dev \
   libpng-dev \
   libzip-dev \
@@ -82,6 +85,8 @@ fi
 
 # Cleanup dev packages, keep libraries
 apt-get clean
-apt-get purge -qqy build-essential libfreetype-dev \
+apt-get purge -qqy build-essential gcc-12 cpp-12 gcc g++ ghc libfreetype-dev linux-libc-dev libncurses-dev \
   libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev
+apt-get autoremove -qqy
+apt-get install -qqy libfreetype6 zlib1g libjpeg62-turbo libpng16-16 libzip4 libicu72 libmcrypt4 libxml2
 rm -rf /var/lib/apt/lists/*
