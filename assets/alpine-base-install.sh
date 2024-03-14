@@ -3,7 +3,7 @@ set -eu
 
 # Install base tools, PHP requirements and dev-tools
 apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq \
+  bash less vim geoip git tzdata zip curl jq autoconf \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo libjpeg libxml2 \
@@ -51,6 +51,6 @@ if [ "0.0.0" != "$NODE_VERSION" ]; then
 fi
 
 # Cleanup dev packages, keep libraries
-apk --no-cache del -U build-base gcc g++ libgcc nginx-vim mariadb xz-dev musl-dev linux-headers freetype-dev zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev
+apk --no-cache del -U build-base autoconf gcc g++ libgcc nginx-vim mariadb xz-dev musl-dev linux-headers freetype-dev zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev
 apk --no-cache add -U mariadb-client freetype zlib libjpeg-turbo libpng oniguruma libzip icu libmcrypt libxml2
 rm -rf /var/cache/apk/*
