@@ -105,6 +105,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [docker_dry_build]
+    strategy:
+      fail-fast: true
+      matrix:
+        ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.11", "8.1.4"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -113,7 +117,7 @@ jobs:
         run: ./build.sh
         env:
           OS_FLAVOUR: "debian"
-          PS_VERSION: "8.1.2"
+          PS_VERSION: ${{ matrix.ps_version }}
 
   docker_build_nightly:
     name: "Docker build: PS nightly"

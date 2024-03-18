@@ -21,7 +21,6 @@ export DEBIAN_FRONTEND=noninteractive
 curl -s -L -H "Content-Type: application/octet-stream" \
   --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
   "https://packages.sury.org/php/apt.gpg"
-# wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
 apt-get update
 apt-get install --no-install-recommends -qqy ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
@@ -40,7 +39,7 @@ apt-get install --no-install-recommends -qqy \
   libzip-dev \
   libicu-dev \
   libmcrypt-dev \
-  libxml2-dev \
+  libxml2-dev
 
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
@@ -86,7 +85,7 @@ fi
 
 # Cleanup dev packages, keep libraries
 apt-get clean
-apt-get purge -qqy build-essential gcc-12 cpp-12 gcc g++ ghc libfreetype-dev linux-libc-dev libncurses-dev \
+apt-get purge -qqy build-essential gcc-12 cpp-12 gcc g++ ghc libfreetype6-dev linux-libc-dev libncurses-dev \
   libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev
 apt-get autoremove -qqy
 apt-get install -qqy libfreetype6 zlib1g libjpeg62-turbo libpng16-16 libzip4 libicu72 libmcrypt4 libxml2
