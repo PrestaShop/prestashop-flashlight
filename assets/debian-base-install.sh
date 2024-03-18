@@ -21,6 +21,7 @@ export DEBIAN_FRONTEND=noninteractive
 curl -s -L -H "Content-Type: application/octet-stream" \
   --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
   "https://packages.sury.org/php/apt.gpg"
+# wget -O /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
 apt-get update
 apt-get install --no-install-recommends -qqy ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
@@ -32,7 +33,7 @@ rm /etc/apt/preferences.d/no-debian-php
 apt-get update
 apt-get install --no-install-recommends -qqy \
   php-gd \
-  libfreetype-dev \
+  libfreetype6-dev \
   zlib1g-dev \
   libjpeg-dev \
   libpng-dev \
