@@ -30,16 +30,18 @@ apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qq
 echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
+LIB_FREETYPE_DEV=$(apt-cache search '^libfreetype[0-9]+-dev$' | awk '{print $1}')
+LIB_XML_DEV=$(apt-cache search '^libxml[0-9]+-dev$' | awk '{print $1}')
 apt-get install --no-install-recommends -qqy \
   php-gd \
-  libfreetype6-dev \
+  "$LIB_FREETYPE_DEV" \
   zlib1g-dev \
   libjpeg-dev \
   libpng-dev \
   libzip-dev \
   libicu-dev \
   libmcrypt-dev \
-  libxml2-dev
+  "$LIB_XML_DEV"
 
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
@@ -85,8 +87,16 @@ fi
 
 # Cleanup dev packages, keep libraries
 apt-get clean
-apt-get purge -qqy build-essential gcc-12 cpp-12 gcc g++ ghc libfreetype6-dev linux-libc-dev libncurses-dev \
-  libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev libxml2-dev
+apt-get purge -qqy build-essential gcc g++ ghc "$LIB_FREETYPE_DEV" linux-libc-dev libncurses-dev \
+  libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev "$LIB_XML_DEV"
 apt-get autoremove -qqy
-apt-get install -qqy libfreetype6 zlib1g libjpeg62-turbo libpng16-16 libzip4 libicu72 libmcrypt4 libxml2
+
+LIB_FREETYPE=$(apt-cache search '^libfreetype[0-9]+$' | awk '{print $1}')
+LIB_JPEG=$(apt-cache search '^libjpeg[0-9-]+-turbo$' | awk '{print $1}')
+LIB_PNG=$(apt-cache search '^libpng[0-9-]+$' | awk '{print $1}')
+LIB_ZIP=$(apt-cache search '^libzip[0-9]+$' | awk '{print $1}')
+LIB_ICU=$(apt-cache search '^libicu[0-9]+$' | awk '{print $1}')
+LIB_MCRYPT=$(apt-cache search '^libmcrypt[0-9]+$' | awk '{print $1}')
+LIB_XML=$(apt-cache search '^libxml[0-9]+$' | awk '{print $1}')
+apt-get install -qqy "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML"
 rm -rf /var/lib/apt/lists/*
