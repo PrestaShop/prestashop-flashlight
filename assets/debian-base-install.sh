@@ -91,12 +91,12 @@ apt-get purge -qqy build-essential gcc g++ ghc "$LIB_FREETYPE_DEV" linux-libc-de
   libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev "$LIB_XML_DEV"
 apt-get autoremove -qqy
 
-LIB_FREETYPE=$(apt-cache search '^libfreetype[0-9]+$' | awk '{print $1}')
-LIB_JPEG=$(apt-cache search '^libjpeg[0-9-]+-turbo$' | awk '{print $1}')
-LIB_PNG=$(apt-cache search '^libpng[0-9-]+$' | awk '{print $1}')
-LIB_ZIP=$(apt-cache search '^libzip[0-9]+$' | awk '{print $1}')
-LIB_ICU=$(apt-cache search '^libicu[0-9]+$' | awk '{print $1}')
-LIB_MCRYPT=$(apt-cache search '^libmcrypt[0-9]+$' | awk '{print $1}')
-LIB_XML=$(apt-cache search '^libxml[0-9]+$' | awk '{print $1}')
+LIB_FREETYPE=$(apt-cache search '^libfreetype[0-9]+$' | awk 'NR==1{print $1}')
+LIB_JPEG=$(apt-cache search '^libjpeg[0-9-]+-turbo$' | awk 'NR==1{print $1}')
+LIB_PNG=$(apt-cache search '^libpng[0-9-]+$' | awk 'NR==1{print $1}')
+LIB_ZIP=$(apt-cache search '^libzip[0-9]+$' | awk 'NR==1{print $1}')
+LIB_ICU=$(apt-cache search '^libicu[0-9]+$' | awk 'NR==1{print $1}')
+LIB_MCRYPT=$(apt-cache search '^libmcrypt[0-9]+$' | awk 'NR==1{print $1}')
+LIB_XML=$(apt-cache search '^libxml[0-9]+$' | awk 'NR==1{print $1}')
 apt-get install -qqy "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML"
 rm -rf /var/lib/apt/lists/*
