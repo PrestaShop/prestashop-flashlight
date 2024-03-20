@@ -30,8 +30,8 @@ apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qq
 echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
-LIB_FREETYPE_DEV=$(apt-cache search '^libfreetype[0-9]+-dev$' | awk '{print $1}')
-LIB_XML_DEV=$(apt-cache search '^libxml[0-9]+-dev$' | awk '{print $1}')
+LIB_FREETYPE_DEV=$(apt-cache search '^libfreetype[0-9]+-dev$' | awk 'NR==1{print $1}')
+LIB_XML_DEV=$(apt-cache search '^libxml[0-9]+-dev$' | awk 'NR==1{print $1}')
 apt-get install --no-install-recommends -qqy \
   php-gd \
   "$LIB_FREETYPE_DEV" \
