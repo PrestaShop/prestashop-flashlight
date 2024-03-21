@@ -44,9 +44,12 @@ sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' "$PHP_INI_DIR/php
 sed -i 's/post_max_size = .*/post_max_size = 40M/' "$PHP_INI_DIR/php.ini"
 
 # Configure XDebug
-echo "xdebug.mode=debug" > "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
-echo "xdebug.start_with_request=yes" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
-echo "xdebug.client_host=host.docker.internal" >> "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+cat <<EOF >  "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+[xdebug]
+xdebug.mode = debug
+xdebug.start_with_request = yes
+xdebug.discover_client_host = 1
+EOF
 
 # Remove php assets that might have been installed by package unaware of $PHP_INI_DIR
 rm -rf /etc/php* /usr/lib/php*
