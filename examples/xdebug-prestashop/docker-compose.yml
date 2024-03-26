@@ -1,7 +1,7 @@
 name: flashlight-xdebug-prestashop
 services:
   prestashop:
-    image: prestashop/prestashop-flashlight:latest
+    image: prestashop/prestashop-flashlight:nightly
     depends_on:
       mysql:
         condition: service_healthy
@@ -9,6 +9,7 @@ services:
       - PS_DOMAIN=localhost:8000
       - INIT_SCRIPTS_DIR=/tmp/init-scripts
       - INIT_SCRIPTS_USER=root
+      - XDEBUG_ENABLED=1
     volumes:
       - ./PrestaShop:/var/www/html:rw
     ports:

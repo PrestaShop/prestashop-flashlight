@@ -43,12 +43,12 @@ sed -i 's/memory_limit = .*/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
 sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' "$PHP_INI_DIR/php.ini"
 sed -i 's/post_max_size = .*/post_max_size = 40M/' "$PHP_INI_DIR/php.ini"
 
-# Configure XDebug
+# Configure Xdebug
 cat <<EOF >  "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 [xdebug]
-xdebug.mode = debug
-xdebug.start_with_request = yes
-xdebug.discover_client_host = 1
+;xdebug.mode = debug
+;xdebug.start_with_request = yes
+;xdebug.discover_client_host = 1
 EOF
 
 # Remove php assets that might have been installed by package unaware of $PHP_INI_DIR
