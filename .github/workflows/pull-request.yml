@@ -63,7 +63,7 @@ jobs:
           PHP_VERSION: 7.2
 
   docker_build:
-    name: "Docker build: ${{ matrix.os_flavour }} for alpine"
+    name: "Docker build: PS ${{ matrix.ps_version }} for alpine"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [docker_dry_build]
@@ -100,11 +100,20 @@ jobs:
         env:
           DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
 
+      - name: Test the image tooling(xdebug)
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint bash $DOCKER_IMAGE -c 'php -m -c | grep xdebug'
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+
   docker_build_debian:
-    name: "Docker build: 8.1.2 for debian"
+    name: "Docker build: PS ${{ matrix.ps_version }} for debian"
     runs-on: ubuntu-latest
     timeout-minutes: 15
     needs: [docker_dry_build]
+    strategy:
+      fail-fast: true
+      matrix:
+        ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.11", "8.1.4"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -113,7 +122,12 @@ jobs:
         run: ./build.sh
         env:
           OS_FLAVOUR: "debian"
-          PS_VERSION: "8.1.2"
+          PS_VERSION: ${{ matrix.ps_version }}
+
+      - name: Test the image with a dry run
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-debian
 
   docker_build_nightly:
     name: "Docker build: PS nightly"
@@ -131,7 +145,7 @@ jobs:
   docker_build_cross_compile:
     name: "Docker build x-compile for aarch64"
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 45
     needs: docker_build_debian
     steps:
       - name: Checkout repository

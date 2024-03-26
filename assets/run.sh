@@ -1,22 +1,23 @@
 #!/bin/sh
 set -eu
 
-export DRY_RUN="${DRY_RUN:-false}"
 export DEBUG_MODE="${DEBUG_MODE:-false}"
-export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
+export DRY_RUN="${DRY_RUN:-false}"
 export DUMP_ON_RESTART="${DUMP_ON_RESTART:-false}"
-export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
+export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
+export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
-export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
-export SSL_REDIRECT="${SSL_REDIRECT:-false}"
-export PS_PROTOCOL="${PS_PROTOCOL:-http}"
+export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
+export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
+export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
 export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
-export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
-export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export POST_SCRIPTS_DIR="${POST_SCRIPTS_DIR:-/tmp/post-scripts/}"
-export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
+export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
 export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
+export PS_PROTOCOL="${PS_PROTOCOL:-http}"
+export SSL_REDIRECT="${SSL_REDIRECT:-false}"
+export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -124,6 +125,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ "$DEBUG_MODE" = "true" ]; then
     sed -ie "s~define('_PS_MODE_DEV_', false);~define('_PS_MODE_DEV_',\ true);~g" "$PS_FOLDER/config/defines.inc.php"
     echo "* Debug mode set"
+  fi
+
+# If Xdebug is enabled
+if [ "$XDEBUG_ENABLED" = "true" ]; then
+    sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+    echo "* Xdebug enabled"
   fi
   touch $INIT_LOCK
 else
