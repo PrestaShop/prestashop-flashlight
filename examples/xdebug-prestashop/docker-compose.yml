@@ -9,7 +9,7 @@ services:
       - PS_DOMAIN=localhost:8000
       - INIT_SCRIPTS_DIR=/tmp/init-scripts
       - INIT_SCRIPTS_USER=root
-      - XDEBUG_ENABLED=1
+      - XDEBUG_ENABLED=true
     volumes:
       - ./PrestaShop:/var/www/html:rw
     ports:

@@ -128,7 +128,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
 # If Xdebug is enabled
-if [ "$DEBUG_MODE" = "true" ]; then
+if [ "$XDEBUG_ENABLED" = "true" ]; then
     sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "* Xdebug enabled"
   fi
