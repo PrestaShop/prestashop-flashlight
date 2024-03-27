@@ -4,16 +4,19 @@ cd "$(dirname "$0")"
 
 # Available variables
 # -------------------
-declare PS_VERSION;      # -- PrestaShop version, defaults to latest
-declare PHP_VERSION;     # -- PHP version, defaults to recommended version for PrestaShop
-declare OS_FLAVOUR;      # -- either "alpine" (default) or "debian"
-declare SERVER_FLAVOUR;  # -- not implemented, either "nginx" (default) or "apache"
-declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaults to "linux/amd64")
-declare PLATFORM;        # -- alias for $TARGET_PLATFORM
-declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
-declare PUSH;            # -- set it to "true" if you want to push the resulting image
-declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
-declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
+declare PS_VERSION;        # -- PrestaShop version, defaults to latest
+declare PHP_VERSION;       # -- PHP version, defaults to recommended version for PrestaShop
+declare OS_FLAVOUR;        # -- either "alpine" (default) or "debian"
+declare SERVER_FLAVOUR;    # -- not implemented, either "nginx" (default) or "apache"
+declare TARGET_PLATFORM;   # -- a comma separated list of target platforms (defaults to "linux/amd64")
+declare PLATFORM;          # -- alias for $TARGET_PLATFORM
+declare TARGET_IMAGE;      # -- docker image name, defaults to "prestashop/prestashop-flashlight"
+declare PUSH;              # -- set it to "true" if you want to push the resulting image
+declare ZIP_SOURCE;        # -- the zip to unpack in flashlight
+declare DRY_RUN;           # -- if used, won't really build the image. Useful to check tags compliance
+declare CUSTOM_LABELS;     # -- only when PRIVATE : list of key=value pairs separated by a comma, for overriding official flashlight labels
+
+declare -A IMAGE_LABELS;
 
 # Static configuration
 # --------------------
@@ -27,6 +30,29 @@ TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 error() {
   echo -e "\e[1;31m${1:-Unknown error}\e[0m"
   exit "${2:-1}"
+}
+
+build_default_labels() {
+  IMAGE_LABELS["org.opencontainers.image.title"]="Prestashop Flashlight"
+  IMAGE_LABELS["org.opencontainers.image.description"]="PrestaShop Flashlight testing utility"
+  IMAGE_LABELS["org.opencontainers.image.source"]="https://github.com/PrestaShop/prestashop-flashlight"
+  IMAGE_LABELS["org.opencontainers.image.url"]="https://github.com/PrestaShop/prestashop-flashlight"
+  IMAGE_LABELS["org.opencontainers.image.licenses"]=MIT
+  IMAGE_LABELS["org.opencontainers.image.created"]="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")"
+}
+
+build_labels() {
+  if [ ! -z "$CUSTOM_LABELS" ]; then
+    
+    IFS="," read -ra labels <<< "$(echo $CUSTOM_LABELS | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
+    for label in "${labels[@]}"; do
+      IFS="=" read -ra parts <<< "$label"
+      IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
+    done
+
+  else
+    build_default_labels
+  fi
 }
 
 get_latest_prestashop_version() {
@@ -142,11 +168,19 @@ if [ -z "${TARGET_IMAGE:+x}" ]; then
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
-if [ "$PS_VERSION" == "nightly" ]; then
-  ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
-else
-  ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+
+if [ -z "$ZIP_SOURCE" ]; then
+  if [ "$PS_VERSION" == "nightly" ]; then
+    ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
+  else
+    ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+  fi
 fi
+
+# Build image labels
+# ------------------
+build_labels
+
 
 # Build the docker image
 # ----------------------
@@ -156,8 +190,15 @@ if [ -n "${DRY_RUN}" ]; then
     echo docker "$@"
   }
 fi
+
+labelString=
+for key in ${!IMAGE_LABELS[@]}
+do
+  labelString=$labelString' --label '$key'="'${IMAGE_LABELS[$key]}'"'
+done
+
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
-docker buildx build \
+eval docker buildx build \
   --progress=plain \
   --file "./docker/${OS_FLAVOUR}.Dockerfile" \
   --platform "$TARGET_PLATFORM" \
@@ -169,12 +210,7 @@ docker buildx build \
   --build-arg GIT_SHA="$GIT_SHA" \
   --build-arg NODE_VERSION="$NODE_VERSION" \
   --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
-  --label org.opencontainers.image.title="PrestaShop Flashlight" \
-  --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
-  --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
-  --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
-  --label org.opencontainers.image.licenses=MIT \
-  --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+  $labelString \
   "${TARGET_IMAGES[@]}" \
-  "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
+  $([ "${PUSH}" == "true" ] && echo "--push" || echo "--load") \
   .
