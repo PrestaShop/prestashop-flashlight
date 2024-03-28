@@ -8,10 +8,10 @@ services:
     environment:
       - PS_DOMAIN=localhost:8000
       - INIT_SCRIPTS_DIR=/tmp/init-scripts
-      - INIT_SCRIPTS_USER=root
+      - RUN_AS_USER=root
       - XDEBUG_ENABLED=true
     volumes:
-      - ./PrestaShop:/var/www/html:rw
+      - ./PrestaShop:/var/www/html:delegated
     ports:
       - 8000:80
 
