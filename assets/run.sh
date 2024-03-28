@@ -7,15 +7,16 @@ export DUMP_ON_RESTART="${DUMP_ON_RESTART:-false}"
 export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
 export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
-export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
+export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-$RUN_AS_USER}"
 export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
 export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
 export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
 export POST_SCRIPTS_DIR="${POST_SCRIPTS_DIR:-/tmp/post-scripts/}"
 export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
-export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
+export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-$RUN_AS_USER}"
 export PS_PROTOCOL="${PS_PROTOCOL:-http}"
+export RUN_AS_USER="${RUN_AS_USER:-www-data}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
 export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
 
@@ -25,9 +26,9 @@ MODULES_INSTALLED_LOCK=/tmp/flashlight-modules-installed.lock
 INIT_SCRIPTS_LOCK=/tmp/flashlight-init-scripts.lock
 POST_SCRIPTS_LOCK=/tmp/flashlight-post-scripts.lock
 
-# Runs everything as www-data
+# Runs everything as $RUN_AS_USER
 run_user () {
-  sudo -g www-data -u www-data -- "$@"
+  sudo -g "$RUN_AS_USER" -u "$RUN_AS_USER" -- "$@"
 }
 
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
@@ -40,6 +41,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   case "$PS_DOMAIN" in
     http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
   esac
+
+# Check if RUN_AS_USER is not www-data
+  if [ "$RUN_AS_USER" != "www-data" ]; then
+    sed -i "s/www-data/$RUN_AS_USER/g" /usr/local/etc/php-fpm.conf
+    sed -i "s/www-data/$RUN_AS_USER/g" /etc/nginx/nginx.conf
+  fi
 
   # Check if a tunnel autodetection mechanism should be involved
   if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
@@ -208,7 +215,7 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-run_user php-fpm -D
+run_user php-fpm -D -R
 
 echo "* Starting nginx..."
 nginx -g "daemon off;" &
