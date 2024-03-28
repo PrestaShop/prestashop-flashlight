@@ -37,9 +37,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     exit 2
   fi
 
-  case "$PS_DOMAIN" in
-    http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
-  esac
+  if [ -n "${PS_DOMAIN:-}" ]; then
+    case "$PS_DOMAIN" in
+      http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
+    esac
+  fi
 
   # Check if a tunnel autodetection mechanism should be involved
   if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
