@@ -9,6 +9,7 @@ services:
         condition: service_started
     environment:
       - NGROK_TUNNEL_AUTO_DETECT=http://ngrok:4040
+      - PS_DOMAIN=localhost:8000
     ports:
       - 8000:80
 
