@@ -31,15 +31,15 @@ run_user () {
 }
 
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
-  if [ -z "${PS_DOMAIN:-}" ] && [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
+  if [ -n "${PS_DOMAIN:-}" ]; then
+    case "$PS_DOMAIN" in
+      http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
+    esac
+  elif [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
     echo "Missing PS_DOMAIN or NGROK_TUNNEL_AUTO_DETECT. Exiting"
     sleep 3
     exit 2
   fi
-
-  case "$PS_DOMAIN" in
-    http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
-  esac
 
   # Check if a tunnel autodetection mechanism should be involved
   if [ -n "${NGROK_TUNNEL_AUTO_DETECT+x}" ]; then
