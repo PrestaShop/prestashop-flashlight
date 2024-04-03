@@ -10,21 +10,14 @@ jobs:
     name: Build and publish docker
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    permissions:
-      contents: read
-      packages: write
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
-          platforms: ${{ env.TARGET_PLATFORM }}
+          platforms: "linux/amd64,linux/arm64"
           use: true
 
       - name: Login to Docker Hub
