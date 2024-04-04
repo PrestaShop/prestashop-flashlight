@@ -64,7 +64,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s~replace-me.com~$PS_DOMAIN~g" /dump.sql
+  sed -i "s~localhost:80~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
   [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
@@ -72,7 +72,9 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
+    # Only IF < 9 depuis la PR de Morgan
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
+    # FI
   fi
 
   echo "* Checking MySQL connectivity..."

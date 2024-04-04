@@ -60,13 +60,13 @@ RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
   && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
   && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION"
 
-# Hydrate the SQL dump
-COPY ./assets/hydrate.sh /hydrate.sh
-RUN sh /hydrate.sh
-
 # Extra patches to the PrestaShop sources
 COPY ./assets/patch.sh /patch.sh
 RUN sh /patch.sh
+
+# Hydrate the SQL dump
+COPY ./assets/hydrate.sh /hydrate.sh
+RUN sh /hydrate.sh
 
 # -----------------------
 # Flashlight final image
