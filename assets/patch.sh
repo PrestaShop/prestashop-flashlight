@@ -6,8 +6,8 @@ PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
 
 patch_1_6 () {
   echo "✅ Add a robots file for PrestaShop 1.6"
-  echo "User-agent: *" > "$PS_FOLDER/admin-dev/robots.txt"
-  echo "Disallow: /" >> "$PS_FOLDER/admin-dev/robots.txt"
+  echo "User-agent: *" > "$PS_FOLDER/admin/robots.txt"
+  echo "Disallow: /" >> "$PS_FOLDER/admin/robots.txt"
 }
 
 patch_1_7_6 () {
@@ -17,7 +17,6 @@ patch_1_7_6 () {
   rm -rf "$PS_FOLDER/modules/ps_facetedsearch"
   curl -f -sL -o "/tmp/ps_facetedsearch.zip" "https://github.com/PrestaShop/ps_facetedsearch/releases/download/$PS_FACETEDSEARCH_VERSION/ps_facetedsearch.zip"
   unzip -n -q "/tmp/ps_facetedsearch.zip" -d "$PS_FOLDER/modules/ps_facetedsearch"
-
 }
 
 patch_other () {
