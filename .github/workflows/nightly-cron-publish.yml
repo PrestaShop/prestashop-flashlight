@@ -14,7 +14,7 @@ on:
       os_flavour:
         description: "OS flavour"
         required: false
-        default: ${{ env.OS_FLAVOUR }}
+        default: "alpine"
         type: choice
         options:
           - alpine
@@ -23,7 +23,7 @@ on:
       target_platforms:
         description: "Target platforms to build this image for"
         required: false
-        default: ${{ env.TARGET_PLATFORMS }}
+        default: "linux/amd64,linux/arm64"
         type: string
 
 jobs:
