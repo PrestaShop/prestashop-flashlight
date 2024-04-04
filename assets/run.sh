@@ -72,9 +72,8 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
-    # Only IF < 9 depuis la PR de Morgan
+    # Only for PrestaShop < 9 since a1df6458433e9402ca3d4a0223ed927e5961d86a
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
-    # FI
   fi
 
   echo "* Checking MySQL connectivity..."
@@ -129,11 +128,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     echo "* Debug mode set"
   fi
 
-# If Xdebug is enabled
-if [ "$XDEBUG_ENABLED" = "true" ]; then
+  # If Xdebug is enabled
+  if [ "$XDEBUG_ENABLED" = "true" ]; then
     sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "* Xdebug enabled"
   fi
+
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
