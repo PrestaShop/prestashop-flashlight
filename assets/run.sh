@@ -64,7 +64,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s~replace-me.com~$PS_DOMAIN~g" /dump.sql
+  sed -i "s~localhost:80~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
   [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
@@ -72,6 +72,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
+    # Only for PrestaShop < 9 since a1df6458433e9402ca3d4a0223ed927e5961d86a
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
   fi
 
@@ -127,11 +128,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     echo "* Debug mode set"
   fi
 
-# If Xdebug is enabled
-if [ "$XDEBUG_ENABLED" = "true" ]; then
+  # If Xdebug is enabled
+  if [ "$XDEBUG_ENABLED" = "true" ]; then
     sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "* Xdebug enabled"
   fi
+
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
