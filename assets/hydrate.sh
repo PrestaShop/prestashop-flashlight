@@ -7,7 +7,7 @@ PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
 DUMP_FILE=/dump.sql
 
-export PS_DOMAIN="replace-me.com" \
+export PS_DOMAIN="localhost:80" \
   DB_SERVER=127.0.0.1 \
   DB_PORT=3306 \
   DB_NAME=prestashop \
@@ -44,8 +44,8 @@ sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$
 
 # 6. Run the PrestaShop installer
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
-sudo -g www-data -u www-data -- \
-  php -f "${PS_FOLDER}/install/index_cli.php" -- \
+echo "* Starting the installer..."
+sudo php -f "${PS_FOLDER}/install/index_cli.php" -- \
   --domain=$PS_DOMAIN \
   --db_create=1 \
   --db_server=${DB_SERVER}:${DB_PORT} \
@@ -83,9 +83,19 @@ else
 fi
 
 # 10. Tear down mysql
-killall --wait --quiet mysqld | true
+killall mysqld | true
 
-# 11. Some clean up
+# 11. Copy the PrestaShop settings against a volume mount on $PS_FOLDER
+PS_OPT_DIR=/var/opt/prestashop
+mkdir -p "$PS_OPT_DIR"
+if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then
+  cp "$PS_FOLDER/config/settings.inc.php" "$PS_OPT_DIR/settings.inc.php"
+else
+  mkdir -p "$PS_OPT_DIR"
+  cp "$PS_FOLDER/app/config/parameters.php" "$PS_OPT_DIR/parameters.php"
+fi
+
+# 12. Some clean up
 mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
 rm -rf \
   "$PS_FOLDER/install" \

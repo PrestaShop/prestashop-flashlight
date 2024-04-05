@@ -1,23 +1,25 @@
 #!/bin/sh
 set -eu
 
-export DRY_RUN="${DRY_RUN:-false}"
 export DEBUG_MODE="${DEBUG_MODE:-false}"
-export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
+export DEV_ORIGIN="${DEV_ORIGIN:-git@github.com:PrestaShop/PrestaShop.git}"
+export DEV_BRANCH=${DEV_BRANCH:-false}
+export DRY_RUN="${DRY_RUN:-false}"
 export DUMP_ON_RESTART="${DUMP_ON_RESTART:-false}"
-export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
+export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
+export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
-export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
-export SSL_REDIRECT="${SSL_REDIRECT:-false}"
+export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
+export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
+export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
 export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
-export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
-export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export POST_SCRIPTS_DIR="${POST_SCRIPTS_DIR:-/tmp/post-scripts/}"
-export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
+export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
 export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
-export DEV_ORIGIN="${DEV_ORIGIN:-git@github.com:PrestaShop/PrestaShop.git}"
-declare DEV_BRANCH=${DEV_BRANCH:-false}
+export PS_PROTOCOL="${PS_PROTOCOL:-http}"
+export SSL_REDIRECT="${SSL_REDIRECT:-false}"
+export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -31,7 +33,11 @@ run_user () {
 }
 
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
-  if [ -z "${PS_DOMAIN:-}" ] && [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
+  if [ -n "${PS_DOMAIN:-}" ]; then
+    case "$PS_DOMAIN" in
+      http*) echo "PS_DOMAIN is not expected to be an URI"; sleep 3; exit 2 ;;
+    esac
+  elif [ -z "${NGROK_TUNNEL_AUTO_DETECT:-}" ]; then
     echo "Missing PS_DOMAIN or NGROK_TUNNEL_AUTO_DETECT. Exiting"
     sleep 3
     exit 2
@@ -60,12 +66,15 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s/replace-me.com/$PS_DOMAIN/g" /dump.sql
+  sed -i "s~localhost:80~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
-  if [ "$SSL_REDIRECT" = "true" ]; then
+  [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
+  if [ "$PS_PROTOCOL" = "https" ]; then
+    export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
     sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
+    # Only for PrestaShop < 9 since a1df6458433e9402ca3d4a0223ed927e5961d86a
     sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
   fi
 
@@ -110,29 +119,36 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ -f "$PS_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_CONFIG_PARAMETERS.bak" ] && cp "$PS_CONFIG_PARAMETERS" "$PS_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/host' => '127.0.0.1'/host' => '$MYSQL_HOST'/" \
-        -e "s/port' => ''/port' => '$MYSQL_PORT'/" \
-        -e "s/name' => 'prestashop'/name' => '$MYSQL_DATABASE'/" \
-        -e "s/user' => 'root'/user' => '$MYSQL_USER'/" \
-        -e "s/password' => 'prestashop'/password' => '$MYSQL_PASSWORD'/" \
-        -e "s/database_engine' => 'InnoDB',/database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',/" \
+        -e "s~host' => '127.0.0.1'~host' => '$MYSQL_HOST'~" \
+        -e "s~port' => ''~port' => '$MYSQL_PORT'~" \
+        -e "s~name' => 'prestashop'~name' => '$MYSQL_DATABASE'~" \
+        -e "s~user' => 'root'~user' => '$MYSQL_USER'~" \
+        -e "s~password' => 'prestashop'~password' => '$MYSQL_PASSWORD'~" \
+        -e "s~database_engine' => 'InnoDB',~database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',~" \
       "$PS_FOLDER/app/config/parameters.php"
   elif [ -f "$PS_16_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_16_CONFIG_PARAMETERS.bak" ] && cp "$PS_16_CONFIG_PARAMETERS" "$PS_16_CONFIG_PARAMETERS.bak";
     run_user sed -i \
-        -e "s/127.0.0.1:3306/$MYSQL_HOST:$MYSQL_PORT/" \
-        -e "s/_DB_NAME_', 'prestashop/_DB_NAME_', '$MYSQL_DATABASE/" \
-        -e "s/_DB_USER_', 'root/_DB_USER_', '$MYSQL_USER/" \
-        -e "s/_DB_PASSWD_', 'prestashop/_DB_PASSWD_', '$MYSQL_PASSWORD/" \
+        -e "s~127.0.0.1:3306~$MYSQL_HOST:$MYSQL_PORT~" \
+        -e "s~_DB_NAME_', 'prestashop~_DB_NAME_', '$MYSQL_DATABASE~" \
+        -e "s~_DB_USER_', 'root~_DB_USER_', '$MYSQL_USER~" \
+        -e "s~_DB_PASSWD_', 'prestashop~_DB_PASSWD_', '$MYSQL_PASSWORD~" \
       "$PS_16_CONFIG_PARAMETERS"
   fi
   echo "* PrestaShop MySQL configuration set"
 
   # If debug mode is enabled
   if [ "$DEBUG_MODE" = "true" ]; then
-    sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
+    sed -ie "s~define('_PS_MODE_DEV_', false);~define('_PS_MODE_DEV_',\ true);~g" "$PS_FOLDER/config/defines.inc.php"
     echo "* Debug mode set"
   fi
+
+  # If Xdebug is enabled
+  if [ "$XDEBUG_ENABLED" = "true" ]; then
+    sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
+    echo "* Xdebug enabled"
+  fi
+
   touch $INIT_LOCK
 else
   echo "* Init already performed (see INIT_ON_RESTART)"
