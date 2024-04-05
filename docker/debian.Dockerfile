@@ -4,6 +4,7 @@ ARG PHP_FLAVOUR=8.3-fpm-bookworm
 ARG GIT_SHA
 ARG NODE_VERSION
 ARG ZIP_SOURCE
+ARG INSTALL_MODULES
 
 # -------------------------------------
 #  PrestaShop Flashlight: Debian image
@@ -46,6 +47,8 @@ ARG PHP_VERSION
 ARG GIT_SHA
 ARG PS_FOLDER=/var/www/html
 ARG ZIP_SOURCE
+ARG INSTALL_MODULES
+ENV INSTALL_MODULES=$INSTALL_MODULES
 
 # Get PrestaShop source code
 # hadolint ignore=DL3020
