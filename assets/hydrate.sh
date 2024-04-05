@@ -67,7 +67,8 @@ sudo php -f "${PS_FOLDER}/install/index_cli.php" -- \
   --all_languages=0 \
   --newsletter=0 \
   --send_email=0 \
-  --ssl=0
+  --ssl=0 \
+  $([ "$INSTALL_MODULES" == "true" ] && echo "--modules=$(ls $PS_FOLDER/modules | grep -v index.php | paste -s -d ',')" || echo "" )
 echo "✅ PrestaShop installed"
 
 # 7. Swap off dev mode

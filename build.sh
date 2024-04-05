@@ -13,6 +13,7 @@ declare PLATFORM;          # -- alias for $TARGET_PLATFORM
 declare TARGET_IMAGE;      # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare PUSH;              # -- set it to "true" if you want to push the resulting image
 declare ZIP_SOURCE;        # -- the zip to unpack in flashlight
+declare INSTALL_MODULES;   # -- install modules during zip installation
 declare DRY_RUN;           # -- if used, won't really build the image. Useful to check tags compliance
 declare CUSTOM_LABELS;     # -- only when PRIVATE : list of key=value pairs separated by a comma, for overriding official flashlight labels
 
@@ -210,6 +211,7 @@ eval docker buildx build \
   --build-arg GIT_SHA="$GIT_SHA" \
   --build-arg NODE_VERSION="$NODE_VERSION" \
   --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
+  --build-arg INSTALL_MODULES="$INSTALL_MODULES" \
   $labelString \
   "${TARGET_IMAGES[@]}" \
   $([ "${PUSH}" == "true" ] && echo "--push" || echo "--load") \
