@@ -85,6 +85,9 @@ if [ "0.0.0" != "$NODE_VERSION" ]; then
   npm install -g yarn@latest pnpm@latest --force
 fi
 
+# Install github-cli
+apt-get install --no-install-recommends -qqy gh
+
 # Cleanup dev packages, keep libraries
 apt-get clean
 apt-get purge -qqy build-essential gcc g++ ghc "$LIB_FREETYPE_DEV" linux-libc-dev libncurses-dev \
