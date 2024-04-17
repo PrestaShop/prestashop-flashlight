@@ -248,9 +248,9 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       printf "\n--> Running $1...\n"
       if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
-        (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
+        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
       else
-        (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
+        (sudo -E -g '"$POST_SCRIPTS_USER"' -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
