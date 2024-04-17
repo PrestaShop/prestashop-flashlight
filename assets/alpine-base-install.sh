@@ -51,7 +51,7 @@ if [ "0.0.0" != "$NODE_VERSION" ]; then
 fi
 
 # Install github-cli
-apk --no-cache add -U github-cli
+apk --no-cache add -U github-cli || curl -sS https://webi.sh/gh | sh
 
 # Cleanup dev packages, keep libraries
 apk --no-cache del -U build-base autoconf gcc g++ libgcc nginx-vim mariadb xz-dev musl-dev linux-headers freetype-dev zlib-dev libjpeg-turbo-dev libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev

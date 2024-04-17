@@ -86,7 +86,7 @@ if [ "0.0.0" != "$NODE_VERSION" ]; then
 fi
 
 # Install github-cli
-apt-get install --no-install-recommends -qqy gh
+apt-get install --no-install-recommends -qqy gh || curl -sS https://webi.sh/gh | sh
 
 # Cleanup dev packages, keep libraries
 apt-get clean
