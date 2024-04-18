@@ -56,6 +56,10 @@ chown www-data:www-data /var/log/php /var/run/php
 curl -s https://getcomposer.org/installer | php \
   && mv composer.phar /usr/bin/composer
 
+# Install PrestaShop php-dev-tools
+PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
+composer require prestashop/php-dev-tools="$PS_CODING_STANDARDS" --dev --no-interaction --working-dir="$PS_FOLDER"
+
 # Compute the short version (8.1.27 becomes 8.1)
 PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 
