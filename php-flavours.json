@@ -5,7 +5,7 @@
     "php_cs_fixer": "v3.3.0",
     "phpstan": "1.4.10",
     "phpunit": "7.5.20",
-    "ps_coding_standards": "3.16.1",
+    "ps_coding_standards": "3.x",
     "xdebug": "2.9.8"
   },
   "7.2": {
@@ -14,7 +14,7 @@
     "php_cs_fixer": "v3.4.0",
     "phpstan": "HEAD",
     "phpunit": "8.5.34",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.1.6"
   },
   "7.3": {
@@ -23,7 +23,7 @@
     "php_cs_fixer": "v3.4.0",
     "phpstan": "HEAD",
     "phpunit": "9.6.13",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.1.6"
   },
   "7.4": {
@@ -32,7 +32,7 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "9.6.13",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.1.6"
   },
   "8.0": {
@@ -41,7 +41,7 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "9.6.13",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.3.1"
   },
   "8.1": {
@@ -50,7 +50,7 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "10.4.2",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.3.1"
   },
   "8.2": {
@@ -59,7 +59,7 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "10.4.2",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.3.1"
   },
   "8.3": {
@@ -68,7 +68,7 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "10.4.2",
-    "ps_coding_standards": "4.3.0",
+    "ps_coding_standards": "master",
     "xdebug": "3.3.1"
   }
 }

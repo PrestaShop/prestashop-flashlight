@@ -61,7 +61,8 @@ curl -s https://getcomposer.org/installer | php \
 
 # Install PrestaShop php-dev-tools
 PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
-composer require prestashop/php-dev-tools="$PS_CODING_STANDARDS" --dev --no-interaction --working-dir="$PS_FOLDER"
+git clone --depth 1 --branch "$PS_CODING_STANDARDS" git@github.com:PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
+rm -rf "$PS_FOLDER/tools/php-dev-tools/.git"
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
