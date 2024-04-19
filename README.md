@@ -31,14 +31,15 @@ Some tags may not be built yet, feel free to [fill an issue](./issues) to reques
 
 PrestaShop Flashlight can be used as a **development environment**, a **CI/CD asset** to build up a custom PrestaShop environment, or any use case you can think of. Following is a list of resources and examples to get you started:
 
+- [Auto installation of modules](./examples/auto-install-modules/)
 - [Basic example](./examples/basic-example/)
-- [Nightly example](./examples/nightly-example/)
-- [Develop PrestaShop](./examples/develop-prestashop/)
-- [Develop a PrestaShop Module](./examples/develop-a-module/)
 - [Custom init-scripts](./examples/with-init-scripts/)
 - [Custom post-scripts](./examples/with-post-scripts/)
+- [Develop a PrestaShop module](./examples/develop-a-module/)
+- [Develop PrestaShop](./examples/develop-prestashop/)
 - [Ngrok tunneling](./examples/ngrok-tunnel)
-- [Auto installation of modules](./examples/auto-install-modules/)
+- [Nightly example](./examples/nightly-example/)
+- [Validate a module with the PrestaShop coding standard](./examples/module-coding-standard/)
 - [Xdebug a store](./examples/xdebug-prestashop/)
 - Develop a PrestaShop Theme (coming soon)
 - Use in GitHub Action (coming soon)

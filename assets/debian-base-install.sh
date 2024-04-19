@@ -26,7 +26,7 @@ apt-get install --no-install-recommends -qqy ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream;
+  libnginx-mod-http-geoip libnginx-mod-stream openssh-client;
 echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
@@ -52,12 +52,15 @@ adduser --system nginx
 chown nginx:nginx /var/run/nginx
 chown www-data:www-data /var/log/php /var/run/php
 
+# Compute the short version (8.1.27 becomes 8.1)
+PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+
 # Install composer
 curl -s https://getcomposer.org/installer | php \
   && mv composer.phar /usr/bin/composer
 
-# Compute the short version (8.1.27 becomes 8.1)
-PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+# Install PrestaShop tools required by prestashop coding-standards
+composer require nikic/php-parser --working-dir=/var/opt
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)

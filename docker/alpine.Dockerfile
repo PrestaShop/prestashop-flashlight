@@ -22,6 +22,8 @@ COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp
 COPY ./assets/php-configuration.sh /tmp/
 COPY ./assets/alpine-base-install.sh /tmp/
+COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
+
 RUN /tmp/alpine-base-install.sh \
   && rm -f /tmp/alpine-base-install.sh /tmp/php-configuration.sh
 

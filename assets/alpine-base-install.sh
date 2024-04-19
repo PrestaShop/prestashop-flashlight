@@ -8,7 +8,8 @@ apk --no-cache add -U \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
-  libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev
+  libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
+  openssh-client
 
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
@@ -17,12 +18,15 @@ mkdir -p /var/log/php /var/run/php /var/run/nginx
 chown nginx:nginx /var/run/nginx
 chown www-data:www-data /var/log/php /var/run/php
 
+# Compute the short version (8.1.27 becomes 8.1)
+PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+
 # Install composer
 curl -s https://getcomposer.org/installer | php
 mv composer.phar /usr/bin/composer
 
-# Compute the short version (8.1.27 becomes 8.1)
-PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+# Install PrestaShop tools required by prestashop coding-standards
+composer require nikic/php-parser --working-dir=/var/opt
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
