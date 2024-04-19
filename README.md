@@ -39,6 +39,7 @@ PrestaShop Flashlight can be used as a **development environment**, a **CI/CD as
 - [Develop PrestaShop](./examples/develop-prestashop/)
 - [Ngrok tunneling](./examples/ngrok-tunnel)
 - [Nightly example](./examples/nightly-example/)
+- [Probe PrestaShop with Blackfire](./examples/blackfire-example/)
 - [Validate a module with the PrestaShop coding standard](./examples/module-coding-standard/)
 - [Xdebug a store](./examples/xdebug-prestashop/)
 - Develop a PrestaShop Theme (coming soon)
