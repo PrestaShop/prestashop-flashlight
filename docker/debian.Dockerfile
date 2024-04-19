@@ -22,7 +22,7 @@ COPY ./assets/nginx.conf /etc/nginx/nginx.conf
 COPY ./php-flavours.json /tmp
 COPY ./assets/php-configuration.sh /tmp/
 COPY ./assets/debian-base-install.sh /tmp/
-COPY ./assets/coding-standards /var/opt/prestashop
+COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
 
 RUN /tmp/debian-base-install.sh \
   && rm -f /tmp/debian-base-install.sh /tmp/php-configuration.sh
