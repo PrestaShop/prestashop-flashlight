@@ -25,10 +25,8 @@ PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 curl -s https://getcomposer.org/installer | php
 mv composer.phar /usr/bin/composer
 
-# Install PrestaShop php-dev-tools
-PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
-git clone --depth 1 --branch "$PS_CODING_STANDARDS" https://github.com/PrestaShop/php-dev-tools.git "/var/opt/prestashop/php-dev-tools"
-rm -rf "$PS_FOLDER/tools/php-dev-tools/.git"
+# Install PrestaShop tools required by prestashop coding-standards
+composer require nikic/php-parser --working-dir=/var/opt
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
