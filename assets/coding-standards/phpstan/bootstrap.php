@@ -1,17 +1,13 @@
 <?php
 declare(strict_types=1);
 
-$psRootDir = getenv('_PS_ROOT_DIR_');
+$psRootDir = getenv('_PS_ROOT_DIR_') ?: '/var/www/html';
 $psModuleDir = getenv('_PS_MODULE_DIR_');
 define('_PS_ADMIN_DIR_', $psRootDir . '/admin-dev/');
 define('PS_ADMIN_DIR', _PS_ADMIN_DIR_); // alias
 define('__PS_BASE_URI__', '/');
 define('_THEME_NAME_', 'default-bootstrap');
 
-if (!$psRootDir) {
-    echo '[ERROR] Define _PS_ROOT_DIR_ with the path to PrestaShop folder' . PHP_EOL;
-    exit(1);
-}
 if (!realpath($psRootDir)) {
     echo sprintf('[ERROR] _PS_ROOT_DIR_ configuration is wrong. No directory found at %s .', $psRootDir) . PHP_EOL;
     exit(1);
