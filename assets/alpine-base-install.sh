@@ -27,7 +27,7 @@ mv composer.phar /usr/bin/composer
 
 # Install PrestaShop php-dev-tools
 PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
-git clone --depth 1 --branch "$PS_CODING_STANDARDS" https://github.com/PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
+git clone --depth 1 --branch "$PS_CODING_STANDARDS" https://github.com/PrestaShop/php-dev-tools.git "/var/opt/prestashop/php-dev-tools"
 rm -rf "$PS_FOLDER/tools/php-dev-tools/.git"
 
 # Install phpunit
