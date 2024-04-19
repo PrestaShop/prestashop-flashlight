@@ -43,9 +43,9 @@ build_default_labels() {
 }
 
 build_labels() {
-  if [ ! -z "$CUSTOM_LABELS" ]; then
+  if [ -n "$CUSTOM_LABELS" ]; then
     
-    IFS="," read -ra labels <<< "$(echo $CUSTOM_LABELS | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
+    IFS="," read -ra labels <<< "$(echo "$CUSTOM_LABELS" | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
     for label in "${labels[@]}"; do
       IFS="=" read -ra parts <<< "$label"
       IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
@@ -193,7 +193,7 @@ if [ -n "${DRY_RUN}" ]; then
 fi
 
 labelString=
-for key in ${!IMAGE_LABELS[@]}
+for key in "${!IMAGE_LABELS[@]}"
 do
   labelString=$labelString' --label '$key'="'${IMAGE_LABELS[$key]}'"'
 done
@@ -212,7 +212,7 @@ eval docker buildx build \
   --build-arg NODE_VERSION="$NODE_VERSION" \
   --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
   --build-arg INSTALL_MODULES="$INSTALL_MODULES" \
-  $labelString \
-  "${TARGET_IMAGES[@]}" \
-  $([ "${PUSH}" == "true" ] && echo "--push" || echo "--load") \
+  "$labelString" \
+  "${TARGET_IMAGES[*]}" \
+  "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
   .
