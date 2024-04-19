@@ -26,7 +26,7 @@ apt-get install --no-install-recommends -qqy ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream;
+  libnginx-mod-http-geoip libnginx-mod-stream openssh-client;
 echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
@@ -61,7 +61,7 @@ curl -s https://getcomposer.org/installer | php \
 
 # Install PrestaShop php-dev-tools
 PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
-git clone --depth 1 --branch "$PS_CODING_STANDARDS" git@github.com:PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
+git clone --depth 1 --branch "$PS_CODING_STANDARDS" https://github.com/PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
 rm -rf "$PS_FOLDER/tools/php-dev-tools/.git"
 
 # Install phpunit

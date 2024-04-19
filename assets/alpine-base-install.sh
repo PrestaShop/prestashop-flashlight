@@ -8,7 +8,8 @@ apk --no-cache add -U \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   gnu-libiconv php-common mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
-  libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev
+  libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
+  openssh-client
 
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
@@ -26,7 +27,7 @@ mv composer.phar /usr/bin/composer
 
 # Install PrestaShop php-dev-tools
 PS_CODING_STANDARDS=$(jq -r '."'"${PHP_SHORT_VERSION}"'".ps_coding_standards' < /tmp/php-flavours.json)
-git clone --depth 1 --branch "$PS_CODING_STANDARDS" git@github.com:PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
+git clone --depth 1 --branch "$PS_CODING_STANDARDS" https://github.com/PrestaShop/php-dev-tools.git "$PS_FOLDER/tools/php-dev-tools"
 rm -rf "$PS_FOLDER/tools/php-dev-tools/.git"
 
 # Install phpunit
