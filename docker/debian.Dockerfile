@@ -25,6 +25,17 @@ COPY ./assets/debian-base-install.sh /tmp/
 RUN /tmp/debian-base-install.sh \
   && rm -f /tmp/debian-base-install.sh /tmp/php-configuration.sh
 
+
+RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
+  && architecture=$(uname -m) \
+  && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s "https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version" \
+  && mkdir -p /tmp/blackfire \
+  && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
+  && mv /tmp/blackfire/blackfire-*.so "$(php -r "echo ini_get ('extension_dir');")"/blackfire.so \
+  && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
+  && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
+  
+
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
@@ -88,8 +99,8 @@ ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
-RUN mkdir -p $COMPOSER_HOME \
-  && chown www-data:www-data $COMPOSER_HOME
+RUN mkdir -p "$COMPOSER_HOME" \
+  && chown www-data:www-data "$COMPOSER_HOME"
 
 # Get the installed sources
 COPY \
