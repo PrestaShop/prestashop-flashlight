@@ -87,6 +87,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 | PS_PROTOCOL                | if PS_PROTOCOL equals `https` the public URL will be `https://$PS_DOMAIN`                                    | `http` (example: `https`)              |
 | SSL_REDIRECT               | if enabled the public URL will be `https://$PS_DOMAIN` (if not using `PS_PROTOCOL`)                          | `false` (example: `true`)              |
 | XDEBUG_ENABLED             | if enabled Xdebug will be enabled in PHP. See settings here: `$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini` | `false` (example: `true`)              |
+| BLACKFIRE_ENABLED          | if enabled Blackfire will be enabled in PHP. | `true` (example: `false`)              |
 
 > Note:
 >
