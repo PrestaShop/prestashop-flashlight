@@ -1,0 +1,10 @@
+includes:
+  - /var/opt/prestashop/coding-standards/phpstan/ps-module-extension.neon
+
+parameters:
+  paths:
+    - ./testmodule.php
+  reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    - '#Instantiated class Symfony\\Component\\Cache\\Adapter\\FilesystemAdapter not found.#'
+  level: 9

@@ -1,17 +1,17 @@
-name: flashlight-basic-example
+name: flashlight-cloudflared-tunnel
 services:
   prestashop:
     image: prestashop/prestashop-flashlight:latest
     depends_on:
       mysql:
         condition: service_healthy
+      cloudflared:
+        condition: service_started
     environment:
-      - PS_DOMAIN=localhost:8000
-      # - DEBUG_MODE=true
+      - PS_DOMAIN=${TUNNEL_NAME}
+      - PS_PROTOCOL=https
     ports:
       - 8000:80
-    expose:
-      - 80
 
   mysql:
     image: mariadb:lts
@@ -35,26 +35,13 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=prestashop
-    expose:
-      - 3306
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    depends_on:
-      mysql:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD", "curl", "-Isf", "http://localhost/robots.txt"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run $${TUNNEL_NAME}
     environment:
-      - PMA_HOST=mysql
-      - PMA_PORT=3306
-      - PMA_USER=prestashop
-      - PMA_PASSWORD=prestashop
-      - MYSQL_ROOT_PASSWORD=prestashop
-    ports:
-      - 6060:80
-    expose:
-      - 80
+      - TUNNEL_CRED_FILE=/credentials.json
+      - TUNNEL_URL=http://prestashop:80
+      - TUNNEL_HTTP_HOST_HEADER=${TUNNEL_NAME}
+    volumes:
+      - ./credentials.json:/credentials.json

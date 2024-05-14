@@ -37,7 +37,8 @@ You can access to PrestaShop in your browser:
 If you want to start a phpMyAdmin instance, it can be done easily like so:
 
 ```sh
-docker compose up # or "docker compose up prestashop php-my-admin"
+docker compose up
+# or "docker compose up prestashop php-my-admin"
 ```
 
-Now you can access phpMyAdmin at http://localhost:6060
+You can now access phpMyAdmin at http://localhost:6060

@@ -1,0 +1,21 @@
+name: prestashop-with-blackfire
+services:
+  prestashop:
+    image: prestashop/prestashop-flashlight:latest
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      - PS_DOMAIN=localhost
+    ports:
+      - 80:80
+
+  blackfire:
+    image: blackfire/blackfire:2
+    ports: ["8307"]
+    environment:
+      BLACKFIRE_LOG_LEVEL: 1
+      BLACKFIRE_SERVER_ID: MY_BLACKFIRE_SERVER_ID
+      BLACKFIRE_SERVER_TOKEN: MY_BLACKFIRE_SERVER_TOKEN
+      BLACKFIRE_CLIENT_ID: MY_BLACKFIRE_CLIENT_ID
+      BLACKFIRE_CLIENT_TOKEN: MY_BLACKFIRE_CLIENT_TOKEN

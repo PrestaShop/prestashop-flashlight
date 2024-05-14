@@ -1,4 +1,4 @@
-# Example: ngrok tunnel example
+# Example: ngrok tunnel
 
 [Ngrok](https://ngrok.com) is a handy http tunnel you can use to expose your local environment to the Web and inspect incoming requests.
 
@@ -11,21 +11,12 @@
 3. Run PrestaShop Flashlight alongside a Ngrok agent:
 
 ```sh
-docker compose up prestashop --force-recreate
-ngrok-tunnel-prestashop-1  | * Auto-detecting domain with ngrok client api on http://ngrok:4040...
-ngrok-tunnel-prestashop-1  | * ngrok tunnel found running on 4452-37-170-242-21.ngrok.app
-ngrok-tunnel-prestashop-1  | * Applying PS_DOMAIN (4452-37-170-242-21.ngrok.app) to the dump...
-ngrok-tunnel-prestashop-1  | * Enabling SSL redirect to the dump...
-ngrok-tunnel-prestashop-1  | * Checking MySQL connectivity...
-ngrok-tunnel-prestashop-1  | * PHP PDO connectivity checked
-ngrok-tunnel-prestashop-1  | * PrestaShop MySQL client configuration set
-ngrok-tunnel-prestashop-1  | * Restoring MySQL dump...
-ngrok-tunnel-prestashop-1  | * MySQL dump restored!
-ngrok-tunnel-prestashop-1  | * No init script(s) found
-ngrok-tunnel-prestashop-1  | * Starting php-fpm...
-ngrok-tunnel-prestashop-1  | * Starting nginx...
-ngrok-tunnel-prestashop-1  | * Nginx started
-ngrok-tunnel-prestashop-1  | * No post script(s) found
+❯ docker compose up --force-recreate -d
+[+] Running 4/4
+ ✔ Container flashlight-ngrok-tunnel-ngrok-1       Started                              0.6s
+ ✔ Container flashlight-ngrok-tunnel-mysql-1       Healthy                             11.1s
+ ✔ Container flashlight-ngrok-tunnel-phpmyadmin-1  Started                             11.2s
+ ✔ Container flashlight-ngrok-tunnel-prestashop-1  Started
 ```
 
 From the logs you can guess where to connect to:

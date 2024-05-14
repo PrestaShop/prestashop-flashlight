@@ -1,7 +1,7 @@
-name: flashlight-basic-example
+name: flashlight-nightly-example
 services:
   prestashop:
-    image: prestashop/prestashop-flashlight:latest
+    image: prestashop/prestashop-flashlight:nightly
     depends_on:
       mysql:
         condition: service_healthy
@@ -10,8 +10,6 @@ services:
       # - DEBUG_MODE=true
     ports:
       - 8000:80
-    expose:
-      - 80
 
   mysql:
     image: mariadb:lts
@@ -35,8 +33,6 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
       - MYSQL_PORT=3306
       - MYSQL_DATABASE=prestashop
-    expose:
-      - 3306
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -56,5 +52,3 @@ services:
       - MYSQL_ROOT_PASSWORD=prestashop
     ports:
       - 6060:80
-    expose:
-      - 80
