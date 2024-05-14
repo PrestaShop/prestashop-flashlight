@@ -65,7 +65,7 @@ jobs:
   docker_build:
     name: "Docker build: PS ${{ matrix.ps_version }} for alpine"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     needs: [docker_dry_build]
     strategy:
       fail-fast: true
@@ -108,7 +108,7 @@ jobs:
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     needs: [docker_dry_build]
     strategy:
       fail-fast: true
@@ -132,7 +132,7 @@ jobs:
   docker_build_nightly:
     name: "Docker build: PS nightly"
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -143,10 +143,9 @@ jobs:
           PS_VERSION: "nightly"
 
   docker_build_cross_compile:
-    name: "Docker build x-compile for aarch64"
-    runs-on: ubuntu-latest
-    timeout-minutes: 45
-    needs: docker_build_debian
+    name: "Docker build for aarch64"
+    runs-on: ARM64
+    timeout-minutes: 80
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
