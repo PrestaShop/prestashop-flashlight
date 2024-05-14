@@ -96,7 +96,9 @@ else
 fi
 
 # 12. Some clean up
-mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
+if [ -d "${PS_FOLDER}/admin" ]; then
+  mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
+fi
 rm -rf \
   "$PS_FOLDER/install" \
   "$PS_FOLDER/Install_PrestaShop.html" \
