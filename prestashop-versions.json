@@ -64,7 +64,7 @@
   },
   "nightly": {
     "php": {
-      "recommended": "8.1"
+      "recommended": "8.3"
     },
     "nodejs": {
       "recommended": "16.16.0"
