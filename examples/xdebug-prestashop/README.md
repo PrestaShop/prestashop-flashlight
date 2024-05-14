@@ -29,3 +29,7 @@ docker compose up prestashop
 
 - xdebug with VSCode: https://marketplace.visualstudio.com/items?itemName=xdebug.php-debug
 - xdebug with PHPStorm: https://www.jetbrains.com/help/phpstorm/configuring-xdebug.html
+
+# Note
+When both enabled, xdebug and blackfire can cause php-fpm to log a "Connection reset by peer" error that ends up in displaying a 502 bad gateway message.
+To be able to use xdebug, one temporary solution can be to disable blackfire with BLACKFIRE_ENABLED=false

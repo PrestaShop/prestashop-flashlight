@@ -18,6 +18,7 @@ export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
 export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
 export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
+export BLACKFIRE_ENABLED="${BLACKFIRE_ENABLED:-false}"
 
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
@@ -132,6 +133,14 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ "$XDEBUG_ENABLED" = "true" ]; then
     sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "* Xdebug enabled"
+  fi
+
+  if [ "$BLACKFIRE_ENABLED" = "true" ]; then
+    sed -i 's~^;$~~g' "$PHP_INI_DIR/conf.d/blackfire.ini"
+    echo "* Blackfire enabled"
+  else
+    sed -i -E 's~^(.+)$~;\1~g' "$PHP_INI_DIR/conf.d/blackfire.ini"
+    echo "* Blackfire disabled"
   fi
 
   touch $INIT_LOCK
