@@ -27,7 +27,6 @@ COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
 RUN /tmp/debian-base-install.sh \
   && rm -f /tmp/debian-base-install.sh /tmp/php-configuration.sh
 
-
 RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
   && architecture=$(uname -m) \
   && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s "https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version" \
@@ -36,7 +35,6 @@ RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
   && mv /tmp/blackfire/blackfire-*.so "$(php -r "echo ini_get ('extension_dir');")"/blackfire.so \
   && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
   && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
-  
 
 # --------------------------------
 # Flashlight install and dump SQL
@@ -100,6 +98,7 @@ ENV MYSQL_DATABASE=prestashop
 ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
+ENV PS_TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR
 
 RUN mkdir -p "$COMPOSER_HOME" \
   && chown www-data:www-data "$COMPOSER_HOME"
