@@ -6,7 +6,6 @@ PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
 DUMP_FILE=/dump.sql
-_PS_FOLDER_ADMIN=admin-dev # local var to avoid PS installer override
 
 export PS_DOMAIN="localhost:80" \
   DB_SERVER=127.0.0.1 \
@@ -18,7 +17,7 @@ export PS_DOMAIN="localhost:80" \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
   PS_COUNTRY=GB \
-  PS_FOLDER_ADMIN=$_PS_FOLDER_ADMIN \
+  PS_FOLDER_ADMIN=admin-dev \
   DB_SOCKET=/run/mysqld/mysqld.sock
 
 # 2. Start a MySQL server
@@ -44,6 +43,8 @@ echo "✅ PHP PDO connectivity test"
 sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
 
 # 6. Run the PrestaShop installer
+# prevent the installer from moving the admin folder
+[ -d "${PS_FOLDER}/admin" ] && mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
 echo "* Starting the installer..."
 sudo php -f "${PS_FOLDER}/install/index_cli.php" -- \
@@ -97,9 +98,6 @@ else
 fi
 
 # 12. Some clean up
-if [ -d "${PS_FOLDER}/admin" ]; then
-  mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${_PS_FOLDER_ADMIN}"
-fi
 rm -rf \
   "$PS_FOLDER/install" \
   "$PS_FOLDER/Install_PrestaShop.html" \
