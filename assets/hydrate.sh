@@ -43,6 +43,8 @@ echo "✅ PHP PDO connectivity test"
 sed -ie "s/define('_PS_MODE_DEV_', false);/define('_PS_MODE_DEV_',\ true);/g" "$PS_FOLDER/config/defines.inc.php"
 
 # 6. Run the PrestaShop installer
+# prevent the installer from moving the admin folder
+[ -d "${PS_FOLDER}/admin" ] && mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
 # see: https://devdocs.prestashop-project.org/8/basics/installation/install-from-cli/
 echo "* Starting the installer..."
 sudo php -f "${PS_FOLDER}/install/index_cli.php" -- \
@@ -96,9 +98,6 @@ else
 fi
 
 # 12. Some clean up
-if [ -d "${PS_FOLDER}/admin" ]; then
-  mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
-fi
 rm -rf \
   "$PS_FOLDER/install" \
   "$PS_FOLDER/Install_PrestaShop.html" \
