@@ -6,6 +6,7 @@ PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_CACHE_DIR="${PS_FOLDER}/var/cache"
 PS_LOGS_DIR="${PS_FOLDER}/var/logs"
 DUMP_FILE=/dump.sql
+_PS_FOLDER_ADMIN=admin-dev # local var to avoid PS installer override
 
 export PS_DOMAIN="localhost:80" \
   DB_SERVER=127.0.0.1 \
@@ -17,7 +18,7 @@ export PS_DOMAIN="localhost:80" \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
   PS_COUNTRY=GB \
-  PS_FOLDER_ADMIN=admin-dev \
+  PS_FOLDER_ADMIN=$_PS_FOLDER_ADMIN \
   DB_SOCKET=/run/mysqld/mysqld.sock
 
 # 2. Start a MySQL server
@@ -97,7 +98,7 @@ fi
 
 # 12. Some clean up
 if [ -d "${PS_FOLDER}/admin" ]; then
-  mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${PS_FOLDER_ADMIN}"
+  mv "${PS_FOLDER}/admin" "${PS_FOLDER}/${_PS_FOLDER_ADMIN}"
 fi
 rm -rf \
   "$PS_FOLDER/install" \

@@ -10,7 +10,6 @@ services:
       - INIT_SCRIPTS_DIR=/tmp/init-scripts
       - INIT_SCRIPTS_USER=root
       - XDEBUG_ENABLED=true
-      - BLACKFIRE_ENABLED=false
     volumes:
       - ./PrestaShop:/var/www/html:rw
     ports:
