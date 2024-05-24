@@ -25,14 +25,15 @@ mkdir -p /run/mysqld /var/lib/mysql/;
 mysql_install_db \
   --user=root \
   --ldata=/var/lib/mysql/ > /dev/null;
-nohup mysqld --user=root --skip-networking=0 --port=${DB_PORT} --socket=${DB_SOCKET} &
-while [ ! -S ${DB_SOCKET} ]; do sleep 0.1; done
-while ! nc -z localhost ${DB_PORT}; do sleep 0.1; done
+nohup mysqld --user=root --bind-address=${DB_SERVER} --port=${DB_PORT} --socket=${DB_SOCKET} &
+
+while [ ! -S "$DB_SOCKET" ]; do sleep 0.1; done
+while ! nc -z "$DB_SERVER" "$DB_PORT"; do sleep 0.1; done
 echo "✅ MySQL started"
 
 # 3. Setup the root password, add a PrestaShop database
-mysql --user=root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${DB_PASSWD}';"
-mysql --user=root --password=${DB_PASSWD} -e "CREATE DATABASE IF NOT EXISTS ${DB_NAME}";
+mysql --user=root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASSWD';"
+mysql --user=root --password="$DB_PASSWD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME";
 
 # 4. Connectivity test (both the unix socket file and DB_SERVER:DB_PORT)
 php -r "new PDO('mysql:unix_socket=""$DB_SOCKET"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"
