@@ -210,6 +210,23 @@ TARGET_IMAGE=my-own-repo/testing:latest \
 
 ### Cross compiling for another architecture
 
+You may require (qemu](https://www.qemu.org/download/) installed on your machine, depending on how you work with buildx.
+
+If using archlinux:
+
+```sh
+sudo pacman -Syu qemu
+sudo vi /etc/systemd/network/20-docker-veth.network
+[Match]
+Name=veth*
+Driver=veth
+
+[Link]
+Unmanaged=true
+
+#https://forums.docker.com/t/archlinux-container-veth-interfaces-being-assigned-to-wrong-bridge/107197/2
+sudo systemctl restart systemd-networkd.service
+```
 Init buildx:
 
 ```sh
