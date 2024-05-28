@@ -72,9 +72,17 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ "$PS_PROTOCOL" = "https" ]; then
     export SSL_REDIRECT="true";
     echo "* Enabling SSL redirect to the dump..."
-    sed -i "s/'PS_SSL_ENABLED','0'/'PS_SSL_ENABLED','1'/" /dump.sql
-    # Only for PrestaShop < 9 since a1df6458433e9402ca3d4a0223ed927e5961d86a
-    sed -i "s/'PS_SSL_ENABLED_EVERYWHERE','0'/'PS_SSL_ENABLED_EVERYWHERE','1'/" /dump.sql
+    # PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
+    # PS_SSL_ENABLED_EVERYWHERE was missing in ps_configuration in 1.7.2.5
+cat >> /dump.sql << END
+INSERT INTO ps_configuration (id_configuration, id_shop_group, id_shop, name, value, date_add, date_upd)
+VALUES (NULL, NULL, NULL, "PS_SSL_ENABLED", "1", NOW(), NOW()),
+(NULL, NULL, NULL, "PS_SSL_ENABLED_EVERYWHERE", "1", NOW(), NOW())
+(NULL, NULL, NULL, "PS_TRUSTED_PROXIES", "127.0.0.1,REMOTE_ADDR", NOW(), NOW())
+ON DUPLICATE KEY UPDATE
+  value = VALUES(value),
+  date_upd = VALUES(date_upd);
+END
   fi
 
   echo "* Checking MySQL connectivity..."
