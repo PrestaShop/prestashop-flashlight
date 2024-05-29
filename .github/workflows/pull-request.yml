@@ -142,20 +142,22 @@ jobs:
         env:
           PS_VERSION: "nightly"
 
+  # runs-on: ARM64 ##never gives a runner
   docker_build_cross_compile:
     name: "Docker x-compile build for aarch64"
-    # runs-on: ARM64 ##never gives a runner
     runs-on: ubuntu-latest
-    timeout-minutes: 80
+    timeout-minutes: 60
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
         with:
           platforms: "linux/amd64,linux/arm64"
-          use: true
 
       - name: Test the docker build chain while cross compiling to aarch64
         run: ./build.sh
