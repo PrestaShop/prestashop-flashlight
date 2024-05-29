@@ -143,8 +143,9 @@ jobs:
           PS_VERSION: "nightly"
 
   docker_build_cross_compile:
-    name: "Docker build for aarch64"
-    runs-on: ARM64
+    name: "Docker x-compile build for aarch64"
+    # runs-on: ARM64 ##never gives a runner
+    runs-on: ubuntu-latest
     timeout-minutes: 80
     steps:
       - name: Checkout repository
