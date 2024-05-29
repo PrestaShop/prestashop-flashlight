@@ -40,8 +40,8 @@ EOF
 
 publish() {
   gh workflow run docker-publish.yml \
-  --repo prestashop/prestashop-flashlight \
-  --field target_platforms=linux/amd64,linux/arm64 "$@"
+    --repo prestashop/prestashop-flashlight \
+    --field target_platforms=linux/amd64,linux/arm64 "$@"
 }
 
 get_prestashop_tags
@@ -51,17 +51,23 @@ get_prestashop_minor_tags
 publish --field ps_version=latest
 publish --field ps_version=latest --field os_flavour=debian
 
-# Recommended PHP for every minor tag
+# Recommended PHP for some minor tag
+# while IFS= read -r PS_VERSION; do
+#   publish --field ps_version="$PS_VERSION"
+#   publish --field ps_version="$PS_VERSION" --field os_flavour=debian
+# done < "$PRESTASHOP_MINOR_TAGS"
+
+# Recommended PHP for every tag
 while IFS= read -r PS_VERSION; do
   publish --field ps_version="$PS_VERSION"
   publish --field ps_version="$PS_VERSION" --field os_flavour=debian
-done < "$PRESTASHOP_MINOR_TAGS"
+done < "$PRESTASHOP_TAGS"
 
 # Compatible PHP for every minor tag (alpine only)
-while IFS= read -r PS_VERSION; do
-  while IFS= read -r PHP_VERSION; do
-    publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
-  done <<EOF
-$(get_compatible_php_version "$PS_VERSION")
-EOF
-done < "$PRESTASHOP_MINOR_TAGS"
+# while IFS= read -r PS_VERSION; do
+#   while IFS= read -r PHP_VERSION; do
+#     publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
+#   done <<EOF
+# $(get_compatible_php_version "$PS_VERSION")
+# EOF
+# done < "$PRESTASHOP_MINOR_TAGS"
