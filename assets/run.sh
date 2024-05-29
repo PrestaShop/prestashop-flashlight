@@ -77,7 +77,7 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
 cat >> /dump.sql << END
 INSERT INTO ps_configuration (id_configuration, id_shop_group, id_shop, name, value, date_add, date_upd)
 VALUES (NULL, NULL, NULL, "PS_SSL_ENABLED", "1", NOW(), NOW()),
-(NULL, NULL, NULL, "PS_SSL_ENABLED_EVERYWHERE", "1", NOW(), NOW())
+(NULL, NULL, NULL, "PS_SSL_ENABLED_EVERYWHERE", "1", NOW(), NOW()),
 (NULL, NULL, NULL, "PS_TRUSTED_PROXIES", "127.0.0.1,REMOTE_ADDR", NOW(), NOW())
 ON DUPLICATE KEY UPDATE
   value = VALUES(value),
