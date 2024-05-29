@@ -169,7 +169,7 @@ fi
 
 # Eventually install some modules
 if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" ]; then
-  if [ -n "${INSTALL_MODULES_DIR+x}" ]; then
+  if [ -d "$INSTALL_MODULES_DIR" ]; then
     if [ -f "$PS_FOLDER/bin/console" ]; then
       for file in "$INSTALL_MODULES_DIR"/*.zip; do
         module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
