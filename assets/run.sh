@@ -69,12 +69,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   sed -i "s~localhost:80~$PS_DOMAIN~g" /dump.sql
   export PS_DOMAIN="$PS_DOMAIN"
 
+  # Note: use PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
+  # Note: PS_SSL_ENABLED_EVERYWHERE was missing in ps_configuration in 1.7.2.5
   [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
   if [ "$PS_PROTOCOL" = "https" ]; then
-    export SSL_REDIRECT="true";
-    echo "* Enabling SSL redirect to the dump..."
-    # PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
-    # PS_SSL_ENABLED_EVERYWHERE was missing in ps_configuration in 1.7.2.5
+    echo "* Enabling SSL redirection and any local proxy..."
 cat >> /dump.sql << END
 INSERT INTO ps_configuration (id_configuration, id_shop_group, id_shop, name, value, date_add, date_upd)
 VALUES (NULL, NULL, NULL, "PS_SSL_ENABLED", "1", NOW(), NOW()),
@@ -84,6 +83,11 @@ ON DUPLICATE KEY UPDATE
   value = VALUES(value),
   date_upd = VALUES(date_upd);
 END
+    export SSL_REDIRECT="true";
+    export PS_TRUSTED_PROXIES="127.0.0.1,REMOTE_ADDR";
+    touch "$PS_FOLDER/.env"
+    echo 'SSL_REDIRECT=true' >> "$PS_FOLDER/.env"
+    echo 'PS_TRUSTED_PROXIES=127.0.0.1,REMOTE_ADDR' >> "$PS_FOLDER/.env"
   fi
 
   echo "* Checking MySQL connectivity..."
