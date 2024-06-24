@@ -64,23 +64,31 @@ composer require nikic/php-parser --working-dir=/var/opt
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar"
-chmod +x /usr/bin/phpunit
+if [ "$PHPUNIT_VERSION" != "null" ]; then
+  wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar"
+  chmod +x /usr/bin/phpunit
+fi
 
 # Install phpstan
 PHPSTAN_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpstan' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
-chmod a+x /usr/bin/phpstan
+if [ "$PHPSTAN_VERSION" != "null" ]; then
+  wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
+  chmod a+x /usr/bin/phpstan
+fi
 
 # Install php-cs-fixer
 PHP_CS_FIXER=$(jq -r '."'"${PHP_SHORT_VERSION}"'".php_cs_fixer' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar"
-chmod a+x /usr/bin/php-cs-fixer
+if [ "$PHP_CS_FIXER" != "null" ]; then
+  wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar"
+  chmod a+x /usr/bin/php-cs-fixer
+fi
 
 # Install xdebug
 PHP_XDEBUG=$(jq -r '."'"${PHP_SHORT_VERSION}"'".xdebug' < /tmp/php-flavours.json)
-pecl install "xdebug-${PHP_XDEBUG}"
-docker-php-ext-enable xdebug
+if [ "$PHP_XDEBUG" != "null" ]; then
+  pecl install "xdebug-$PHP_XDEBUG"
+  docker-php-ext-enable xdebug
+fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then

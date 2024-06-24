@@ -6,7 +6,7 @@ apk --no-cache add -U \
   bash less vim geoip git tzdata zip curl jq autoconf \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
-  gnu-libiconv php-common mariadb-client sudo libjpeg libxml2 \
+  php-common php-iconv php-gd mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
   openssh-client
@@ -26,27 +26,35 @@ curl -s https://getcomposer.org/installer | php
 mv composer.phar /usr/bin/composer
 
 # Install PrestaShop tools required by prestashop coding-standards
-composer require nikic/php-parser --working-dir=/var/opt
+composer require nikic/php-parser --working-dir=/var/opt || true
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar"
-chmod +x /usr/bin/phpunit
+if [ "$PHPUNIT_VERSION" != "null" ]; then
+  wget -q -O /usr/bin/phpunit "https://phar.phpunit.de/phpunit-${PHPUNIT_VERSION}.phar"
+  chmod +x /usr/bin/phpunit
+fi
 
 # Install phpstan
 PHPSTAN_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpstan' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
-chmod a+x /usr/bin/phpstan
+if [ "$PHPSTAN_VERSION" != "null" ]; then
+  wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
+  chmod a+x /usr/bin/phpstan
+fi
 
 # Install php-cs-fixer
 PHP_CS_FIXER=$(jq -r '."'"${PHP_SHORT_VERSION}"'".php_cs_fixer' < /tmp/php-flavours.json)
-wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar"
-chmod a+x /usr/bin/php-cs-fixer
+if [ "$PHP_CS_FIXER" != "null" ]; then
+  wget -q -O /usr/bin/php-cs-fixer "https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/releases/download/${PHP_CS_FIXER}/php-cs-fixer.phar"
+  chmod a+x /usr/bin/php-cs-fixer
+fi
 
 # Install xdebug
 PHP_XDEBUG=$(jq -r '."'"${PHP_SHORT_VERSION}"'".xdebug' < /tmp/php-flavours.json)
-pecl install "xdebug-$PHP_XDEBUG"
-docker-php-ext-enable xdebug
+if [ "$PHP_XDEBUG" != "null" ]; then
+  pecl install "xdebug-$PHP_XDEBUG"
+  docker-php-ext-enable xdebug
+fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then

@@ -172,7 +172,7 @@ docker buildx build \
   --label org.opencontainers.image.title="PrestaShop Flashlight" \
   --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
   --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
-  --label org.opencontainers.image.url=https://github.com/PrestaShop/prestashop-flashlight \
+  --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
   --label org.opencontainers.image.licenses=MIT \
   --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
   "${TARGET_IMAGES[@]}" \
