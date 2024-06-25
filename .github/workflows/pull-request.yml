@@ -109,6 +109,10 @@ jobs:
     name: "Docker build: PrestaShop with PHP 5.6"
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      matrix:
+        os_version: ["alpine", "debian"]
     needs: [docker_dry_build]
     steps:
       - name: Checkout repository
