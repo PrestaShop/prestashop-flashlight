@@ -11,7 +11,7 @@ export PS_DOMAIN="localhost:80" \
   DB_SERVER=127.0.0.1 \
   DB_PORT=3306 \
   DB_NAME=prestashop \
-  DB_USER=root \
+  DB_USER=prestashop \
   DB_PASSWD=prestashop \
   ADMIN_MAIL=admin@prestashop.com \
   ADMIN_PASSWD=prestashop \
@@ -25,15 +25,16 @@ mkdir -p /run/mysqld /var/lib/mysql/;
 mysql_install_db \
   --user=root \
   --ldata=/var/lib/mysql/ > /dev/null;
-nohup mysqld --user=root --bind-address=${DB_SERVER} --port=${DB_PORT} --socket=${DB_SOCKET} &
+nohup mysqld --user=root --bind-address="$DB_SERVER" --port="$DB_PORT" --socket="$DB_SOCKET" &
 
 while [ ! -S "$DB_SOCKET" ]; do sleep 0.1; done
 while ! nc -z "$DB_SERVER" "$DB_PORT"; do sleep 0.1; done
 echo "✅ MySQL started"
 
 # 3. Setup the root password, add a PrestaShop database
-mysql --user=root -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '$DB_PASSWD';"
 mysql --user=root --password="$DB_PASSWD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME";
+mysql --user=root --password="$DB_PASSWD" -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWD';"
+mysql --user=root --password="$DB_PASSWD" -e "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
 
 # 4. Connectivity test (both the unix socket file and DB_SERVER:DB_PORT)
 php -r "new PDO('mysql:unix_socket=""$DB_SOCKET"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -v
 set -eu
 
 # Disable man pages and documentation
@@ -15,6 +15,16 @@ rm -rf /usr/share/doc \
 # Get debian version and codename
 # shellcheck disable=SC1091
 . /etc/os-release
+if [ "$VERSION_ID" = 9 ]; then
+  export VERSION_CODENAME="stretch";
+fi
+
+# https://unix.stackexchange.com/a/743874
+if [ "$VERSION_CODENAME" = "stretch"  ]; then
+  sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
+  sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list
+  sed -i s/stretch-updates/stretch/g /etc/apt/sources.list
+fi
 
 # Update certificates and install base deps
 export DEBIAN_FRONTEND=noninteractive
@@ -22,12 +32,14 @@ curl -s -L -H "Content-Type: application/octet-stream" \
   --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
   "https://packages.sury.org/php/apt.gpg"
 apt-get update
-apt-get install --no-install-recommends -qqy ca-certificates
+apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
   libnginx-mod-http-geoip libnginx-mod-stream openssh-client;
-echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
+if [ "$VERSION_CODENAME" != "stretch"  ]; then
+  echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
+fi
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
 LIB_FREETYPE_DEV=$(apt-cache search '^libfreetype[0-9]+-dev$' | awk 'NR==1{print $1}')
