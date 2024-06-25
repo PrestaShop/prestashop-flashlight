@@ -32,9 +32,9 @@ while ! nc -z "$DB_SERVER" "$DB_PORT"; do sleep 0.1; done
 echo "✅ MySQL started"
 
 # 3. Setup the root password, add a PrestaShop database
-mysql --user=root --password="$DB_PASSWD" -e "CREATE DATABASE IF NOT EXISTS $DB_NAME";
-mysql --user=root --password="$DB_PASSWD" -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWD';"
-mysql --user=root --password="$DB_PASSWD" -e "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
+mysql --user=root -e "CREATE DATABASE IF NOT EXISTS $DB_NAME";
+mysql --user=root -e "CREATE USER '$DB_USER'@'localhost' IDENTIFIED BY '$DB_PASSWD';";
+mysql --user=root -e "GRANT ALL PRIVILEGES ON *.* TO '$DB_USER'@'localhost'; FLUSH PRIVILEGES;"
 
 # 4. Connectivity test (both the unix socket file and DB_SERVER:DB_PORT)
 php -r "new PDO('mysql:unix_socket=""$DB_SOCKET"";dbname=""$DB_NAME""', '""$DB_USER""', '""$DB_PASSWD""');"
