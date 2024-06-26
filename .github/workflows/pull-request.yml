@@ -128,7 +128,7 @@ jobs:
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
         env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:$PS_VERSION-$OS_VERSION
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:1.6.1.24-${{ matrix.os_version }}
 
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
