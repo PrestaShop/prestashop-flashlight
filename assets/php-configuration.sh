@@ -17,7 +17,7 @@ error() {
 PS_PHP_EXT="gd pdo_mysql zip intl fileinfo mbstring simplexml soap bcmath"
 PHP_GD_CONFIG="--with-jpeg --with-freetype";
 
-if [ "7.1" = "$PHP_VERSION" ]; then
+if [ "5.5" = "$PHP_VERSION" ] || [ "5.6" = "$PHP_VERSION" ] || [ "7.0" = "$PHP_VERSION" ] || [ "7.1" = "$PHP_VERSION" ]; then
   PS_PHP_EXT="$PS_PHP_EXT mcrypt";
   PHP_GD_CONFIG="--with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir --with-freetype-dir";
 elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; then

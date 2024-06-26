@@ -105,6 +105,31 @@ jobs:
         env:
           DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
 
+  docker_build_old_php:
+    name: "Docker build: PrestaShop with PHP 5.6"
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      matrix:
+        os_version: ["alpine", "debian"]
+    needs: [docker_dry_build]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Call the docker build chain
+        run: ./build.sh
+        env:
+          PS_VERSION: 1.6.1.24
+          PHP_VERSION: 5.6
+          OS_VERSION: ${{ matrix.os_version }}
+
+      - name: Test the image with a dry run
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:1.6.1.24-${{ matrix.os_version }}
+
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
     runs-on: ubuntu-latest
