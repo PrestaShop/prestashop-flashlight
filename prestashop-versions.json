@@ -55,7 +55,7 @@
   },
   "^9": {
     "php": {
-      "recommended": "8.3",
+      "recommended": "8.1",
       "compatible": ["8.1", "8.2", "8.3"]
     },
     "nodejs": {
