@@ -23,7 +23,7 @@ function getModuleName(\$args) {
   }
   throw new Exception('Module name not found');
 }
-\$moduleName = getInstallParameters(\$argv);
+\$moduleName = getModuleName(\$argv);
 if (version_compare(_PS_VERSION_, '1.7', '>=')) {
   global \$kernel;
   if(!\$kernel){
