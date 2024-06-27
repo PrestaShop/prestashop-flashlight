@@ -1,8 +1,4 @@
 {
-  "5.5": {
-    "alpine": "5.5-fpm-alpine",
-    "debian": "5.5-fpm"
-  },
   "5.6": {
     "alpine": "5.6-fpm-alpine",
     "debian": "5.6-fpm-stretch"
