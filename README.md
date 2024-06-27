@@ -56,6 +56,23 @@ PrestaShop Flashlight is based on the official compatibility charts:
 
 You can check this implementation anytime in [prestashop-version.json](./prestashop-version.json).
 
+| Supported PrestaShop versions | Supported PHP versions |
+| ----------------------------- | ---------------------- |
+| 1.6.1.11-1.6.1.24             | PHP 5.6 - 7.1          |
+| 1.7.0 ~ 1.7.4                 | PHP 5.6 - 7.1          |
+| 1.7.5 ~ 1.7.6                 | PHP 5.6 - 7.2          |
+| 1.7.7                         | PHP 7.1 - 7.3          |
+| 1.7.8                         | PHP 7.1 - 7.4          |
+| 8.0~8.1                       | PHP 7.2 - 8.1          |
+| nightly                       | PHP 8.1 - 8.3          |
+
+PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6, here is why:
+
+- Official PHP docker images are very old for PHP 5.2, 5.3, 5.4... til the point docker images do not comply with current docker engines.
+- Old debian / alpine OS releases do not support arm64 builds and packages
+- Rebuilding legacy PHP environments compatible with moddern docker images is costly, with a low value for Flashlight
+- Migrating from PHP 5.2 to 5.6 might not be a hard task for an agency/merchant.
+
 ## Environment variables
 
 | Variable                   | Description                                                                                                  | Default value                          |
@@ -87,7 +104,7 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 | PS_PROTOCOL                | if PS_PROTOCOL equals `https` the public URL will be `https://$PS_DOMAIN`                                    | `http` (example: `https`)              |
 | SSL_REDIRECT               | if enabled the public URL will be `https://$PS_DOMAIN` (if not using `PS_PROTOCOL`)                          | `false` (example: `true`)              |
 | XDEBUG_ENABLED             | if enabled Xdebug will be enabled in PHP. See settings here: `$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini` | `false` (example: `true`)              |
-| BLACKFIRE_ENABLED          | if enabled Blackfire will be enabled in PHP. | `false` (example: `true`)              |
+| BLACKFIRE_ENABLED          | if enabled Blackfire will be enabled in PHP.                                                                 | `false` (example: `true`)              |
 
 > Note:
 >
