@@ -53,6 +53,15 @@
       "recommended": "16.16.0"
     }
   },
+  "^9": {
+    "php": {
+      "recommended": "8.1",
+      "compatible": ["8.1", "8.2", "8.3"]
+    },
+    "nodejs": {
+      "recommended": "16.16.0"
+    }
+  },
   "nightly": {
     "php": {
       "recommended": "8.1"
