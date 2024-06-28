@@ -3,7 +3,7 @@ set -eu
 
 # Install base tools, PHP requirements and dev-tools
 apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq autoconf \
+  bash less vim geoip git tzdata zip curl jq autoconf findutils \
   nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
   nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
   php-common php-iconv php-gd mariadb-client sudo libjpeg libxml2 \
