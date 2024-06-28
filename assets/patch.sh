@@ -5,7 +5,7 @@ PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
 
 add_console () {
-  mkdir "$PS_FOLDER/bin"
+  mkdir -p "$PS_FOLDER/bin"
   touch "$PS_FOLDER/bin/console"
 cat <<EOF > "$PS_FOLDER/bin/console"
 <?php
