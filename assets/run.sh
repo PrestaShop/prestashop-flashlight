@@ -213,7 +213,7 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
       if [ -x "$1" ] && [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
         printf "\n--> Running $1...\n"
         (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
-      else if [ -x "$1" ]; then
+      elif [ -x "$1" ]; then
         printf "\n--> Running $1...\n"
         (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
       fi
@@ -250,7 +250,7 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
       if  [ -x "$1" ] && [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
         printf "\n--> Running $1...\n"
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
-      else if [ -x "$1" ]; then
+      elif [ -x "$1" ]; then
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
