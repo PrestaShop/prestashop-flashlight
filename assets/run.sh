@@ -209,11 +209,12 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
   if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
     printf "* Running init-script(s)..."
     # shellcheck disable=SC2016
-    find "$POST_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | xargs -0 -n1 -I{} sh -c 'if [ -x "{}" ]; then echo "{}"; fi' | sort -z | xargs -0 -n1 sh -c '
-      printf "\n--> Running $1...\n"
-      if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
+    find "$INIT_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      if [ -x "$1" ] && [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
+        printf "\n--> Running $1...\n"
         (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
-      else
+      else if [ -x "$1" ]; then
+        printf "\n--> Running $1...\n"
         (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
@@ -245,12 +246,11 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
   if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
     printf "* Running post-script(s)..."
     # shellcheck disable=SC2016
-    find "$POST_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | xargs -0 -n1 -I{} sh -c 'if [ -x "{}" ]; then echo "{}"; fi' | sort -z | xargs -0 -n1 sh -c '
-
-      printf "\n--> Running $1...\n"
-      if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
+    find "$POST_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      if  [ -x "$1" ] && [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
+        printf "\n--> Running $1...\n"
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
-      else
+      else if [ -x "$1" ]; then
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
