@@ -190,9 +190,9 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
         run_user unzip -qq "$file" -d /var/www/html/modules
         if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
-          (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
+          (run_user php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
         else
-          (run_user php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
+          (run_user php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
         fi
       done;
     else
