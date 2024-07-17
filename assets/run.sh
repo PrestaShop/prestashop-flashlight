@@ -216,6 +216,8 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
       elif [ -x "$1" ]; then
         printf "\n--> Running $1...\n"
         (sudo -E -g '"$INIT_SCRIPTS_USER"' -u '"$INIT_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
+      else
+        echo "~ $1 is not executable. Skipping."
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
@@ -252,6 +254,8 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Skipping."; }
       elif [ -x "$1" ]; then
         (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
+      else
+        echo "~ $1 is not executable. Skipping."
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
