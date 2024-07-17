@@ -210,9 +210,9 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
     printf "* Running init-script(s)..."
     # shellcheck disable=SC2016
     find "$INIT_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
-    if  [ -x "$1" ]; then
+      if [ -x "$1" ]; then
         printf "\n--> Running $1...\n"
-        (sudo -E -u '"$INIT_SCRIPTS_DIR"' -- $1) || {
+        (sudo -E -u '"$INIT_SCRIPTS_USER"' -- $1) || {
           if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
             echo "x $1 execution failed. Skipping.";
           else 
