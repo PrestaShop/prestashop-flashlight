@@ -99,8 +99,10 @@ ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
+# Give rights to www-data user to play with sed and open port 80
 RUN mkdir -p "$COMPOSER_HOME" \
-  && chown www-data:www-data "$COMPOSER_HOME"
+  && chown -R www-data:www-data "$COMPOSER_HOME" "$PHP_INI_DIR" "/tmp" "/var/www" \
+  && setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 # Get the installed sources
 COPY \
@@ -120,6 +122,7 @@ COPY --from=build-and-dump \
 # The new default runner
 COPY ./assets/run.sh /run.sh
 
+USER www-data
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 --start-period=10s \
   CMD curl -Isf http://localhost:80/admin-dev/robots.txt || exit 1
 EXPOSE 80
