@@ -55,6 +55,10 @@ apt-get install --no-install-recommends -qqy \
   libmcrypt-dev \
   "$LIB_XML_DEV"
 
+# Help mapping to Linux users' host
+usermod -u 1000 www-data
+groupmod -g 1000 www-data
+
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
 rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
