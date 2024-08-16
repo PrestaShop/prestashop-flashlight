@@ -14,9 +14,11 @@ apk --no-cache add -U \
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
 rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
-mkdir -p /var/log/php /var/run/php /var/run/nginx
-chown nginx:nginx /var/run/nginx
-chown www-data:www-data /var/log/php /var/run/php
+mkdir -p /var/log/php /var/run/php /var/run/nginx /var/log/nginx
+touch /var/log/nginx/access.log /var/log/nginx/error.log
+chown -R nginx:nginx /var/run/nginx /var/log/nginx
+chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR"
+setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 # Compute the short version (8.1.27 becomes 8.1)
 PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
@@ -24,6 +26,8 @@ PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 # Install composer
 curl -s https://getcomposer.org/installer | php
 mv composer.phar /usr/bin/composer
+mkdir -p "$COMPOSER_HOME"
+chown -R www-data:www-data "$COMPOSER_HOME"
 
 # Install PrestaShop tools required by prestashop coding-standards
 composer require nikic/php-parser --working-dir=/var/opt || true

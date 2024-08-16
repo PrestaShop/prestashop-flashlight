@@ -99,10 +99,6 @@ ENV DEBUG_MODE=false
 ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
-# Give rights to www-data user to play with sed and open port 80
-RUN mkdir -p "$COMPOSER_HOME" \
-  && chown -R www-data:www-data "$COMPOSER_HOME" "$PHP_INI_DIR" "/tmp" "/var/www" \
-  && setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 # Get the installed sources
 COPY \
