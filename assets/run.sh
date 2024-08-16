@@ -181,21 +181,17 @@ fi
 # Eventually install some modules
 if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" ]; then
   if [ -d "$INSTALL_MODULES_DIR" ]; then
-    if [ -f "$PS_FOLDER/bin/console" ]; then
-      for file in "$INSTALL_MODULES_DIR"/*.zip; do
-        module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
-        echo "--> Unzipping and installing $module from $file..."
-        rm -rf "/var/www/html/modules/${module:-something-at-least}"
-        unzip -qq "$file" -d /var/www/html/modules
-        if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
-          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
-        else
-          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
-        fi
-      done;
-    else
-      echo "Auto-installing modules with PrestaShop v1.6 is not yet supported";
-    fi
+    for file in "$INSTALL_MODULES_DIR"/*.zip; do
+      module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
+      echo "--> Unzipping and installing $module from $file..."
+      rm -rf "/var/www/html/modules/${module:-something-at-least}"
+      unzip -qq "$file" -d /var/www/html/modules
+      if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
+        (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
+      else
+        (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
+      fi
+    done;
   fi
   touch $MODULES_INSTALLED_LOCK
 else

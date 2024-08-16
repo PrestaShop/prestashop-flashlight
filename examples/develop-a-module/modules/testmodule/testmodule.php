@@ -23,9 +23,9 @@ class Testmodule extends Module
         $this->bootstrap = false;
 
         parent::__construct();
-        $this->displayName = $this->trans('Test Module', [], 'Modules.Mymodule.Admin');
-        $this->description = $this->trans('Test Module', [], 'Modules.Mymodule.Admin');
-        $this->confirmUninstall = $this->trans('Are you sure you want to quit ModuleA?', [], 'Modules.Mymodule.Admin');
+        $this->displayName = $this->l('Test Module', [], 'Modules.Mymodule.Admin');
+        $this->description = $this->l('Test Module', [], 'Modules.Mymodule.Admin');
+        $this->confirmUninstall = $this->l('Are you sure you want to quit ModuleA?', [], 'Modules.Mymodule.Admin');
 
         require_once __DIR__ . '/vendor/autoload.php';
     }
