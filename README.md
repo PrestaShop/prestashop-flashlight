@@ -85,7 +85,6 @@ PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6, here i
 | INIT_ON_RESTART            | if enabled the PS_DOMAIN auto search and dump fix will be replayed on container restart                      | `false`                                |
 | INIT_SCRIPTS_DIR           | script directory with executable files to be run prior to PrestaShop startup                                 | `/tmp/init-scripts`                    |
 | INIT_SCRIPTS_ON_RESTART    | if enabled custom init scripts will be replayed on container restart                                         | `false`                                |
-| INIT_SCRIPTS_USER          | the user running the executable files to be run prior to PrestaShop startup                                  | `www-data`                             |
 | INSTALL_MODULES_DIR        | module directory containing zips to be installed with the PrestaShop CLI                                     | empty string (example: `/ps-modules`)  |
 | INSTALL_MODULES_ON_RESTART | if enabled zip modules will be reinstalled on container restart                                              | `false`                                |
 | MYSQL_DATABASE             | MySQL database name                                                                                          | `prestashop`                           |
@@ -99,7 +98,6 @@ PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6, here i
 | ON_POST_SCRIPT_FAILURE     | if set to `continue`, PrestaShop Flashlight won't exit in case of script failure                             | `fail`                                 |
 | POST_SCRIPTS_DIR           | script directory with executable files to be run after the PrestaShop startup                                | `/tmp/post-scripts`                    |
 | POST_SCRIPTS_ON_RESTART    | if enabled custom post scripts will be replayed on container restart                                         | `false`                                |
-| POST_SCRIPTS_USER          | the user running the executable files to be run after the PrestaShop startup                                 | `www-data`                             |
 | PS_FOLDER                  | prestashop sources directory                                                                                 | `/var/www/html`                        |
 | PS_PROTOCOL                | if PS_PROTOCOL equals `https` the public URL will be `https://$PS_DOMAIN`                                    | `http` (example: `https`)              |
 | SSL_REDIRECT               | if enabled the public URL will be `https://$PS_DOMAIN` (if not using `PS_PROTOCOL`)                          | `false` (example: `true`)              |
@@ -110,6 +108,16 @@ PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6, here i
 >
 > - ¹required (mutually exclusive with `NGROK_TUNNEL_AUTO_DETECT`)
 > - ²required (mutually exclusive with `PS_DOMAIN`)
+
+## User
+
+PrestaShop Flashlight user is `www-data`, in order to set an example, by applying good security practices.
+However you can anytime run a container with docker, using `--user root` or in your docker-compose file, with `user: root`.
+
+See:
+
+- https://docs.docker.com/reference/cli/docker/container/run/#options
+- https://docs.docker.com/compose/compose-file/05-services/#user
 
 ## Back office access information
 
