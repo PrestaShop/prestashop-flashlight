@@ -4,10 +4,18 @@ set -eu
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
 
+add_polyfill_console () {
+  mkdir -p "$PS_FOLDER/bin"
+  touch "$PS_FOLDER/bin/console"
+  mv /tmp/ps-console-polyfill.php "$PS_FOLDER/bin/console"
+  chmod +x "$PS_FOLDER/bin/console"
+}
+
 patch_1_6 () {
   echo "✅ Add a robots file for PrestaShop 1.6"
   echo "User-agent: *" > "$PS_FOLDER/admin/robots.txt"
   echo "Disallow: /" >> "$PS_FOLDER/admin/robots.txt"
+  add_polyfill_console
 }
 
 patch_1_7_6 () {
@@ -20,7 +28,7 @@ patch_1_7_6 () {
 }
 
 patch_other () {
-  cat /dev/null # Nothing to do
+  rm -f /tmp/ps-console-polyfill.php
 }
 
 if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then

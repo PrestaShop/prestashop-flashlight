@@ -148,7 +148,7 @@ On error, PrestaShop Flashlight can quit with these exit codes:
 
 ## Does Flashlight support PrestaShop 1.6?
 
-Partially yes. As there is no console within the sources, the modules cannot be automatically installed right now. Feel free to contribute!
+Yes. A polyfill is provided for the PrestaShop console, officially introduced in 1.7.
 
 ## Developing a module with RW (known Linux issue)
 
