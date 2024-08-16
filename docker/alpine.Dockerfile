@@ -1,6 +1,6 @@
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_FLAVOUR
+ARG PHP_FLAVOUR=8.3-fpm-alpine
 ARG GIT_SHA
 ARG NODE_VERSION
 ARG ZIP_SOURCE
@@ -98,7 +98,7 @@ ENV PS_FOLDER=$PS_FOLDER
 ENV MYSQL_EXTRA_DUMP=
 
 RUN mkdir -p "$COMPOSER_HOME" \
-  && chown www-data:www-data "$COMPOSER_HOME"
+  && chown -R www-data:www-data "$COMPOSER_HOME"
 
 # Get the installed sources
 COPY \
@@ -118,6 +118,7 @@ COPY --from=build-and-dump \
 # The new default runner
 COPY ./assets/run.sh /run.sh
 
+USER www-data
 HEALTHCHECK --interval=5s --timeout=5s --retries=10 --start-period=10s \
   CMD curl -Isf http://localhost:80/admin-dev/robots.txt || exit 1
 EXPOSE 80
