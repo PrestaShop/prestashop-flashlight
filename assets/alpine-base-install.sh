@@ -9,7 +9,11 @@ apk --no-cache add -U \
   php-common php-iconv php-gd mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
-  openssh-client libcap
+  openssh-client libcap shadow
+
+# Help mapping to Linux users' host
+usermod -u 1000 www-data
+groupmod -g 1000 www-data
 
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
