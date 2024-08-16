@@ -230,10 +230,10 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-php-fpm -D | grep -v "directive is ignored"
+php-fpm -D | (grep -v "directive is ignored" || true)
 
 echo "* Starting nginx..."
-nginx -g "daemon off;" | grep -v "ignored in" &
+nginx -g "daemon off;" | (grep -v "ignored in" || true) &
 NGINX_PID=$!
 sleep 1;
 echo "* Nginx started"
