@@ -4,7 +4,7 @@ set -eu
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
 
-add_console () {
+add_polyfill_console () {
   mkdir -p "$PS_FOLDER/bin"
   touch "$PS_FOLDER/bin/console"
 cat <<EOF > "$PS_FOLDER/bin/console"
@@ -42,7 +42,7 @@ patch_1_6 () {
   echo "✅ Add a robots file for PrestaShop 1.6"
   echo "User-agent: *" > "$PS_FOLDER/admin/robots.txt"
   echo "Disallow: /" >> "$PS_FOLDER/admin/robots.txt"
-  add_console
+  add_polyfill_console
 }
 
 patch_1_7_6 () {
