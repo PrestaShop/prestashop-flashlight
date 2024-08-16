@@ -8,7 +8,6 @@ export DUMP_ON_RESTART="${DUMP_ON_RESTART:-false}"
 export INIT_ON_RESTART="${INIT_ON_RESTART:-false}"
 export INIT_SCRIPTS_DIR="${INIT_SCRIPTS_DIR:-/tmp/init-scripts/}"
 export INIT_SCRIPTS_ON_RESTART="${INIT_SCRIPTS_ON_RESTART:-false}"
-export INIT_SCRIPTS_USER="${INIT_SCRIPTS_USER:-www-data}"
 export INSTALL_MODULES_DIR="${INSTALL_MODULES_DIR:-}"
 export INSTALL_MODULES_ON_RESTART="${INSTALL_MODULES_ON_RESTART:-false}"
 export MYSQL_VERSION="${MYSQL_VERSION:-5.7}"
@@ -16,7 +15,6 @@ export ON_INIT_SCRIPT_FAILURE="${ON_INIT_SCRIPT_FAILURE:-fail}"
 export ON_INSTALL_MODULES_FAILURE="${ON_INSTALL_MODULES_FAILURE:-fail}"
 export POST_SCRIPTS_DIR="${POST_SCRIPTS_DIR:-/tmp/post-scripts/}"
 export POST_SCRIPTS_ON_RESTART="${POST_SCRIPTS_ON_RESTART:-false}"
-export POST_SCRIPTS_USER="${POST_SCRIPTS_USER:-www-data}"
 export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
 export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
@@ -26,11 +24,6 @@ DUMP_LOCK=/tmp/flashlight-dump.lock
 MODULES_INSTALLED_LOCK=/tmp/flashlight-modules-installed.lock
 INIT_SCRIPTS_LOCK=/tmp/flashlight-init-scripts.lock
 POST_SCRIPTS_LOCK=/tmp/flashlight-post-scripts.lock
-
-# Runs everything as www-data
-run_user () {
-  sudo -g www-data -u www-data -- "$@"
-}
 
 if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   if [ -n "${PS_DOMAIN:-}" ]; then
@@ -66,7 +59,12 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   fi
 
   echo "* Applying PS_DOMAIN ($PS_DOMAIN) to the dump..."
-  sed -i "s~localhost:80~$PS_DOMAIN~g" /dump.sql
+  # Disclaimer: sed -i uses / as this is the parent dir of /dump.sql, don't use it here
+  # to avoid giving full access on /
+  TMP_FILE=$(mktemp)
+  sed "s~localhost:80~$PS_DOMAIN~g" /dump.sql > "$TMP_FILE"
+  cat "$TMP_FILE" > /dump.sql
+  rm -f "$TMP_FILE"
   export PS_DOMAIN="$PS_DOMAIN"
 
   # Note: use PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
@@ -95,7 +93,7 @@ END
     if [ "$DRY_RUN" = "true" ]; then
       echo "(skipped)";
     else
-      run_user php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');" 2> /dev/null;
+      php -r "new PDO('mysql:host=""${MYSQL_HOST}"";port=""${MYSQL_PORT}"";dbname=""${MYSQL_DATABASE}""', '""${MYSQL_USER}""', '""${MYSQL_PASSWORD}""');" 2> /dev/null;
     fi
   }
   while ! is_mysql_ready; do echo "Cannot connect to MySQL, retrying in 1s..."; sleep 1; done
@@ -117,7 +115,7 @@ END
 
   if [ -f "$PS_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_CONFIG_PARAMETERS.bak" ] && cp "$PS_CONFIG_PARAMETERS" "$PS_CONFIG_PARAMETERS.bak";
-    run_user sed -i \
+    sed -i \
         -e "s~host' => '127.0.0.1'~host' => '$MYSQL_HOST'~" \
         -e "s~port' => ''~port' => '$MYSQL_PORT'~" \
         -e "s~name' => 'prestashop'~name' => '$MYSQL_DATABASE'~" \
@@ -127,7 +125,7 @@ END
       "$PS_FOLDER/app/config/parameters.php"
   elif [ -f "$PS_16_CONFIG_PARAMETERS" ]; then
     [ ! -f "$PS_16_CONFIG_PARAMETERS.bak" ] && cp "$PS_16_CONFIG_PARAMETERS" "$PS_16_CONFIG_PARAMETERS.bak";
-    run_user sed -i \
+    sed -i \
         -e "s~127.0.0.1:3306~$MYSQL_HOST:$MYSQL_PORT~" \
         -e "s~_DB_NAME_', 'prestashop~_DB_NAME_', '$MYSQL_DATABASE~" \
         -e "s~_DB_USER_', 'root~_DB_USER_', '$MYSQL_USER~" \
@@ -188,11 +186,11 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
         module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
         echo "--> Unzipping and installing $module from $file..."
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
-        run_user unzip -qq "$file" -d /var/www/html/modules
+        unzip -qq "$file" -d /var/www/html/modules
         if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
-          (run_user php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
+          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
         else
-          (run_user php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
+          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
         fi
       done;
     else
@@ -212,7 +210,7 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
     find "$INIT_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       if [ -x "$1" ]; then
         printf "\n--> Running $1...\n"
-        (sudo -E -u '"$INIT_SCRIPTS_USER"' -- $1) || {
+        $1 || {
           if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
             echo "x $1 execution failed. Skipping.";
           else 
@@ -238,9 +236,13 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-run_user php-fpm -D
+# Is running as root, set the php-fpm user and group to www-data
+[ "$(id -u)" -eq 0 ] && sed -i '/user\s=/s/^;//' /usr/local/etc/php-fpm.conf && sed -i '/group\s=/s/^;//' /usr/local/etc/php-fpm.conf
+php-fpm -D
 
 echo "* Starting nginx..."
+# Is running as root, set the nginx user and group to www-data
+[ "$(id -u)" -eq 0 ] && sed -i '/#\suser\swww-data/s/^#//' /etc/nginx/nginx.conf
 nginx -g "daemon off;" &
 NGINX_PID=$!
 sleep 1;
@@ -254,7 +256,7 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
     find "$POST_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
       if  [ -x "$1" ]; then
         printf "\n--> Running $1...\n"
-        (sudo -E -u '"$POST_SCRIPTS_USER"' -- $1) || {
+        ($1) || {
           if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
             echo "x $1 execution failed. Skipping.";
           else 

@@ -36,7 +36,7 @@ apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream openssh-client;
+  libnginx-mod-http-geoip libnginx-mod-stream openssh-client libcap2-bin;
 if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 fi
@@ -58,18 +58,20 @@ apt-get install --no-install-recommends -qqy \
 # Configure php-fpm and nginx
 /tmp/php-configuration.sh
 rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
-mkdir -p /var/log/php /var/run/php /var/run/nginx
-adduser --group nginx
-adduser --system nginx
-chown nginx:nginx /var/run/nginx
-chown www-data:www-data /var/log/php /var/run/php
+mkdir -p /var/log/php /var/run/php /var/run/nginx /var/log/nginx
+touch /var/log/nginx/access.log /var/log/nginx/error.log
+chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" \
+  /var/run/nginx /var/log/nginx /var/lib/nginx
+setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 # Compute the short version (8.1.27 becomes 8.1)
 PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 
 # Install composer
-curl -s https://getcomposer.org/installer | php \
-  && mv composer.phar /usr/bin/composer
+curl -s https://getcomposer.org/installer | php
+mv composer.phar /usr/bin/composer
+mkdir -p "$COMPOSER_HOME"
+chown -R www-data:www-data "$COMPOSER_HOME"
 
 # Install PrestaShop tools required by prestashop coding-standards
 composer require nikic/php-parser --working-dir=/var/opt
