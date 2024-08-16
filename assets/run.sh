@@ -188,9 +188,9 @@ if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" 
         rm -rf "/var/www/html/modules/${module:-something-at-least}"
         unzip -qq "$file" -d /var/www/html/modules
         if [ "$ON_INSTALL_MODULES_FAILURE" = "continue" ]; then
-          (php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
+          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Skipping."; }
         else
-          (php -d memory_limit=-1 bin/console prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
+          (php -d memory_limit=-1 "$PS_FOLDER/bin/console" prestashop:module --no-interaction install "$module") || { echo "x module installation failed. Sleep and exit."; sleep 10; exit 6; }
         fi
       done;
     else
@@ -207,12 +207,18 @@ if [ -d "$INIT_SCRIPTS_DIR" ]; then
   if [ ! -f $INIT_SCRIPTS_LOCK ] || [ "$INIT_SCRIPTS_ON_RESTART" = "true" ]; then
     printf "* Running init-script(s)..."
     # shellcheck disable=SC2016
-    find "$INIT_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
-      printf "\n--> Running $1...\n"
-      if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
-        $1 || { echo "x $1 execution failed. Skipping."; }
+    find "$INIT_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      if [ -x "$1" ]; then
+        printf "\n--> Running $1...\n"
+        $1 || {
+          if [ "$ON_INIT_SCRIPT_FAILURE" = "continue" ]; then
+            echo "x $1 execution failed. Skipping.";
+          else 
+            echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7;
+          fi
+        }
       else
-        $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 7; }
+        echo "~ $1 is not executable. Skipping."
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
@@ -243,12 +249,18 @@ if [ -d "$POST_SCRIPTS_DIR" ]; then
   if [ ! -f $POST_SCRIPTS_LOCK ] || [ "$POST_SCRIPTS_ON_RESTART" = "true" ]; then
     printf "* Running post-script(s)..."
     # shellcheck disable=SC2016
-    find "$POST_SCRIPTS_DIR" -maxdepth 1 -executable -type f -print0 | sort -z | xargs -0 -n1 sh -c '
-      printf "\n--> Running $1...\n"
-      if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
-        $1 || { echo "x $1 execution failed. Skipping."; }
+    find "$POST_SCRIPTS_DIR" -maxdepth 1 -type f -print0 | sort -z | xargs -0 -n1 sh -c '
+      if  [ -x "$1" ]; then
+        printf "\n--> Running $1...\n"
+        ($1) || {
+          if [ "$ON_POST_SCRIPT_FAILURE" = "continue" ]; then
+            echo "x $1 execution failed. Skipping.";
+          else 
+            echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8;
+          fi
+        }
       else
-        $1 || { echo "x $1 execution failed. Sleep and exit."; sleep 10; exit 8; }
+        echo "~ $1 is not executable. Skipping."
       fi
     ' sh | awk 'BEGIN{RS="\n";ORS="\n  "}1';
     printf "\n";
