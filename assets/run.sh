@@ -236,12 +236,8 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-echo "* Disabling user and group for php-fpm..."
 # Is running as root, set the php-fpm user and group to www-data
-if [ "$(id -u)" -eq 0 ]; then
-  sed -i '/user\s=/s/^;//' /usr/local/etc/php-fpm.conf
-  sed -i '/group\s=/s/^;//' /usr/local/etc/php-fpm.conf
-fi
+[ "$(id -u)" -eq 0 ] && sed -i '/user\s=/s/^;//' /usr/local/etc/php-fpm.conf && sed -i '/group\s=/s/^;//' /usr/local/etc/php-fpm.conf
 php-fpm -D
 
 echo "* Starting nginx..."
