@@ -154,6 +154,11 @@ jobs:
         env:
           DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-debian
 
+      - name: The image has a PrestaShop console CLI
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint /bin/ls $DOCKER_IMAGE bin/console
+        env:
+          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-debian
+
   docker_build_nightly:
     name: "Docker build: PS nightly"
     runs-on: ubuntu-latest

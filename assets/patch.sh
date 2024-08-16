@@ -7,34 +7,7 @@ PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
 add_polyfill_console () {
   mkdir -p "$PS_FOLDER/bin"
   touch "$PS_FOLDER/bin/console"
-cat <<EOF > "$PS_FOLDER/bin/console"
-<?php
-if (!defined('_PS_ADMIN_DIR_')) { define('_PS_ADMIN_DIR_', '/admin-dev'); }
-if (!defined('_PS_MODE_DEV_')) { define('_PS_MODE_DEV_', true); }
-\$rootDirectory = getenv('_PS_ROOT_DIR_') ?: '/var/www/html';
-require_once \$rootDirectory . '/config/config.inc.php';
-function getModuleName(\$args) {
-  for (\$i = 0; \$i < count(\$args); \$i++) {
-    if (\$args[\$i] === 'install') {
-      if (isset(\$args[\$i + 1])) {
-        return \$args[\$i + 1];
-      }
-    }
-  }
-  throw new Exception('Module name not found');
-}
-\$moduleName = getModuleName(\$argv);
-if (version_compare(_PS_VERSION_, '1.7', '>=')) {
-  global \$kernel;
-  if(!\$kernel){
-    require_once _PS_ROOT_DIR_.'/app/AppKernel.php';
-    \$kernel = new \AppKernel('dev', true);
-    \$kernel->boot();
-  }
-}
-\$module = Module::getInstanceByName(\$moduleName);
-\$module->install();
-EOF
+  mv /tmp/ps-console-polyfill.php "$PS_FOLDER/bin/console"
   chmod +x "$PS_FOLDER/bin/console"
 }
 
@@ -55,7 +28,7 @@ patch_1_7_6 () {
 }
 
 patch_other () {
-  cat /dev/null # Nothing to do
+  rm -f /tmp/ps-console-polyfill.php
 }
 
 if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then
