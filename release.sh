@@ -16,20 +16,20 @@ PRESTASHOP_TAGS=$(git ls-remote --tags git@github.com:PrestaShop/PrestaShop.git 
 #   done
 #   echo "$MAJOR_TAGS"
 # )
-# PRESTASHOP_MINOR_TAGS=$(
-#   MINOR_TAGS=""
-#   for VERSION in $PRESTASHOP_TAGS; do
-#     CRITERIA=$(echo "$VERSION" | cut -d. -f1-2)
-#     # shellcheck disable=SC3010
-#     if [[ "$CRITERIA" == 1* ]]; then
-#       CRITERIA=$(echo "$VERSION" | cut -d. -f1-3)
-#     fi
-#     if ! echo "$MINOR_TAGS" | grep -q "^$CRITERIA"; then
-#       MINOR_TAGS="$MINOR_TAGS\n$VERSION";
-#     fi
-#   done
-#   echo "$MINOR_TAGS"
-# )
+PRESTASHOP_MINOR_TAGS=$(
+  MINOR_TAGS=""
+  for VERSION in $PRESTASHOP_TAGS; do
+    CRITERIA=$(echo "$VERSION" | cut -d. -f1-2)
+    # shellcheck disable=SC3010
+    if [[ "$CRITERIA" == 1* ]]; then
+      CRITERIA=$(echo "$VERSION" | cut -d. -f1-3)
+    fi
+    if ! echo "$MINOR_TAGS" | grep -q "^$CRITERIA"; then
+      MINOR_TAGS="$MINOR_TAGS\n$VERSION";
+    fi
+  done
+  echo "$MINOR_TAGS"
+)
 
 get_compatible_php_version() {
   REGEXP_LIST=$(echo "$PRESTASHOP_TAGS" | jq -r 'keys_unsorted | .[]')
@@ -61,10 +61,10 @@ for PS_VERSION in $PRESTASHOP_TAGS; do
 done
 
 # Build & publish every prestashop minor version with all compatible PHP versions (alpine only)
-# for PS_VERSION in $PRESTASHOP_MINOR_TAGS; do
-#   while IFS= read -r PHP_VERSION; do
-#     publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
-#   done <<EOF
-# $(get_compatible_php_version "$PS_VERSION")
-# EOF
-# done
+for PS_VERSION in $PRESTASHOP_MINOR_TAGS; do
+  while IFS= read -r PHP_VERSION; do
+    publish --field ps_version="$PS_VERSION" --field php_version="$PHP_VERSION"
+  done <<EOF
+$(get_compatible_php_version "$PS_VERSION")
+EOF
+done
