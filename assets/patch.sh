@@ -3,7 +3,6 @@ set -eu
 
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
 PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
-DUMP_FILE=/dump.sql
 
 add_polyfill_console () {
   mkdir -p "$PS_FOLDER/bin"
@@ -17,8 +16,6 @@ patch_1_6 () {
   echo "User-agent: *" > "$PS_FOLDER/admin/robots.txt"
   echo "Disallow: /" >> "$PS_FOLDER/admin/robots.txt"
   add_polyfill_console
-  # fixing logs flooded by "mcrypt_decrypt() is deprecated"
-  sed -i -e "s~'PS_CIPHER_ALGORITHM','1'~'PS_CIPHER_ALGORITHM','0'~" "$DUMP_FILE"
 }
 
 patch_1_7_6 () {
