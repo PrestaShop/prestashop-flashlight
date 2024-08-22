@@ -76,6 +76,11 @@ sed -ie "s/define('_PS_MODE_DEV_', true);/define('_PS_MODE_DEV_',\ false);/g" "$
 # 8. Make a database dump
 mysqldump -u ${DB_USER} --password=${DB_PASSWD} ${DB_NAME} > ${DUMP_FILE};
 # TODO zip the dump and support both plain and zipped outputs from restoration to allow overrides
+
+# fixing logs flooded by "mcrypt_decrypt() is deprecated"
+if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then
+  sed -i -e "s~'PS_CIPHER_ALGORITHM','1'~'PS_CIPHER_ALGORITHM','0'~" "$DUMP_FILE"
+fi
 echo "✅ MySQL dump performed"
 
 # 9. Cache clear
