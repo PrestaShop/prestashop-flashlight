@@ -21,7 +21,7 @@ rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
 mkdir -p /var/log/php /var/run/php /var/run/nginx /var/log/nginx /var/tmp/nginx
 touch /var/log/nginx/access.log /var/log/nginx/error.log
 chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" \
- /var/run/nginx /var/log/nginx /var/lib/nginx /var/tmp/nginx
+ /var/run/nginx /var/log/nginx /var/lib/nginx /var/tmp/nginx /var/opt/prestashop
 setcap cap_net_bind_service=+ep /usr/sbin/nginx
 
 # Compute the short version (8.1.27 becomes 8.1)
