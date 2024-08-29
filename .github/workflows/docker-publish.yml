@@ -47,7 +47,8 @@ on:
 jobs:
   build_and_publish:
     name: Build and publish docker
-    runs-on: ubuntu-latest
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
     permissions:
       contents: read
