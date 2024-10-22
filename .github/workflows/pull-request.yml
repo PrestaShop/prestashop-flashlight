@@ -46,19 +46,19 @@ jobs:
       - name: Should give the "latest" tag for the latest version available
         run: ./build.sh | grep "prestashop/prestashop-flashlight:latest"
         env:
-          DRY_RUN: 1
+          DRY_RUN: "true"
           PS_VERSION: ${{ steps.get_latest_ps_version.outputs.PS_VERSION }}
 
       - name: Should not give the "latest" tag to 8.1.2
         run: ./build.sh | grep -v "prestashop/prestashop-flashlight:latest"
         env:
-          DRY_RUN: 1
+          DRY_RUN: "true"
           PS_VERSION: 8.1.2
 
       - name: Should not give the "latest" tag if PHP version is not recommended
         run: ./build.sh | grep -v "prestashop/prestashop-flashlight:latest"
         env:
-          DRY_RUN: 1
+          DRY_RUN: "true"
           PS_VERSION: ${{ steps.get_latest_ps_version.outputs.PS_VERSION }}
           PHP_VERSION: 7.2
 
