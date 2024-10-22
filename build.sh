@@ -1,33 +1,93 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 cd "$(dirname "$0")"
 
 # Available variables
 # -------------------
-declare PS_VERSION;      # -- PrestaShop version, defaults to latest
-declare PHP_VERSION;     # -- PHP version, defaults to recommended version for PrestaShop
+declare BASE_ONLY;       # -- only build the base image (OS_FLAVOUR) without shipping PrestaShop
+declare REBUILD_BASE;    # -- force the rebuild of the base image
+declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 declare OS_FLAVOUR;      # -- either "alpine" (default) or "debian"
+declare PHP_VERSION;     # -- PHP version, defaults to recommended version for PrestaShop
+declare PS_VERSION;      # -- PrestaShop version, defaults to latest
+declare PUSH;            # -- set it to "true" if you want to push the resulting image
 declare SERVER_FLAVOUR;  # -- not implemented, either "nginx" (default) or "apache"
+declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaults to "linux/amd64")
 declare PLATFORM;        # -- alias for $TARGET_PLATFORM
-declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
-declare PUSH;            # -- set it to "true" if you want to push the resulting image
 declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
-declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
 
 # Static configuration
 # --------------------
-DEFAULT_OS="alpine";
-DEFAULT_SERVER="nginx";
 DEFAULT_DOCKER_IMAGE=prestashop/prestashop-flashlight
+DEFAULT_OS="alpine";
 DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
+DEFAULT_SERVER="nginx";
 GIT_SHA=$(git rev-parse HEAD)
+
+# Default configuration
+# ---------------------
+BASE_ONLY=${BASE_ONLY:-false}
+REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
+DRY_RUN=${DRY_RUN:-false}
 TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 
 error() {
-  echo -e "\e[1;31m${1:-Unknown error}\e[0m"
+  echo "$(tput bold)$(tput setaf 1)${1:-Unknown error}$(tput sgr0)"
   exit "${2:-1}"
 }
+
+help() {
+  echo "$(tput bold)Usage:$(tput sgr0) $0 [options]"
+  echo
+  echo "$(tput bold)Options:$(tput sgr0)"
+  echo "  --help            Display this help message"
+  echo "  --base-only       Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
+  echo "  --dry-run         Don't really build the image. Useful to check tags compliance"
+  echo "  --os-flavour      Either 'alpine' (default) or 'debian'"
+  echo "  --php-version     PHP version, defaults to recommended version for PrestaShop"
+  echo "  --platform        Alias for --target-platform"
+  echo "  --ps-version      PrestaShop version, defaults to latest"
+  echo "  --push            Push the resulting image to the registry"
+  echo "  --rebuild-base    Force the rebuild of the base image"
+  echo "  --server-flavour  Not implemented, either 'nginx' (default) or 'apache'"
+  echo "  --target-image    Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  --target-platform A comma separated list of target platforms (defaults to 'linux/amd64')"
+  echo "  --zip-source      The zip to unpack in flashlight"
+  echo ""
+  echo "$(tput bold)Environment variables:$(tput sgr0)"
+  echo "  BASE_ONLY         Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
+  echo "  DRY_RUN           Don't really build the image. Useful to check tags compliance"
+  echo "  OS_FLAVOUR        Either 'alpine' (default) or 'debian'"
+  echo "  PHP_VERSION       PHP version, defaults to recommended version for PrestaShop"
+  echo "  PS_VERSION        PrestaShop version, defaults to latest"
+  echo "  PUSH              Set it to 'true' if you want to push the resulting image"
+  echo "  REBUILD_BASE      Force the rebuild of the base image"
+  echo "  SERVER_FLAVOUR    Not implemented, either 'nginx' (default) or 'apache'"
+  echo "  TARGET_IMAGE      Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  TARGET_PLATFORM   A comma separated list of target platforms (defaults to 'linux/amd64')"
+  echo "  ZIP_SOURCE        The zip to unpack in flashlight"
+}
+
+# Parsing input arguments
+# -----------------------
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+    --help) help; exit 0;;
+    --base-only) BASE_ONLY=true;;
+    --dry-run) DRY_RUN=true;;
+    --os-flavour) OS_FLAVOUR="$2"; shift;;
+    --php-version) PHP_VERSION="$2"; shift;;
+    --platform) TARGET_PLATFORM="$2"; shift;;
+    --ps-version) PS_VERSION="$2"; shift;;
+    --push) PUSH=true;;
+    --rebuild-base) REBUILD_BASE=true;;
+    --server-flavour) SERVER_FLAVOUR="$2"; shift;;
+    --target-image) TARGET_IMAGE="$2"; shift;;
+    --zip-source) ZIP_SOURCE="$2"; shift;;
+    *) error "Unknown option: $1" 2;;
+  esac
+done
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
@@ -150,31 +210,55 @@ fi
 
 # Build the docker image
 # ----------------------
-CACHE_IMAGE=${TARGET_IMAGES[1]}
+CACHE_IMAGE=prestashop/prestashop-flashlight:base-${PHP_FLAVOUR}
 if [ -n "${DRY_RUN}" ]; then
   docker() {
     echo docker "$@"
   }
 fi
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
-docker buildx build \
-  --progress=plain \
-  --file "./docker/${OS_FLAVOUR}.Dockerfile" \
-  --platform "$TARGET_PLATFORM" \
-  --cache-from type=registry,ref="$CACHE_IMAGE" \
-  --cache-to type=inline \
-  --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
-  --build-arg PS_VERSION="$PS_VERSION" \
-  --build-arg PHP_VERSION="$PHP_VERSION" \
-  --build-arg GIT_SHA="$GIT_SHA" \
-  --build-arg NODE_VERSION="$NODE_VERSION" \
-  --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
-  --label org.opencontainers.image.title="PrestaShop Flashlight" \
-  --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
-  --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
-  --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
-  --label org.opencontainers.image.licenses=MIT \
-  --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
-  "${TARGET_IMAGES[@]}" \
-  "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
-  .
+
+if [ "$REBUILD_BASE" == "true" ]; then
+  docker buildx build \
+    --progress=plain \
+    --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
+    --platform "$TARGET_PLATFORM" \
+    --cache-from type=registry,ref="$CACHE_IMAGE" \
+    --cache-to type=inline \
+    --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
+    --build-arg PHP_VERSION="$PHP_VERSION" \
+    --build-arg GIT_SHA="$GIT_SHA" \
+    --label org.opencontainers.image.title="PrestaShop Flashlight Base" \
+    --label org.opencontainers.image.description="PrestaShop Flashlight base image" \
+    --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
+    --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
+    --label org.opencontainers.image.licenses=MIT \
+    --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+    prestashop/prestashop-flashlight:base-"$PHP_FLAVOUR" \
+    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
+    .
+fi
+
+if [ "$BASE_ONLY" == "true" ]; then
+  docker buildx build \
+    --progress=plain \
+    --file "./docker/flashlight.Dockerfile" \
+    --platform "$TARGET_PLATFORM" \
+    --cache-from type=registry,ref="$CACHE_IMAGE" \
+    --cache-to type=inline \
+    --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
+    --build-arg PS_VERSION="$PS_VERSION" \
+    --build-arg PHP_VERSION="$PHP_VERSION" \
+    --build-arg GIT_SHA="$GIT_SHA" \
+    --build-arg NODE_VERSION="$NODE_VERSION" \
+    --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
+    --label org.opencontainers.image.title="PrestaShop Flashlight" \
+    --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
+    --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
+    --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
+    --label org.opencontainers.image.licenses=MIT \
+    --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+    "${TARGET_IMAGES[@]}" \
+    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
+    .
+fi
