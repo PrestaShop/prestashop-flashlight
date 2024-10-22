@@ -1,5 +1,5 @@
 #!/bin/bash
-set -euo pipefail
+set -eo pipefail
 cd "$(dirname "$0")"
 
 # Available variables
