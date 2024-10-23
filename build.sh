@@ -25,13 +25,6 @@ DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
 DEFAULT_SERVER="nginx";
 GIT_SHA=$(git rev-parse HEAD)
 
-# Default configuration
-# ---------------------
-BASE_ONLY=${BASE_ONLY:-false}
-REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
-DRY_RUN=${DRY_RUN:-false}
-TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
-
 error() {
   echo "$(tput bold)$(tput setaf 1)${1:-Unknown error}$(tput sgr0)"
   exit "${2:-1}"
@@ -74,20 +67,27 @@ help() {
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --help) help; exit 0;;
-    --base-only) BASE_ONLY=true;;
-    --dry-run) DRY_RUN=true;;
-    --os-flavour) OS_FLAVOUR="$2"; shift;;
-    --php-version) PHP_VERSION="$2"; shift;;
-    --platform) TARGET_PLATFORM="$2"; shift;;
-    --ps-version) PS_VERSION="$2"; shift;;
-    --push) PUSH=true;;
-    --rebuild-base) REBUILD_BASE=true;;
-    --server-flavour) SERVER_FLAVOUR="$2"; shift;;
-    --target-image) TARGET_IMAGE="$2"; shift;;
-    --zip-source) ZIP_SOURCE="$2"; shift;;
+    --base-only) BASE_ONLY=true; shift;;
+    --dry-run) DRY_RUN=true; shift;;
+    --os-flavour) OS_FLAVOUR="$2"; shift; shift;;
+    --php-version) PHP_VERSION="$2"; shift; shift;;
+    --platform) TARGET_PLATFORM="$2"; shift; shift;;
+    --ps-version) PS_VERSION="$2"; shift; shift;;
+    --push) PUSH=true; shift;;
+    --rebuild-base) REBUILD_BASE=true; shift;;
+    --server-flavour) SERVER_FLAVOUR="$2"; shift; shift;;
+    --target-image) TARGET_IMAGE="$2"; shift; shift;;
+    --zip-source) ZIP_SOURCE="$2"; shift; shift;;
     *) error "Unknown option: $1" 2;;
   esac
 done
+
+# Default configuration
+# ---------------------
+BASE_ONLY=${BASE_ONLY:-false}
+REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
+DRY_RUN=${DRY_RUN:-false}
+TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
@@ -211,7 +211,7 @@ fi
 # Build the docker image
 # ----------------------
 CACHE_IMAGE=prestashop/prestashop-flashlight:base-${PHP_FLAVOUR}
-if [ -n "${DRY_RUN}" ]; then
+if [ "$DRY_RUN" == "true" ]; then
   docker() {
     echo docker "$@"
   }
@@ -234,12 +234,12 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
     --label org.opencontainers.image.licenses=MIT \
     --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
-    prestashop/prestashop-flashlight:base-"$PHP_FLAVOUR" \
+    --tag "prestashop/prestashop-flashlight:base-$PHP_FLAVOUR" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
 fi
 
-if [ "$BASE_ONLY" == "true" ]; then
+if [ "$BASE_ONLY" == "false" ]; then
   docker buildx build \
     --progress=plain \
     --file "./docker/flashlight.Dockerfile" \
