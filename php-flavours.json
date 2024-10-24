@@ -23,7 +23,7 @@
     "alpine": "7.2-fpm-alpine",
     "debian": "7.2-fpm-buster",
     "php_cs_fixer": "v3.4.0",
-    "phpstan": "HEAD",
+    "phpstan": "1.12.7",
     "phpunit": "8.5.34",
     "xdebug": "3.1.6"
   },
@@ -31,7 +31,7 @@
     "alpine": "7.3-fpm-alpine",
     "debian": "7.3-fpm-buster",
     "php_cs_fixer": "v3.4.0",
-    "phpstan": "HEAD",
+    "phpstan": "1.12.7",
     "phpunit": "9.6.13",
     "xdebug": "3.1.6"
   },

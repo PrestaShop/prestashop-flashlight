@@ -1,46 +1,8 @@
-ARG PS_VERSION
-ARG PHP_VERSION
-ARG PHP_FLAVOUR=8.3-fpm-alpine
-ARG GIT_SHA
-ARG NODE_VERSION
-ARG ZIP_SOURCE
-
-# -------------------------------------
-#  PrestaShop Flashlight: Alpine image
-# -------------------------------------
-FROM php:${PHP_FLAVOUR} AS alpine-base-prestashop
-ARG PS_VERSION
-ARG PHP_VERSION
-ARG NODE_VERSION
-ENV PS_FOLDER=/var/www/html
-ENV PHP_INI_DIR=/usr/local/etc/php
-ENV COMPOSER_HOME=/var/composer
-
-ENV PHP_ENV=development
-COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
-COPY ./assets/nginx.conf /etc/nginx/nginx.conf
-COPY ./php-flavours.json /tmp
-COPY ./assets/php-configuration.sh /tmp/
-COPY ./assets/alpine-base-install.sh /tmp/
-COPY ./assets/ps-console-polyfill.php /tmp/
-COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
-
-RUN /tmp/alpine-base-install.sh \
-  && rm -f /tmp/alpine-base-install.sh /tmp/php-configuration.sh
-
-RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
-  && architecture=$(uname -m) \
-  && curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -D - -L -s "https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version" \
-  && mkdir -p /tmp/blackfire \
-  && tar zxpf /tmp/blackfire-probe.tar.gz -C /tmp/blackfire \
-  && mv /tmp/blackfire/blackfire-*.so "$(php -r "echo ini_get ('extension_dir');")"/blackfire.so \
-  && printf "extension=blackfire.so\nblackfire.agent_socket=tcp://blackfire:8307\n" > $PHP_INI_DIR/conf.d/blackfire.ini \
-  && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
-
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
-FROM alpine-base-prestashop AS build-and-dump
+ARG PHP_BASE_IMAGE
+FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
@@ -60,14 +22,10 @@ RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && chown -R www-data:www-data "$PS_FOLDER" \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
-# Install and configure MariaDB
-RUN adduser --system mysql \
-  && apk --no-cache add -U --no-commit-hooks --no-scripts mariadb;
-COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
-
 # Ship a VERSION file
 RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
   && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
+  && echo "PHP Base image $PHP_BASE_IMAGE" >> "$PS_FOLDER/VERSION" \
   && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION"
 
 # Extra patches to the PrestaShop sources
@@ -81,10 +39,11 @@ RUN sh /hydrate.sh
 # -----------------------
 # Flashlight final image
 # -----------------------
-FROM alpine-base-prestashop AS prestashop-flashlight
+ARG PHP_BASE_IMAGE
+FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_FLAVOUR
+ARG PHP_BASE_IMAGE
 ARG PS_FOLDER=/var/www/html
 WORKDIR $PS_FOLDER
 
