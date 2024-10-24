@@ -79,6 +79,7 @@ jobs:
         run: ./build.sh
         env:
           PS_VERSION: ${{ matrix.ps_version }}
+          REBUILD_BASE: "true"
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
@@ -124,6 +125,7 @@ jobs:
           PS_VERSION: 1.6.1.24
           PHP_VERSION: 5.6
           OS_VERSION: ${{ matrix.os_version }}
+          REBUILD_BASE: "true"
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
@@ -148,6 +150,7 @@ jobs:
         env:
           OS_FLAVOUR: "debian"
           PS_VERSION: ${{ matrix.ps_version }}
+          REBUILD_BASE: "true"
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
@@ -171,6 +174,7 @@ jobs:
         run: ./build.sh
         env:
           PS_VERSION: "nightly"
+          REBUILD_BASE: "true"
 
   # runs-on: ARM64 ##never gives a runner
   docker_build_cross_compile:
@@ -193,3 +197,4 @@ jobs:
         run: ./build.sh
         env:
           TARGET_PLATFORM: "linux/arm64"
+          REBUILD_BASE: "true"
