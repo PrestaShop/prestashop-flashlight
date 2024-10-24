@@ -216,6 +216,7 @@ if [ "$DRY_RUN" == "true" ]; then
     echo docker "$@"
   }
 fi
+
 docker pull "$CACHE_IMAGE" 2> /dev/null || REBUILD_BASE='true';
 
 if [ "$REBUILD_BASE" == "true" ]; then
