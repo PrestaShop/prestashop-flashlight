@@ -1,6 +1,6 @@
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_FLAVOUR=8.3-fpm-bookworm
+ARG PHP_BASE_IMAGE=8.3-fpm-bookworm
 ARG GIT_SHA
 ARG NODE_VERSION
 ARG ZIP_SOURCE
@@ -8,7 +8,7 @@ ARG ZIP_SOURCE
 # -------------------------------------
 #  PrestaShop Flashlight: Debian image
 # -------------------------------------
-FROM php:${PHP_FLAVOUR} AS debian-base-prestashop
+FROM php:${PHP_BASE_IMAGE} AS debian-base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA

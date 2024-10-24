@@ -1,6 +1,6 @@
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_FLAVOUR=8.3-fpm-alpine
+ARG PHP_BASE_IMAGE=8.3-fpm-alpine
 ARG GIT_SHA
 ARG NODE_VERSION
 ARG ZIP_SOURCE
@@ -8,7 +8,7 @@ ARG ZIP_SOURCE
 # -------------------------------------
 #  PrestaShop Flashlight: Alpine image
 # -------------------------------------
-FROM php:${PHP_FLAVOUR} AS alpine-base-prestashop
+FROM php:${PHP_BASE_IMAGE} AS alpine-base-prestashop
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA

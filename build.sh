@@ -120,7 +120,7 @@ get_recommended_nodejs_version() {
   echo "$RECOMMENDED_VERSION";
 }
 
-get_php_flavour() {
+get_php_base_image() {
    local OS_FLAVOUR=${1:-};
    local SERVER_FLAVOUR=${2:-};
    local PHP_VERSION=${3:-};
@@ -155,7 +155,7 @@ get_php_version() {
 # * 8.1.1-8.2-alpine
 #
 get_target_images() {
-  local PHP_FLAVOUR=${1:-};
+  local PHP_BASE_IMAGE=${1:-};
   local PS_VERSION=${2:-};
   local PHP_VERSION=${3:-};
   local OS_FLAVOUR=${4:-};
@@ -177,7 +177,7 @@ get_target_images() {
         RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:php-${PHP_VERSION}";
       fi
     fi
-    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_FLAVOUR}";
+    RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${PHP_BASE_IMAGE}";
     RES="${RES} -t ${DEFAULT_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}";
   fi
   echo "$RES";
@@ -192,13 +192,13 @@ if [ -z "$PHP_VERSION" ]; then
 fi
 OS_FLAVOUR=${OS_FLAVOUR:-$DEFAULT_OS};
 SERVER_FLAVOUR=${SERVER_FLAVOUR:-$DEFAULT_SERVER};
-PHP_FLAVOUR=$(get_php_flavour "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
+PHP_BASE_IMAGE=$(get_php_base_image "$OS_FLAVOUR" "$SERVER_FLAVOUR" "$PHP_VERSION");
 NODE_VERSION=$(get_recommended_nodejs_version "$PS_VERSION");
-if [ "$PHP_FLAVOUR" == "null" ]; then
+if [ "$PHP_BASE_IMAGE" == "null" ]; then
   error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2;
 fi
 if [ -z "${TARGET_IMAGE:+x}" ]; then
-  read -ra TARGET_IMAGES <<<"$(get_target_images "$PHP_FLAVOUR" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
+  read -ra TARGET_IMAGES <<<"$(get_target_images "$PHP_BASE_IMAGE" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
@@ -210,7 +210,7 @@ fi
 
 # Build the docker image
 # ----------------------
-CACHE_IMAGE=prestashop/prestashop-flashlight:base-${PHP_FLAVOUR}
+CACHE_IMAGE=prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE}
 if [ "$DRY_RUN" == "true" ]; then
   docker() {
     echo docker "$@"
@@ -220,14 +220,14 @@ fi
 docker pull "$CACHE_IMAGE" 2> /dev/null || REBUILD_BASE='true';
 
 if [ "$REBUILD_BASE" == "true" ]; then
-  echo "building base for $PHP_FLAVOUR ($TARGET_PLATFORM)"
+  echo "building base for $PHP_BASE_IMAGE ($TARGET_PLATFORM)"
   docker buildx build \
     --progress=plain \
     --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
     --platform "$TARGET_PLATFORM" \
     --cache-from type=registry,ref="$CACHE_IMAGE" \
     --cache-to type=inline \
-    --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
+    --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
@@ -237,7 +237,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
     --label org.opencontainers.image.licenses=MIT \
     --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
-    --tag "prestashop/prestashop-flashlight:base-$PHP_FLAVOUR" \
+    --tag "prestashop/prestashop-flashlight:base-$PHP_BASE_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
 fi
@@ -249,7 +249,7 @@ if [ "$BASE_ONLY" == "false" ]; then
     --platform "$TARGET_PLATFORM" \
     --cache-from type=registry,ref="$CACHE_IMAGE" \
     --cache-to type=inline \
-    --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
+    --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
     --build-arg PS_VERSION="$PS_VERSION" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \

@@ -1,8 +1,8 @@
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
-ARG PHP_FLAVOUR
-FROM prestashop/prestashop-flashlight:base-${PHP_FLAVOUR} AS build-and-dump
+ARG PHP_BASE_IMAGE
+FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
@@ -25,6 +25,7 @@ RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
 # Ship a VERSION file
 RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
   && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
+  && echo "PHP Base image $PHP_BASE_IMAGE" >> "$PS_FOLDER/VERSION" \
   && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION"
 
 # Extra patches to the PrestaShop sources
@@ -38,11 +39,11 @@ RUN sh /hydrate.sh
 # -----------------------
 # Flashlight final image
 # -----------------------
-ARG PHP_FLAVOUR
-FROM prestashop/prestashop-flashlight:base-${PHP_FLAVOUR} AS prestashop-flashlight
+ARG PHP_BASE_IMAGE
+FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_FLAVOUR
+ARG PHP_BASE_IMAGE
 ARG PS_FOLDER=/var/www/html
 WORKDIR $PS_FOLDER
 

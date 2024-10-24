@@ -1,21 +1,22 @@
 #!/bin/sh
 set -eu
 
-ALPINE_VERSIONS="$(jq -r 'to_entries | map(.value.alpine) | join(" ")' ./php-flavours.json)"
-DEBIAN_VERSIONS="$(jq -r 'to_entries | map(.value.debian) | join(" ")' ./php-flavours.json)"
+PHP_VERSIONS="$(jq -r 'keys | join(" ")' ./php-flavours.json)"
 
-for PHP_FLAVOUR in $ALPINE_VERSIONS; do
-  echo "Publishing Alpine Base" "$PHP_FLAVOUR"
+for PHP_VERSION in $PHP_VERSIONS; do
+  echo "Publishing Alpine Base for $PHP_VERSION"
   gh workflow run docker-base-publish.yml \
     --repo prestashop/prestashop-flashlight \
     --field target_platforms=linux/amd64,linux/arm64 \
-    --field php_flavour="$PHP_FLAVOUR"
+    --field os_flavour="alpine" \
+    --field php_version="$PHP_VERSION"
 done
 
-for PHP_FLAVOUR in $DEBIAN_VERSIONS; do
-  echo "Publishing Debian Base" "$PHP_FLAVOUR"
+for PHP_VERSION in $PHP_VERSIONS; do
+  echo "Publishing Debian Base for $PHP_VERSION"
   gh workflow run docker-base-publish.yml \
     --repo prestashop/prestashop-flashlight \
     --field target_platforms=linux/amd64,linux/arm64 \
-    --field php_flavour="$PHP_FLAVOUR"
+    --field os_flavour="debian" \
+    --field php_base_image="$PHP_VERSION"
 done
