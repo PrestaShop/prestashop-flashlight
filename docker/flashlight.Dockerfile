@@ -38,8 +38,8 @@ RUN sh /hydrate.sh
 # -----------------------
 # Flashlight final image
 # -----------------------
-ARG BASE
-FROM prestashop/prestashop-flashlight:$BASE AS prestashop-flashlight
+ARG PHP_FLAVOUR
+FROM prestashop/prestashop-flashlight:base-${PHP_FLAVOUR} AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_FLAVOUR

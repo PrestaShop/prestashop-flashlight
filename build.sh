@@ -219,6 +219,7 @@ fi
 docker pull "$CACHE_IMAGE" 2> /dev/null || true
 
 if [ "$REBUILD_BASE" == "true" ]; then
+  echo "building base for $PHP_FLAVOUR ($TARGET_PLATFORM)"
   docker buildx build \
     --progress=plain \
     --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
@@ -227,6 +228,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --cache-to type=inline \
     --build-arg PHP_FLAVOUR="$PHP_FLAVOUR" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
+    --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --label org.opencontainers.image.title="PrestaShop Flashlight Base" \
     --label org.opencontainers.image.description="PrestaShop Flashlight base image" \
@@ -250,7 +252,6 @@ if [ "$BASE_ONLY" == "false" ]; then
     --build-arg PS_VERSION="$PS_VERSION" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
-    --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
     --label org.opencontainers.image.title="PrestaShop Flashlight" \
     --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
