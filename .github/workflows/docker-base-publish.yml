@@ -18,6 +18,12 @@ on:
         required: false
         type: string
 
+      target_platforms:
+        description: "Target platforms to build this image for"
+        required: false
+        default: "linux/amd64,linux/arm64"
+        type: string
+
 jobs:
   build_and_publish:
     name: Build and publish docker
@@ -49,6 +55,8 @@ jobs:
       - name: Build and push base ${{ inputs.os_flavour }}
         run: ./build.sh
         env:
+          TARGET_PLATFORM: ${{ inputs.target_platforms }}
+          PHP_VERSION: ${{ inputs.php_version }}
           OS_FLAVOUR: ${{ inputs.os_flavour }}
           BASE_ONLY: "true"
           PUSH: "true"
