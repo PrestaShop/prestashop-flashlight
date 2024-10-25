@@ -84,6 +84,7 @@ done
 
 # Default configuration
 # ---------------------
+PUSH=${PUSH:-false}
 BASE_ONLY=${BASE_ONLY:-false}
 REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
 DRY_RUN=${DRY_RUN:-false}
