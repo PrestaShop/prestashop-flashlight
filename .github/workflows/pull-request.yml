@@ -197,4 +197,4 @@ jobs:
         run: ./build.sh
         env:
           TARGET_PLATFORM: "linux/arm64"
-          REBUILD_BASE: "true"
+          BASE_ONLY: "true"
