@@ -52,7 +52,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build and push base ${{ inputs.os_flavour }}
+      - name: Build and push base ${{ inputs.os_flavour }} for ${{ inputs.php_version }}
         run: ./build.sh
         env:
           TARGET_PLATFORM: ${{ inputs.target_platforms }}
