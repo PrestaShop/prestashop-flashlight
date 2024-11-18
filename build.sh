@@ -47,8 +47,9 @@ help() {
   echo "  --rebuild-base    Force the rebuild of the base image"
   echo "  --server-flavour  Not implemented, either 'nginx' (default) or 'apache'"
   echo "  --target-image    Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  --custom-labels   A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  --target-platform A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  --zip-source      The zip to unpack in flashlight"
+  echo "  --zip-source      The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
   echo ""
   echo "$(tput bold)Environment variables:$(tput sgr0)"
   echo "  BASE_ONLY         Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
@@ -60,8 +61,9 @@ help() {
   echo "  REBUILD_BASE      Force the rebuild of the base image"
   echo "  SERVER_FLAVOUR    Not implemented, either 'nginx' (default) or 'apache'"
   echo "  TARGET_IMAGE      Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  CUSTOM_LABELS     A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  TARGET_PLATFORM   A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  ZIP_SOURCE        The zip to unpack in flashlight"
+  echo "  ZIP_SOURCE        The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
 }
 
 # Parsing input arguments
@@ -79,6 +81,7 @@ while [ "$#" -gt 0 ]; do
     --rebuild-base) REBUILD_BASE=true; shift;;
     --server-flavour) SERVER_FLAVOUR="$2"; shift; shift;;
     --target-image) TARGET_IMAGE="$2"; shift; shift;;
+    --custom-labels) CUSTOM_LABELS="$2"; shift; shift;;
     --zip-source) ZIP_SOURCE="$2"; shift; shift;;
     *) error "Unknown option: $1" 2;;
   esac
