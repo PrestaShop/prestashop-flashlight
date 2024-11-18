@@ -16,10 +16,8 @@ declare TARGET_IMAGE;          # -- docker image name, defaults to "prestashop/p
 declare TARGET_PLATFORM;       # -- a comma separated list of target platforms (defaults to "linux/amd64")
 declare PLATFORM;              # -- alias for $TARGET_PLATFORM
 declare ZIP_SOURCE;            # -- the zip to unpack in flashlight
-declare PRE_INSTALLED_MODULES; # -- install modules during zip installation
 declare CUSTOM_LABELS;         # -- only when PRIVATE : list of key=value pairs separated by a comma, for overriding official flashlight labels
 
-declare -A IMAGE_LABELS;
 
 # Static configuration
 # --------------------
@@ -94,15 +92,15 @@ REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
 DRY_RUN=${DRY_RUN:-false}
 TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 
-
+declare -A TARGET_IMAGE_LABELS;
 
 build_default_labels() {
-  IMAGE_LABELS["org.opencontainers.image.title"]="Prestashop Flashlight"
-  IMAGE_LABELS["org.opencontainers.image.description"]="PrestaShop Flashlight testing utility"
-  IMAGE_LABELS["org.opencontainers.image.source"]="https://github.com/PrestaShop/prestashop-flashlight"
-  IMAGE_LABELS["org.opencontainers.image.url"]="https://github.com/PrestaShop/prestashop-flashlight"
-  IMAGE_LABELS["org.opencontainers.image.licenses"]=MIT
-  IMAGE_LABELS["org.opencontainers.image.created"]="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.title"]="Prestashop Flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.description"]="PrestaShop Flashlight testing utility"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.source"]="https://github.com/PrestaShop/prestashop-flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.url"]="https://github.com/PrestaShop/prestashop-flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.licenses"]=MIT
+  TARGET_IMAGE_LABELS["org.opencontainers.image.created"]="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")"
 }
 
 build_labels() {
@@ -111,7 +109,7 @@ build_labels() {
     IFS="," read -ra labels <<< "$(echo "$CUSTOM_LABELS" | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
     for label in "${labels[@]}"; do
       IFS="=" read -ra parts <<< "$label"
-      IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
+      TARGET_IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
     done
 
   else
@@ -233,6 +231,7 @@ else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
 
+# If ZIP_SOURCE is not defined, set it based on PS_VERSION
 if [ -z "$ZIP_SOURCE" ]; then
   if [ "$PS_VERSION" == "nightly" ]; then
     ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
@@ -245,11 +244,11 @@ fi
 # ------------------
 build_labels
 
-COMPUTED_LABELS=()
-for key in "${!IMAGE_LABELS[@]}"
+LABELS=()
+for key in "${!TARGET_IMAGE_LABELS[@]}"
 do
-  COMPUTED_LABELS+=("--label")
-  COMPUTED_LABELS+=("$key=\"${IMAGE_LABELS[$key]}\"")
+  LABELS+=("--label")
+  LABELS+=("$key=\"${TARGET_IMAGE_LABELS[$key]}\"")
 done
 
 
@@ -276,7 +275,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
-    "${COMPUTED_LABELS[@]}" \
+    "${LABELS[@]}" \
     --tag "prestashop/prestashop-flashlight:base-$PHP_BASE_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
@@ -294,8 +293,7 @@ if [ "$BASE_ONLY" == "false" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
-    --build-arg PRE_INSTALLED_MODULES="$PRE_INSTALLED_MODULES" \
-    "${COMPUTED_LABELS[@]}" \
+    "${LABELS[@]}" \
     "${TARGET_IMAGES[@]}" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
