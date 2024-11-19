@@ -4,18 +4,20 @@ cd "$(dirname "$0")"
 
 # Available variables
 # -------------------
-declare BASE_ONLY;       # -- only build the base image (OS_FLAVOUR) without shipping PrestaShop
-declare REBUILD_BASE;    # -- force the rebuild of the base image
-declare DRY_RUN;         # -- if used, won't really build the image. Useful to check tags compliance
-declare OS_FLAVOUR;      # -- either "alpine" (default) or "debian"
-declare PHP_VERSION;     # -- PHP version, defaults to recommended version for PrestaShop
-declare PS_VERSION;      # -- PrestaShop version, defaults to latest
-declare PUSH;            # -- set it to "true" if you want to push the resulting image
-declare SERVER_FLAVOUR;  # -- not implemented, either "nginx" (default) or "apache"
-declare TARGET_IMAGE;    # -- docker image name, defaults to "prestashop/prestashop-flashlight"
-declare TARGET_PLATFORM; # -- a comma separated list of target platforms (defaults to "linux/amd64")
-declare PLATFORM;        # -- alias for $TARGET_PLATFORM
-declare ZIP_SOURCE;      # -- the zip to unpack in flashlight
+declare BASE_ONLY;             # -- only build the base image (OS_FLAVOUR) without shipping PrestaShop
+declare REBUILD_BASE;          # -- force the rebuild of the base image
+declare DRY_RUN;               # -- if used, won't really build the image. Useful to check tags compliance
+declare OS_FLAVOUR;            # -- either "alpine" (default) or "debian"
+declare PHP_VERSION;           # -- PHP version, defaults to recommended version for PrestaShop
+declare PS_VERSION;            # -- PrestaShop version, defaults to latest
+declare PUSH;                  # -- set it to "true" if you want to push the resulting image
+declare SERVER_FLAVOUR;        # -- not implemented, either "nginx" (default) or "apache"
+declare TARGET_IMAGE;          # -- docker image name, defaults to "prestashop/prestashop-flashlight"
+declare TARGET_PLATFORM;       # -- a comma separated list of target platforms (defaults to "linux/amd64")
+declare PLATFORM;              # -- alias for $TARGET_PLATFORM
+declare ZIP_SOURCE;            # -- the zip to unpack in flashlight
+declare CUSTOM_LABELS;         # -- only when PRIVATE : list of key=value pairs separated by a comma, for overriding official flashlight labels
+
 
 # Static configuration
 # --------------------
@@ -45,8 +47,9 @@ help() {
   echo "  --rebuild-base    Force the rebuild of the base image"
   echo "  --server-flavour  Not implemented, either 'nginx' (default) or 'apache'"
   echo "  --target-image    Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  --custom-labels   A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  --target-platform A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  --zip-source      The zip to unpack in flashlight"
+  echo "  --zip-source      The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
   echo ""
   echo "$(tput bold)Environment variables:$(tput sgr0)"
   echo "  BASE_ONLY         Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
@@ -58,8 +61,9 @@ help() {
   echo "  REBUILD_BASE      Force the rebuild of the base image"
   echo "  SERVER_FLAVOUR    Not implemented, either 'nginx' (default) or 'apache'"
   echo "  TARGET_IMAGE      Docker image name, defaults to 'prestashop/prestashop-flashlight'"
+  echo "  CUSTOM_LABELS     A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  TARGET_PLATFORM   A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  ZIP_SOURCE        The zip to unpack in flashlight"
+  echo "  ZIP_SOURCE        The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
 }
 
 # Parsing input arguments
@@ -77,6 +81,7 @@ while [ "$#" -gt 0 ]; do
     --rebuild-base) REBUILD_BASE=true; shift;;
     --server-flavour) SERVER_FLAVOUR="$2"; shift; shift;;
     --target-image) TARGET_IMAGE="$2"; shift; shift;;
+    --custom-labels) CUSTOM_LABELS="$2"; shift; shift;;
     --zip-source) ZIP_SOURCE="$2"; shift; shift;;
     *) error "Unknown option: $1" 2;;
   esac
@@ -89,6 +94,31 @@ BASE_ONLY=${BASE_ONLY:-false}
 REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
 DRY_RUN=${DRY_RUN:-false}
 TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
+
+declare -A TARGET_IMAGE_LABELS;
+
+build_default_labels() {
+  TARGET_IMAGE_LABELS["org.opencontainers.image.title"]="Prestashop Flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.description"]="PrestaShop Flashlight testing utility"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.source"]="https://github.com/PrestaShop/prestashop-flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.url"]="https://github.com/PrestaShop/prestashop-flashlight"
+  TARGET_IMAGE_LABELS["org.opencontainers.image.licenses"]=MIT
+  TARGET_IMAGE_LABELS["org.opencontainers.image.created"]="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")"
+}
+
+build_labels() {
+  if [ -n "$CUSTOM_LABELS" ]; then
+    
+    IFS="," read -ra labels <<< "$(echo "$CUSTOM_LABELS" | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
+    for label in "${labels[@]}"; do
+      IFS="=" read -ra parts <<< "$label"
+      TARGET_IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
+    done
+
+  else
+    build_default_labels
+  fi
+}
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
@@ -203,11 +233,27 @@ if [ -z "${TARGET_IMAGE:+x}" ]; then
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
 fi
-if [ "$PS_VERSION" == "nightly" ]; then
-  ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
-else
-  ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+
+# If ZIP_SOURCE is not defined, set it based on PS_VERSION
+if [ -z "$ZIP_SOURCE" ]; then
+  if [ "$PS_VERSION" == "nightly" ]; then
+    ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
+  else
+    ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+  fi
 fi
+
+# Build image labels
+# ------------------
+build_labels
+
+LABELS=()
+for key in "${!TARGET_IMAGE_LABELS[@]}"
+do
+  LABELS+=("--label")
+  LABELS+=("$key=\"${TARGET_IMAGE_LABELS[$key]}\"")
+done
+
 
 # Build the docker image
 # ----------------------
@@ -232,12 +278,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
-    --label org.opencontainers.image.title="PrestaShop Flashlight Base" \
-    --label org.opencontainers.image.description="PrestaShop Flashlight base image" \
-    --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
-    --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
-    --label org.opencontainers.image.licenses=MIT \
-    --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+    "${LABELS[@]}" \
     --tag "prestashop/prestashop-flashlight:base-$PHP_BASE_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
@@ -255,12 +296,7 @@ if [ "$BASE_ONLY" == "false" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
-    --label org.opencontainers.image.title="PrestaShop Flashlight" \
-    --label org.opencontainers.image.description="PrestaShop Flashlight testing utility" \
-    --label org.opencontainers.image.source=https://github.com/PrestaShop/prestashop-flashlight \
-    --label org.opencontainers.image.url=https://hub.docker.com/r/prestashop/prestashop-flashlight \
-    --label org.opencontainers.image.licenses=MIT \
-    --label org.opencontainers.image.created="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")" \
+    "${LABELS[@]}" \
     "${TARGET_IMAGES[@]}" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
