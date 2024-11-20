@@ -33,10 +33,19 @@ curl -s -L -H "Content-Type: application/octet-stream" \
   "https://packages.sury.org/php/apt.gpg"
 apt-get update
 apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates
-apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy bash less vim git sudo mariadb-client \
+packages=(bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
-  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream openssh-client libcap2-bin;
+  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
+  libnginx-mod-http-geoip libnginx-mod-stream openssh-client libcap2-bin)
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  packages+=(nginx)
+else
+  packages+=(apache2)
+fi
+
+apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy "${packages[@]}"
+
+
 if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 fi
@@ -59,17 +68,31 @@ apt-get install --no-install-recommends -qqy \
 usermod -u 1000 www-data
 groupmod -g 1000 www-data
 
-# Configure php-fpm and nginx
+# Configure php-fpm
 /tmp/php-configuration.sh
 rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
-mkdir -p /var/log/php /var/run/php /var/run/nginx /var/log/nginx /var/tmp/nginx
-touch /var/log/nginx/access.log /var/log/nginx/error.log
-chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" \
-  /var/run/nginx /var/log/nginx /var/lib/nginx /var/tmp/nginx /var/opt/prestashop
-setcap cap_net_bind_service=+ep /usr/sbin/nginx
+mkdir -p /var/log/php /var/run/php
+chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" /var/opt/prestashop
 
-# Compute the short version (8.1.27 becomes 8.1)
-PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+# Configure server
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  rm -rf /etc/apache2
+else
+  a2enmod proxy \
+    && a2enmod proxy_fcgi \
+    && a2enmod rewrite
+  rm -rf /etc/nginx
+fi
+mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
+chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  chown -R www-data:www-data "/var/lib/$SERVER_FLAVOUR"
+  setcap cap_net_bind_service=+ep "/usr/sbin/$SERVER_FLAVOUR"
+else
+  chown -R www-data:www-data "/var/lib/apache2"
+  setcap cap_net_bind_service=+ep "/usr/sbin/apache2"
+fi
 
 # Install composer
 curl -s https://getcomposer.org/installer | php
@@ -79,6 +102,9 @@ chown -R www-data:www-data "$COMPOSER_HOME"
 
 # Install PrestaShop tools required by prestashop coding-standards
 composer require nikic/php-parser --working-dir=/var/opt
+
+# Compute the short version (8.1.27 becomes 8.1)
+PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)

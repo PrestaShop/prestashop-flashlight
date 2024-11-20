@@ -11,7 +11,7 @@ declare OS_FLAVOUR;            # -- either "alpine" (default) or "debian"
 declare PHP_VERSION;           # -- PHP version, defaults to recommended version for PrestaShop
 declare PS_VERSION;            # -- PrestaShop version, defaults to latest
 declare PUSH;                  # -- set it to "true" if you want to push the resulting image
-declare SERVER_FLAVOUR;        # -- not implemented, either "nginx" (default) or "apache"
+declare SERVER_FLAVOUR;        # -- either "nginx" (default) or "apache"
 declare TARGET_IMAGE;          # -- docker image name, defaults to "prestashop/prestashop-flashlight"
 declare TARGET_PLATFORM;       # -- a comma separated list of target platforms (defaults to "linux/amd64")
 declare PLATFORM;              # -- alias for $TARGET_PLATFORM
@@ -45,7 +45,7 @@ help() {
   echo "  --ps-version      PrestaShop version, defaults to latest"
   echo "  --push            Push the resulting image to the registry"
   echo "  --rebuild-base    Force the rebuild of the base image"
-  echo "  --server-flavour  Not implemented, either 'nginx' (default) or 'apache'"
+  echo "  --server-flavour  Either 'nginx' (default) or 'apache'"
   echo "  --target-image    Docker image name, defaults to 'prestashop/prestashop-flashlight'"
   echo "  --custom-labels   A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  --target-platform A comma separated list of target platforms (defaults to 'linux/amd64')"
@@ -59,7 +59,7 @@ help() {
   echo "  PS_VERSION        PrestaShop version, defaults to latest"
   echo "  PUSH              Set it to 'true' if you want to push the resulting image"
   echo "  REBUILD_BASE      Force the rebuild of the base image"
-  echo "  SERVER_FLAVOUR    Not implemented, either 'nginx' (default) or 'apache'"
+  echo "  SERVER_FLAVOUR    Either 'nginx' (default) or 'apache'"
   echo "  TARGET_IMAGE      Docker image name, defaults to 'prestashop/prestashop-flashlight'"
   echo "  CUSTOM_LABELS     A comma separated list of key=value pairs, for overriding official flashlight labels"
   echo "  TARGET_PLATFORM   A comma separated list of target platforms (defaults to 'linux/amd64')"
@@ -278,6 +278,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg NODE_VERSION="$NODE_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
+    --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
     "${LABELS[@]}" \
     --tag "prestashop/prestashop-flashlight:base-$PHP_BASE_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
@@ -296,6 +297,7 @@ if [ "$BASE_ONLY" == "false" ]; then
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
+    --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
     "${LABELS[@]}" \
     "${TARGET_IMAGES[@]}" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \

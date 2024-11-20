@@ -243,13 +243,19 @@ echo "* Starting php-fpm..."
 [ "$(id -u)" -eq 0 ] && sed -i '/user\s=/s/^;//' /usr/local/etc/php-fpm.conf && sed -i '/group\s=/s/^;//' /usr/local/etc/php-fpm.conf
 php-fpm -D
 
-echo "* Starting nginx..."
-# Is running as root, set the nginx user and group to www-data
-[ "$(id -u)" -eq 0 ] && sed -i '/#\suser\swww-data/s/^#//' /etc/nginx/nginx.conf
-nginx -g "daemon off;" &
-NGINX_PID=$!
+echo "* Starting $SERVER_FLAVOUR..."
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  # Is running as root, set the nginx user and group to www-data
+  [ "$(id -u)" -eq 0 ] && sed -i '/#\suser\swww-data/s/^#//' /etc/nginx/nginx.conf
+  nginx -g "daemon off;" &
+elif service --status-all | grep -Fq 'apache2'; then
+  apache2ctl -D FOREGROUND &
+else
+  exec /usr/sbin/httpd -D FOREGROUND -f /etc/apache2/httpd.conf &
+fi
+SERVER_PID=$!
 sleep 1;
-echo "* Nginx started"
+echo "* $SERVER_FLAVOUR started"
 
 # Post-run scripts
 if [ -d "$POST_SCRIPTS_DIR" ]; then
@@ -279,5 +285,5 @@ else
   echo "* No post-script(s) found"
 fi
 
-# set back nginx to front process
-wait $NGINX_PID
+# set back server to front process
+wait "$SERVER_PID"

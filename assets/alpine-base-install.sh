@@ -2,30 +2,64 @@
 set -eu
 
 # Install base tools, PHP requirements and dev-tools
-apk --no-cache add -U \
-  bash less vim geoip git tzdata zip curl jq autoconf findutils \
-  nginx nginx-mod-http-headers-more nginx-mod-http-geoip \
-  nginx-mod-stream nginx-mod-stream-geoip ca-certificates \
+packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
+  ca-certificates \
   php-common php-iconv php-gd mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
-  openssh-client libcap shadow
+  openssh-client libcap shadow"
+
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  packages="$packages nginx nginx-mod-http-headers-more nginx-mod-http-geoip nginx-mod-stream nginx-mod-stream-geoip"
+else
+  packages="$packages apache2 apache2-proxy"
+fi
+
+# shellcheck disable=SC2086
+set -- $packages
+apk --no-cache add -U "$@"
 
 # Help mapping to Linux users' host
 usermod -u 1000 www-data
 groupmod -g 1000 www-data
 
-# Configure php-fpm and nginx
+# Configure php-fpm
 /tmp/php-configuration.sh
 rm -rf /var/log/php* /etc/php*/php-fpm.conf /etc/php*/php-fpm.d
-mkdir -p /var/log/php /var/run/php /var/run/nginx /var/log/nginx /var/tmp/nginx
-touch /var/log/nginx/access.log /var/log/nginx/error.log
-chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" \
- /var/run/nginx /var/log/nginx /var/lib/nginx /var/tmp/nginx /var/opt/prestashop
-setcap cap_net_bind_service=+ep /usr/sbin/nginx
+mkdir -p /var/log/php /var/run/php
+chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" /var/opt/prestashop
 
-# Compute the short version (8.1.27 becomes 8.1)
-PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
+# Configure server
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  rm -rf /etc/apache2
+else
+  a2enmod() {
+    while test $# -gt 0; do
+      MODULE="$1"
+      echo "Enabling module $MODULE"
+      find / -type f -a -name "*.conf" -exec grep -l "LoadModule ${MODULE}_module" {} \; | while read -r conf_file; do
+        echo "Processing : $conf_file"
+        sed -i "/^#LoadModule ${MODULE}_module/s/^#//g" "$conf_file"
+      done
+      shift
+    done
+  }
+  a2enmod proxy \
+    && a2enmod proxy_fcgi \
+    && a2enmod rewrite
+  rm -rf /etc/nginx
+fi
+find / -type f -a -name "*apache2*";
+mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
+chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  chown -R www-data:www-data "/var/lib/$SERVER_FLAVOUR"
+  setcap cap_net_bind_service=+ep "/usr/sbin/$SERVER_FLAVOUR"
+else
+  chown -R www-data:www-data "/usr/lib/apache2"
+  setcap cap_net_bind_service=+ep "/usr/sbin/httpd"
+fi
 
 # Install composer
 curl -s https://getcomposer.org/installer | php
@@ -35,6 +69,9 @@ chown -R www-data:www-data "$COMPOSER_HOME"
 
 # Install PrestaShop tools required by prestashop coding-standards
 composer require nikic/php-parser --working-dir=/var/opt || true
+
+# Compute the short version (8.1.27 becomes 8.1)
+PHP_SHORT_VERSION=$(echo "$PHP_VERSION" | cut -d '.' -f1-2)
 
 # Install phpunit
 PHPUNIT_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpunit' < /tmp/php-flavours.json)
