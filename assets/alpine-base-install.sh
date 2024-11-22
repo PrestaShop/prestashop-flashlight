@@ -37,29 +37,45 @@ else
     while test $# -gt 0; do
       MODULE="$1"
       echo "Enabling module $MODULE"
-      find / -type f -a -name "*.conf" -exec grep -l "LoadModule ${MODULE}_module" {} \; | while read -r conf_file; do
-        echo "Processing : $conf_file"
-        sed -i "/^#LoadModule ${MODULE}_module/s/^#//g" "$conf_file"
-      done
+      sed -i "/^#LoadModule ${MODULE}_module/s/^#//g" /etc/apache2/httpd.conf
       shift
     done
   }
+
+  a2dismod() {
+    while test $# -gt 0; do
+      MODULE="$1"
+      echo "Disabling module $MODULE"
+      sed -i "/^LoadModule ${MODULE}_module/s/^LoadModule/#LoadModule/g" /etc/apache2/httpd.conf
+      shift
+    done
+  }
+
   a2enmod proxy \
     && a2enmod proxy_fcgi \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && a2enmod mpm_event \
+    && a2dismod mpm_prefork
+
+  echo "include /etc/apache2/sites-available/000-default.conf" >> /etc/apache2/httpd.conf
   rm -rf /etc/nginx
 fi
-find / -type f -a -name "*apache2*";
-mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
-touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
-chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+  touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
+  chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
   chown -R www-data:www-data "/var/lib/$SERVER_FLAVOUR"
   setcap cap_net_bind_service=+ep "/usr/sbin/$SERVER_FLAVOUR"
 else
+  mkdir -p "/var/run/apache2" "/var/log/apache2" "/var/tmp/apache2"
+  touch "/var/log/apache2/access.log" "/var/log/apache2/error.log"
+  chown -R www-data:www-data "/var/run/apache2" "/var/log/apache2" "/var/tmp/apache2"
   chown -R www-data:www-data "/usr/lib/apache2"
   setcap cap_net_bind_service=+ep "/usr/sbin/httpd"
 fi
+
+rm -f "$PS_FOLDER"/index*
 
 # Install composer
 curl -s https://getcomposer.org/installer | php

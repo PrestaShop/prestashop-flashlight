@@ -83,16 +83,19 @@ else
     && a2enmod rewrite
   rm -rf /etc/nginx
 fi
-mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
-touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
-chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
-  chown -R www-data:www-data "/var/lib/$SERVER_FLAVOUR"
+  mkdir -p "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR"
+  touch "/var/log/$SERVER_FLAVOUR/access.log" "/var/log/$SERVER_FLAVOUR/error.log"
+  chown -R www-data:www-data "/var/run/$SERVER_FLAVOUR" "/var/log/$SERVER_FLAVOUR" "/var/tmp/$SERVER_FLAVOUR" "/var/lib/$SERVER_FLAVOUR"
   setcap cap_net_bind_service=+ep "/usr/sbin/$SERVER_FLAVOUR"
 else
-  chown -R www-data:www-data "/var/lib/apache2"
+  mkdir -p "/var/run/apache2" "/var/log/apache2" "/var/tmp/apache2"
+  touch "/var/log/apache2/access.log" "/var/log/apache2/error.log"
+  chown -R www-data:www-data "/var/run/apache2" "/var/log/apache2" "/var/tmp/apache2" "/var/lib/apache2"
   setcap cap_net_bind_service=+ep "/usr/sbin/apache2"
 fi
+
+rm -f "$PS_FOLDER"/index*
 
 # Install composer
 curl -s https://getcomposer.org/installer | php
