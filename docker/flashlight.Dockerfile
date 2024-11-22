@@ -1,21 +1,21 @@
 # --------------------------------
 # Flashlight install and dump SQL
 # --------------------------------
+ARG BASE_DOCKER_IMAGE
 ARG PHP_BASE_IMAGE
-FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS build-and-dump
+ARG SERVER_FLAVOUR
+FROM ${BASE_DOCKER_IMAGE}:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR} AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
 ARG PS_FOLDER=/var/www/html
 ARG ZIP_SOURCE
-ARG SERVER_FLAVOUR
-ENV SERVER_FLAVOUR=$SERVER_FLAVOUR
 
 # Get PrestaShop source code
 # hadolint ignore=DL3020
 ADD ${ZIP_SOURCE} /tmp/prestashop.zip
 
-# Extract the souces
+# Extract the sources
 RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && unzip -n -q /tmp/prestashop.zip -d /tmp/unzip-ps \
   && ([ -f /tmp/unzip-ps/prestashop.zip ] \
@@ -41,11 +41,14 @@ RUN sh /hydrate.sh
 # -----------------------
 # Flashlight final image
 # -----------------------
+ARG BASE_DOCKER_IMAGE
 ARG PHP_BASE_IMAGE
-FROM prestashop/prestashop-flashlight:base-${PHP_BASE_IMAGE} AS prestashop-flashlight
+ARG SERVER_FLAVOUR
+FROM ${BASE_DOCKER_IMAGE}:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR} AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_BASE_IMAGE
+ARG SERVER_FLAVOUR
 ARG PS_FOLDER=/var/www/html
 WORKDIR $PS_FOLDER
 
@@ -53,6 +56,7 @@ ENV PHP_BASE_IMAGE=$PHP_BASE_IMAGE
 ENV PHP_VERSION=$PHP_VERSION
 ENV PS_VERSION=$PS_VERSION
 ENV PS_FOLDER=$PS_FOLDER
+ENV SERVER_FLAVOUR=$SERVER_FLAVOUR
 
 RUN mkdir -p "$COMPOSER_HOME" \
   && chown -R www-data:www-data "$COMPOSER_HOME"
