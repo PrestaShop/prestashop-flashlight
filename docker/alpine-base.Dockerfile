@@ -3,7 +3,7 @@ ARG PHP_VERSION
 ARG PHP_BASE_IMAGE=8.3-fpm-alpine
 ARG GIT_SHA
 ARG NODE_VERSION
-ARG ZIP_SOURCE
+ARG SERVER_FLAVOUR
 
 # -------------------------------------
 #  PrestaShop Flashlight: Alpine image
@@ -13,6 +13,7 @@ ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
 ARG NODE_VERSION
+ARG SERVER_FLAVOUR
 ENV PS_FOLDER=/var/www/html
 ENV PHP_INI_DIR=/usr/local/etc/php
 ENV COMPOSER_HOME=/var/composer
@@ -20,6 +21,7 @@ ENV PHP_ENV=development
 
 COPY ./assets/php-fpm.conf /usr/local/etc/php-fpm.conf
 COPY ./assets/nginx.conf /etc/nginx/nginx.conf
+COPY ./assets/000-default.conf /etc/apache2/sites-available/000-default.conf
 COPY ./php-flavours.json /tmp
 COPY ./assets/php-configuration.sh /tmp/
 COPY ./assets/alpine-base-install.sh /tmp/
