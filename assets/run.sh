@@ -26,6 +26,7 @@ export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
 export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
 
+
 INIT_LOCK=/tmp/flashlight-init.lock
 DUMP_LOCK=/tmp/flashlight-dump.lock
 MODULES_INSTALLED_LOCK=/tmp/flashlight-modules-installed.lock
@@ -73,6 +74,11 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
   cat "$TMP_FILE" > /dump.sql
   rm -f "$TMP_FILE"
   export PS_DOMAIN="$PS_DOMAIN"
+
+  if [ "$SERVER_FLAVOUR" = "apache" ]; then
+    echo "* Applying PS_DOMAIN ($PS_DOMAIN) to root .htaccess..."
+    sed -i "s~localhost:80~$PS_DOMAIN~g" "$PS_FOLDER"/.htaccess
+  fi
 
   # Note: use PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
   # Note: PS_SSL_ENABLED_EVERYWHERE was missing in ps_configuration in 1.7.2.5
@@ -239,17 +245,25 @@ if [ "$DRY_RUN" = "true" ]; then
 fi
 
 echo "* Starting php-fpm..."
-# Is running as root, set the php-fpm user and group to www-data
+# If running as root, set the php-fpm user and group to www-data
 [ "$(id -u)" -eq 0 ] && sed -i '/user\s=/s/^;//' /usr/local/etc/php-fpm.conf && sed -i '/group\s=/s/^;//' /usr/local/etc/php-fpm.conf
 php-fpm -D
 
-echo "* Starting nginx..."
-# Is running as root, set the nginx user and group to www-data
-[ "$(id -u)" -eq 0 ] && sed -i '/#\suser\swww-data/s/^#//' /etc/nginx/nginx.conf
-nginx -g "daemon off;" &
-NGINX_PID=$!
+echo "* Starting $SERVER_FLAVOUR..."
+if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+  # If running as root, set the nginx user and group to www-data
+  [ "$(id -u)" -eq 0 ] && sed -i '/#\suser\swww-data/s/^#//' /etc/nginx/nginx.conf
+  nginx -g "daemon off;" &
+elif service --status-all 2> /dev/null | grep -Fq 'apache2'; then
+  apache2ctl -D FOREGROUND &
+else
+  # If running as root, set the nginx user and group to www-data
+  [ "$(id -u)" -eq 0 ] && sed -i '/User apache/s/apache/www-data/' /etc/apache2/httpd.conf && sed -i '/Group apache/s/apache/www-data/' /etc/apache2/httpd.conf
+  /usr/sbin/httpd -D FOREGROUND -f /etc/apache2/httpd.conf &
+fi
+SERVER_PID=$!
 sleep 1;
-echo "* Nginx started"
+echo "* $SERVER_FLAVOUR started"
 
 # Post-run scripts
 if [ -d "$POST_SCRIPTS_DIR" ]; then
@@ -279,5 +293,5 @@ else
   echo "* No post-script(s) found"
 fi
 
-# set back nginx to front process
-wait $NGINX_PID
+# set back server to front process
+wait "$SERVER_PID"
