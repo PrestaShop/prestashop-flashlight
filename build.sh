@@ -99,31 +99,14 @@ REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
 DRY_RUN=${DRY_RUN:-false}
 TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
 BASE_DOCKER_IMAGE="${CUSTOM_BASE_IMAGE:-${DEFAULT_BASE_DOCKER_IMAGE}}"
-
-declare -A TARGET_IMAGE_LABELS;
-
-build_default_labels() {
-  TARGET_IMAGE_LABELS["org.opencontainers.image.title"]="Prestashop Flashlight"
-  TARGET_IMAGE_LABELS["org.opencontainers.image.description"]="PrestaShop Flashlight testing utility"
-  TARGET_IMAGE_LABELS["org.opencontainers.image.source"]="https://github.com/PrestaShop/prestashop-flashlight"
-  TARGET_IMAGE_LABELS["org.opencontainers.image.url"]="https://github.com/PrestaShop/prestashop-flashlight"
-  TARGET_IMAGE_LABELS["org.opencontainers.image.licenses"]=MIT
-  TARGET_IMAGE_LABELS["org.opencontainers.image.created"]="$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")"
-}
-
-build_labels() {
-  if [ -n "$CUSTOM_LABELS" ]; then
-    
-    IFS="," read -ra labels <<< "$(echo "$CUSTOM_LABELS" | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
-    for label in "${labels[@]}"; do
-      IFS="=" read -ra parts <<< "$label"
-      TARGET_IMAGE_LABELS["${parts[0]}"]="${parts[1]}"
-    done
-
-  else
-    build_default_labels
-  fi
-}
+LABELS=(
+  "--label" "org.opencontainers.image.title=\"Prestashop Flashlight\""
+  "--label" "org.opencontainers.image.description=\"PrestaShop Flashlight testing utility\""
+  "--label" "org.opencontainers.image.source=\"https://github.com/PrestaShop/prestashop-flashlight\""
+  "--label" "org.opencontainers.image.url=\"https://github.com/PrestaShop/prestashop-flashlight\""
+  "--label" "org.opencontainers.image.licenses=\"MIT\""
+  "--label" "org.opencontainers.image.created=\"$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")\""
+);
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
@@ -253,15 +236,14 @@ fi
 
 # Build image labels
 # ------------------
-build_labels
-
-LABELS=()
-for key in "${!TARGET_IMAGE_LABELS[@]}"
-do
-  LABELS+=("--label")
-  LABELS+=("$key=\"${TARGET_IMAGE_LABELS[$key]}\"")
-done
-
+if [ -n "$CUSTOM_LABELS" ]; then
+  LABELS=()
+  IFS="," read -ra labels <<< "$(echo "$CUSTOM_LABELS" | sed -E 's/^[\x27\x22]|[\x27\x22]$//g')" # We don't need starting or ending quotes
+  for label in "${labels[@]}"; do
+    IFS="=" read -ra parts <<< "$label"
+    LABELS+=("--label" "${parts[0]}=\"${parts[1]}\"")
+  done
+fi
 
 # Build the docker image
 # ----------------------
