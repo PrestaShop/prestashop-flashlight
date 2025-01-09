@@ -5,28 +5,20 @@ cd "$(dirname "$0")"
 # Available variables
 # -------------------
 declare BASE_ONLY;             # -- only build the base image (OS_FLAVOUR) without shipping PrestaShop
-declare REBUILD_BASE;          # -- force the rebuild of the base image
+declare CUSTOM_LABELS;         # -- A comma separated list of key=value pairs, for overriding official flashlight labels"
 declare DRY_RUN;               # -- if used, won't really build the image. Useful to check tags compliance
 declare OS_FLAVOUR;            # -- either "alpine" (default) or "debian"
 declare PHP_VERSION;           # -- PHP version, defaults to recommended version for PrestaShop
+declare PLATFORM;              # -- alias for $TARGET_PLATFORM
 declare PS_VERSION;            # -- PrestaShop version, defaults to latest
 declare PUSH;                  # -- set it to "true" if you want to push the resulting image
+declare REBUILD_BASE;          # -- force the rebuild of the base image
 declare SERVER_FLAVOUR;        # -- either "nginx" (default) or "apache"
-declare TARGET_IMAGE;          # -- docker image name, defaults to "prestashop/prestashop-flashlight"
-declare TARGET_PLATFORM;       # -- a comma separated list of target platforms (defaults to "linux/amd64")
-declare PLATFORM;              # -- alias for $TARGET_PLATFORM
+declare TARGET_IMAGE;          # -- docker image name and tag, defaults to "$TARGET_IMAGE_NAME:$TARGET_IMAGE_TAG"
+declare TARGET_IMAGE_NAME;     # -- docker image name, defaults to "prestashop/prestashop-flashlight"
+declare TARGET_IMAGE_TAG;      # -- docker image tag, defaults to automatic tags based on the os flavour, php and prestashop versions
+declare TARGET_PLATFORM;       # -- a comma separated list of target platforms, defaults to "linux/amd64"
 declare ZIP_SOURCE;            # -- the zip to unpack in flashlight
-declare CUSTOM_LABELS;         # -- A comma separated list of key=value pairs, for overriding official flashlight labels"
-declare CUSTOM_BASE_IMAGE;     # -- A name for overriding the base docker image. Usefull if you need to build the base to a custom repo
-
-
-# Static configuration
-# --------------------
-DEFAULT_BASE_DOCKER_IMAGE=prestashop/prestashop-flashlight
-DEFAULT_OS="alpine";
-DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
-DEFAULT_SERVER="nginx";
-GIT_SHA=$(git rev-parse HEAD)
 
 error() {
   echo "$(tput bold)$(tput setaf 1)${1:-Unknown error}$(tput sgr0)"
@@ -37,36 +29,38 @@ help() {
   echo "$(tput bold)Usage:$(tput sgr0) $0 [options]"
   echo
   echo "$(tput bold)Options:$(tput sgr0)"
-  echo "  --help            Display this help message"
-  echo "  --base-only       Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
-  echo "  --dry-run         Don't really build the image. Useful to check tags compliance"
-  echo "  --os-flavour      Either 'alpine' (default) or 'debian'"
-  echo "  --php-version     PHP version, defaults to recommended version for PrestaShop"
-  echo "  --platform        Alias for --target-platform"
-  echo "  --ps-version      PrestaShop version, defaults to latest"
-  echo "  --push            Push the resulting image to the registry"
-  echo "  --rebuild-base    Force the rebuild of the base image"
-  echo "  --server-flavour  Either 'nginx' (default) or 'apache'"
-  echo "  --target-image    Docker image name, defaults to 'prestashop/prestashop-flashlight'"
-  echo "  --custom-labels   A comma separated list of key=value pairs, for overriding official flashlight labels"
-  echo "  --target-platform A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  --zip-source      The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
-  echo "  --custom-base-image A name for overriding the base docker image. Usefull if you need to build the base to a custom repo"
+  echo "  --help               Display this help message"
+  echo "  --base-only          Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
+  echo "  --custom-labels      A comma separated list of key=value pairs, for overriding official flashlight labels"
+  echo "  --dry-run            Don't really build the image. Useful to check tags compliance"
+  echo "  --os-flavour         Either 'alpine' (default) or 'debian'"
+  echo "  --php-version        PHP version, defaults to recommended version for PrestaShop"
+  echo "  --platform           Alias for --target-platform"
+  echo "  --ps-version         PrestaShop version, defaults to latest"
+  echo "  --push               Push the resulting image to the registry"
+  echo "  --rebuild-base       Force the rebuild of the base image"
+  echo "  --server-flavour     Either 'nginx' (default) or 'apache'"
+  echo "  --target-image       Docker image name and tag, defaults to TARGET_IMAGE_NAME:TARGET_IMAGE_TAG"
+  echo "  --target-image-name  Docker image name, defaults to \"prestashop/prestashop-flashlight\""
+  echo "  --target-image-tag   Docker image tag, defaults to automatic tags based on the os flavour, php and prestashop versions"
+  echo "  --target-platform    A comma separated list of target platforms, defaults to 'linux/amd64'"
+  echo "  --zip-source         The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
   echo ""
   echo "$(tput bold)Environment variables:$(tput sgr0)"
-  echo "  BASE_ONLY         Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
-  echo "  DRY_RUN           Don't really build the image. Useful to check tags compliance"
-  echo "  OS_FLAVOUR        Either 'alpine' (default) or 'debian'"
-  echo "  PHP_VERSION       PHP version, defaults to recommended version for PrestaShop"
-  echo "  PS_VERSION        PrestaShop version, defaults to latest"
-  echo "  PUSH              Set it to 'true' if you want to push the resulting image"
-  echo "  REBUILD_BASE      Force the rebuild of the base image"
-  echo "  SERVER_FLAVOUR    Either 'nginx' (default) or 'apache'"
-  echo "  TARGET_IMAGE      Docker image name, defaults to 'prestashop/prestashop-flashlight'"
-  echo "  CUSTOM_LABELS     A comma separated list of key=value pairs, for overriding official flashlight labels"
-  echo "  TARGET_PLATFORM   A comma separated list of target platforms (defaults to 'linux/amd64')"
-  echo "  ZIP_SOURCE        The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
-  echo "  CUSTOM_BASE_IMAGE A name for overriding the base docker image. Usefull if you need to build the base to a custom repo"
+  echo "  BASE_ONLY          Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
+  echo "  CUSTOM_LABELS      A comma separated list of key=value pairs, for overriding official flashlight labels"
+  echo "  DRY_RUN            Don't really build the image. Useful to check tags compliance"
+  echo "  OS_FLAVOUR         Either 'alpine' (default) or 'debian'"
+  echo "  PHP_VERSION        PHP version, defaults to recommended version for PrestaShop"
+  echo "  PS_VERSION         PrestaShop version, defaults to latest"
+  echo "  PUSH               Set it to 'true' if you want to push the resulting image"
+  echo "  REBUILD_BASE       Force the rebuild of the base image"
+  echo "  SERVER_FLAVOUR     Either 'nginx' (default) or 'apache'"
+  echo "  TARGET_IMAGE       Docker image name, defaults to TARGET_IMAGE_NAME:TARGET_IMAGE_TAG"
+  echo "  TARGET_IMAGE_NAME  Docker image name, defaults to \"prestashop/prestashop-flashlight\""
+  echo "  TARGET_IMAGE_TAG   Docker image tag, defaults to automatic tags based on the os flavour, php and prestashop versions"
+  echo "  TARGET_PLATFORM    A comma separated list of target platforms, defaults to 'linux/amd64'"
+  echo "  ZIP_SOURCE         The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
 }
 
 # Parsing input arguments
@@ -75,6 +69,7 @@ while [ "$#" -gt 0 ]; do
   case "$1" in
     --help) help; exit 0;;
     --base-only) BASE_ONLY=true; shift;;
+    --custom-labels) CUSTOM_LABELS="$2"; shift; shift;;
     --dry-run) DRY_RUN=true; shift;;
     --os-flavour) OS_FLAVOUR="$2"; shift; shift;;
     --php-version) PHP_VERSION="$2"; shift; shift;;
@@ -84,21 +79,24 @@ while [ "$#" -gt 0 ]; do
     --rebuild-base) REBUILD_BASE=true; shift;;
     --server-flavour) SERVER_FLAVOUR="$2"; shift; shift;;
     --target-image) TARGET_IMAGE="$2"; shift; shift;;
-    --custom-labels) CUSTOM_LABELS="$2"; shift; shift;;
+    --target-image-name) TARGET_IMAGE_NAME="$2"; shift; shift;;
+    --target-image-tag) TARGET_IMAGE_TAG="$2"; shift; shift;;
     --zip-source) ZIP_SOURCE="$2"; shift; shift;;
-    --custom-base-image) CUSTOM_BASE_IMAGE="$2"; shift; shift;;
     *) error "Unknown option: $1" 2;;
   esac
 done
 
 # Default configuration
 # ---------------------
-PUSH=${PUSH:-false}
 BASE_ONLY=${BASE_ONLY:-false}
-REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
+DEFAULT_OS="alpine";
+DEFAULT_PLATFORM=$(docker system info --format '{{.OSType}}/{{.Architecture}}')
+DEFAULT_SERVER="nginx";
 DRY_RUN=${DRY_RUN:-false}
+GIT_SHA=$(git rev-parse HEAD)
+PUSH=${PUSH:-false}
+REBUILD_BASE=${REBUILD_BASE:-$BASE_ONLY}
 TARGET_PLATFORM="${TARGET_PLATFORM:-${PLATFORM:-$DEFAULT_PLATFORM}}"
-BASE_DOCKER_IMAGE="${CUSTOM_BASE_IMAGE:-${DEFAULT_BASE_DOCKER_IMAGE}}"
 LABELS=(
   "--label" "org.opencontainers.image.title=\"Prestashop Flashlight\""
   "--label" "org.opencontainers.image.description=\"PrestaShop Flashlight testing utility\""
@@ -107,6 +105,13 @@ LABELS=(
   "--label" "org.opencontainers.image.licenses=\"MIT\""
   "--label" "org.opencontainers.image.created=\"$(date -u +"%Y-%m-%dT%H:%M:%S.%3NZ")\""
 );
+
+TARGET_IMAGE_NAME=${TARGET_IMAGE_NAME:-prestashop/prestashop-flashlight}
+
+# if the tag is defined there won't be auto
+if [ -n "$TARGET_IMAGE_TAG" ]; then
+  TARGET_IMAGE=${TARGET_IMAGE_NAME}:${TARGET_IMAGE_TAG}
+fi
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
@@ -181,26 +186,26 @@ get_target_images() {
   declare RES;
   if [ "$PS_VERSION" == "nightly" ]; then
     if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
-      RES="-t ${BASE_DOCKER_IMAGE}:nightly-${SERVER_FLAVOUR}";
+      RES="-t ${TARGET_IMAGE_NAME}:nightly-${SERVER_FLAVOUR}";
     else 
-      RES="-t ${BASE_DOCKER_IMAGE}:nightly-${OS_FLAVOUR}-${SERVER_FLAVOUR}";
+      RES="-t ${TARGET_IMAGE_NAME}:nightly-${OS_FLAVOUR}-${SERVER_FLAVOUR}";
     fi
   else
     if [ "$PS_VERSION" = "$(get_latest_prestashop_version)" ] \
       && [ "$OS_FLAVOUR" = "$DEFAULT_OS" ] \
       && [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ] \
       && [ "$SERVER_FLAVOUR" = "$DEFAULT_SERVER" ]; then
-      RES="-t ${BASE_DOCKER_IMAGE}:latest";
+      RES="-t ${TARGET_IMAGE_NAME}:latest";
     fi
     if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
-      RES="${RES} -t ${BASE_DOCKER_IMAGE}:${PS_VERSION}-${PHP_VERSION}-${SERVER_FLAVOUR}";
+      RES="${RES} -t ${TARGET_IMAGE_NAME}:${PS_VERSION}-${PHP_VERSION}-${SERVER_FLAVOUR}";
       if [ "$PHP_VERSION" = "$(get_recommended_php_version "$PS_VERSION")" ]; then
-        RES="${RES} -t ${BASE_DOCKER_IMAGE}:${PS_VERSION}-${SERVER_FLAVOUR}";
-        RES="${RES} -t ${BASE_DOCKER_IMAGE}:php-${PHP_VERSION}-${SERVER_FLAVOUR}";
+        RES="${RES} -t ${TARGET_IMAGE_NAME}:${PS_VERSION}-${SERVER_FLAVOUR}";
+        RES="${RES} -t ${TARGET_IMAGE_NAME}:php-${PHP_VERSION}-${SERVER_FLAVOUR}";
       fi
     fi
-    RES="${RES} -t ${BASE_DOCKER_IMAGE}:${PS_VERSION}-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}";
-    RES="${RES} -t ${BASE_DOCKER_IMAGE}:${PS_VERSION}-${OS_FLAVOUR}-${SERVER_FLAVOUR}";
+    RES="${RES} -t ${TARGET_IMAGE_NAME}:${PS_VERSION}-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}";
+    RES="${RES} -t ${TARGET_IMAGE_NAME}:${PS_VERSION}-${OS_FLAVOUR}-${SERVER_FLAVOUR}";
   fi
   echo "$RES";
 }
@@ -219,10 +224,13 @@ NODE_VERSION=$(get_recommended_nodejs_version "$PS_VERSION");
 if [ "$PHP_BASE_IMAGE" == "null" ]; then
   error "Could not find a PHP flavour for $OS_FLAVOUR + $SERVER_FLAVOUR + $PHP_VERSION" 2;
 fi
+
 if [ -z "${TARGET_IMAGE:+x}" ]; then
   read -ra TARGET_IMAGES <<<"$(get_target_images "$PHP_BASE_IMAGE" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
+  BASE_DOCKER_IMAGE="$TARGET_IMAGE_NAME:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}"
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
+  BASE_DOCKER_IMAGE="$TARGET_IMAGE"
 fi
 
 # If ZIP_SOURCE is not defined, set it based on PS_VERSION
@@ -247,14 +255,14 @@ fi
 
 # Build the docker image
 # ----------------------
-CACHE_IMAGE=$BASE_DOCKER_IMAGE:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}
 if [ "$DRY_RUN" == "true" ]; then
   docker() {
     echo docker "$@"
   }
 fi
 
-docker pull "$CACHE_IMAGE" 2> /dev/null || REBUILD_BASE='true';
+# acts as a cache if available
+docker pull "$BASE_DOCKER_IMAGE" 2> /dev/null || REBUILD_BASE='true';
 
 if [ "$REBUILD_BASE" == "true" ]; then
   echo "building base for $PHP_BASE_IMAGE $SERVER_FLAVOUR ($TARGET_PLATFORM)"
@@ -262,7 +270,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --progress=plain \
     --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
     --platform "$TARGET_PLATFORM" \
-    --cache-from type=registry,ref="$CACHE_IMAGE" \
+    --cache-from type=registry,ref="$BASE_DOCKER_IMAGE" \
     --cache-to type=inline \
     --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
@@ -270,7 +278,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
     "${LABELS[@]}" \
-    --tag "$BASE_DOCKER_IMAGE:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}" \
+    -t "$BASE_DOCKER_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
 fi
@@ -280,15 +288,16 @@ if [ "$BASE_ONLY" == "false" ]; then
     --progress=plain \
     --file "./docker/flashlight.Dockerfile" \
     --platform "$TARGET_PLATFORM" \
-    --cache-from type=registry,ref="$CACHE_IMAGE" \
+    --cache-from type=registry,ref="$BASE_DOCKER_IMAGE" \
     --cache-to type=inline \
+    --build-arg BASE_DOCKER_IMAGE="$BASE_DOCKER_IMAGE" \
     --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
     --build-arg PS_VERSION="$PS_VERSION" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
     --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
-    --build-arg BASE_DOCKER_IMAGE="$BASE_DOCKER_IMAGE" \
+    --build-arg TARGET_IMAGE_NAME="$TARGET_IMAGE_NAME" \
     "${LABELS[@]}" \
     "${TARGET_IMAGES[@]}" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \

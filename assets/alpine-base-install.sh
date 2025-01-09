@@ -120,6 +120,13 @@ fi
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
   apk --no-cache add -U python3 nodejs npm yarn
+
+  # see https://stackoverflow.com/a/52196681
+  NODE_MAJOR_VERSION=$(node -v | cut -d '.' -f1 | tr -d 'v')
+  if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
+    npm config set unsafe-perm true
+  fi
+  
   npm install -g pnpm@latest
 fi
 
