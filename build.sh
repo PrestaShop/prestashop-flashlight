@@ -227,11 +227,9 @@ fi
 
 if [ -z "${TARGET_IMAGE:+x}" ]; then
   read -ra TARGET_IMAGES <<<"$(get_target_images "$PHP_BASE_IMAGE" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
-  read -ra TARGET_BASE_IMAGES <<<"-t $TARGET_IMAGE_NAME:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}"
   BASE_DOCKER_IMAGE="$TARGET_IMAGE_NAME:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}"
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
-  read -ra TARGET_BASE_IMAGES <<<"-t $TARGET_IMAGE"
   BASE_DOCKER_IMAGE="$TARGET_IMAGE"
 fi
 
@@ -280,7 +278,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg GIT_SHA="$GIT_SHA" \
     --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
     "${LABELS[@]}" \
-    "${TARGET_BASE_IMAGES[@]}" \
+    -t "$BASE_DOCKER_IMAGE" \
     "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
     .
 fi
