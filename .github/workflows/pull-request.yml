@@ -80,31 +80,22 @@ jobs:
         env:
           PS_VERSION: ${{ matrix.ps_version }}
           REBUILD_BASE: "true"
+          TARGET_IMAGE: "flashlight:${{ matrix.ps_version }}"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' flashlight:${{ matrix.ps_version }}
 
       - name: Test the image tooling(composer)
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint composer $DOCKER_IMAGE --version
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint composer flashlight:${{ matrix.ps_version }} --version
 
       - name: Test the image tooling(phpunit)
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpunit $DOCKER_IMAGE --version
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpunit flashlight:${{ matrix.ps_version }} --version
 
       - name: Test the image tooling(phpstan)
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan $DOCKER_IMAGE --version
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan flashlight:${{ matrix.ps_version }} --version
 
       - name: Test the image tooling(xdebug)
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint bash $DOCKER_IMAGE -c 'php -m -c | grep xdebug'
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint bash flashlight:${{ matrix.ps_version }} -c 'php -m -c | grep xdebug'
 
   docker_build_base:
     name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} {{ matrix.os_version }}"
@@ -126,13 +117,11 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
           OS_VERSION: ${{ matrix.os_version }}
-          TARGET_IMAGE: "prestashop/prestashop-flashlight:test"
+          TARGET_IMAGE: "flashlight:test"
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:test
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' flashlight:test
 
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
@@ -152,17 +141,14 @@ jobs:
         env:
           OS_FLAVOUR: "debian"
           PS_VERSION: ${{ matrix.ps_version }}
+          TARGET_IMAGE: "flashlight:${{ matrix.ps_version }}-debian"
           REBUILD_BASE: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' $DOCKER_IMAGE
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-debian
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' flashlight:${{ matrix.ps_version }}-debian
 
       - name: The image has a PrestaShop console CLI
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint /bin/ls $DOCKER_IMAGE bin/console
-        env:
-          DOCKER_IMAGE: prestashop/prestashop-flashlight:${{ matrix.ps_version }}-debian
+        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint /bin/ls flashlight:${{ matrix.ps_version }}-debian bin/console
 
   docker_build_nightly:
     name: "Docker build: PS nightly"
