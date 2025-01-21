@@ -41,6 +41,6 @@ RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
   && rm -rf /tmp/blackfire /tmp/blackfire-probe.tar.gz
 
 # Install and configure MariaDB
-RUN adduser --system mysql \
+RUN adduser -D -s /sbin/nologin mysql \
   && apk --no-cache add -U --no-commit-hooks --no-scripts mariadb;
 COPY ./assets/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
