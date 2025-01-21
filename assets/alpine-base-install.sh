@@ -9,7 +9,7 @@ packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
   openssh-client libcap shadow"
 
-if [ "$(printf '%s' "$PHP_VERSION" | cut -c 1)" = "7" ]; then
+if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
   packages="$packages php7-common php7-iconv php7-gd"
 else
   packages="$packages php-common php-iconv php-gd"
@@ -105,7 +105,13 @@ fi
 # Install phpstan
 PHPSTAN_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpstan' < /tmp/php-flavours.json)
 if [ "$PHPSTAN_VERSION" != "null" ]; then
-  wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+
+  PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+  if [ "$PHPSTAN_VERSION" = "HEAD" ]; then
+    PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/raw/HEAD/phpstan.phar"
+  fi
+
+  wget -q -O /usr/bin/phpstan "$PHP_STAN_DL_URL"
   chmod a+x /usr/bin/phpstan
 fi
 
@@ -126,7 +132,7 @@ fi
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
   packagesForNode=python3
-  if [ "$(printf '%s' "$PHP_VERSION" | cut -c 1)" = "7" ]; then
+  if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
     packagesForNode="$packagesForNode nodejs-npm yarn"
   else
     packagesForNode="$packagesForNode nodejs npm yarn"
