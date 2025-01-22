@@ -116,12 +116,12 @@ jobs:
         run: ./build.sh
         env:
           PHP_VERSION: ${{ matrix.php_version }}
-          OS_VERSION: ${{ matrix.os_version }}
+          OS_FLAVOUR: ${{ matrix.os_version }}
           TARGET_IMAGE: "flashlight:test"
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' flashlight:test
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight:test
 
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
