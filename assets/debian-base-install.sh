@@ -13,6 +13,7 @@ rm -rf /usr/share/doc \
   /usr/share/locale
 
 # Get debian version and codename
+VERSION_CODENAME=""
 # shellcheck disable=SC1091
 . /etc/os-release
 if [ "$VERSION_ID" = 9 ]; then
