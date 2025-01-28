@@ -37,21 +37,21 @@ curl -s -L -H "Content-Type: application/octet-stream" \
   --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
   "https://packages.sury.org/php/apt.gpg"
 apt-get update
-apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates
+apt-get install --no-install-recommends --force-yes -qqy apt-transport-https ca-certificates
+LIB_GNUTLS=$(apt-cache search '^libgnutls' | awk 'NR==1{print $1}')
 packages=(bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
-  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream openssh-client libcap2-bin)
+  lsb-release "$LIB_GNUTLS" gnupg libiconv-hook1 libonig-dev openssh-client libcap2-bin)
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
-  packages+=(nginx)
+  packages+=(nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
+  libnginx-mod-http-geoip libnginx-mod-stream)
 else
   packages+=(apache2)
 fi
 
-apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy "${packages[@]}"
+apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" --force-yes -qqy "${packages[@]}"
 
-
-if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ]; then
+if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ] && [ "$VERSION_CODENAME" != "jessie" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 fi
 rm /etc/apt/preferences.d/no-debian-php
