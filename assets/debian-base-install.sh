@@ -43,8 +43,7 @@ packages=(bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
   lsb-release "$LIB_GNUTLS" gnupg libiconv-hook1 libonig-dev openssh-client libcap2-bin)
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
-  packages+=(nginx libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream)
+  packages+=(nginx-full)
 else
   packages+=(apache2)
 fi
