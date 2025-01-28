@@ -16,12 +16,16 @@ rm -rf /usr/share/doc \
 VERSION_CODENAME=""
 # shellcheck disable=SC1091
 . /etc/os-release
-if [ "$VERSION_ID" = 9 ]; then
+if [ "$VERSION_ID" = 8 ]; then
+  export VERSION_CODENAME="jessie";
+elif [ "$VERSION_ID" = 9 ]; then
   export VERSION_CODENAME="stretch";
 fi
 
 # https://unix.stackexchange.com/a/743874
-if [ "$VERSION_CODENAME" = "stretch"  ]; then
+if [ "$VERSION_CODENAME" = "jessie"  ]; then
+  echo "deb [check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list
+elif [ "$VERSION_CODENAME" = "stretch"  ]; then
   sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
   sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list
   sed -i s/stretch-updates/stretch/g /etc/apt/sources.list
