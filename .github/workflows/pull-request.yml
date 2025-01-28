@@ -98,7 +98,7 @@ jobs:
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint bash flashlight:${{ matrix.ps_version }} -c 'php -m -c | grep xdebug'
 
   docker_build_base:
-    name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} {{ matrix.os_version }}"
+    name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} ${{ matrix.os_version }}"
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
