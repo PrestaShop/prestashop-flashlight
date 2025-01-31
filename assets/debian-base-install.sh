@@ -57,16 +57,17 @@ rm /etc/apt/preferences.d/no-debian-php
 apt-get update
 LIB_FREETYPE_DEV=$(apt-cache search '^libfreetype[0-9]+-dev$' | awk 'NR==1{print $1}')
 LIB_XML_DEV=$(apt-cache search '^libxml[0-9]+-dev$' | awk 'NR==1{print $1}')
-apt-get install --no-install-recommends -qqy \
-  php-gd \
-  "$LIB_FREETYPE_DEV" \
-  zlib1g-dev \
-  libjpeg-dev \
-  libpng-dev \
-  libzip-dev \
-  libicu-dev \
-  libmcrypt-dev \
-  "$LIB_XML_DEV"
+packages=("$LIB_FREETYPE_DEV" zlib1g-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev "$LIB_XML_DEV")
+if [ "$VERSION_CODENAME" != "jessie" ]; then
+  # On jessie, php-gd binaries are copied from prestashop/base:5.5-fpm (@see ../docker/debian-base.Dockerfile:33)
+  # so php-gd is installed only for non jessie
+  packages+=("php-gd")
+else
+  # On jessie, libxml2 version needs to be downgraded for libxml2-dev to be installed
+  packages=("libxml2=2.9.1+dfsg1-5+deb8u6" "${packages[@]}")
+fi
+
+apt-get install --no-install-recommends -qqy --force-yes "${packages[@]}"
 
 # Help mapping to Linux users' host
 usermod -u 1000 www-data
@@ -123,7 +124,13 @@ fi
 # Install phpstan
 PHPSTAN_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpstan' < /tmp/php-flavours.json)
 if [ "$PHPSTAN_VERSION" != "null" ]; then
-  wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
+
+  PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+  if [ "$PHPSTAN_VERSION" = "HEAD" ]; then
+    PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/raw/HEAD/phpstan.phar"
+  fi
+
+  wget -q -O /usr/bin/phpstan "$PHP_STAN_DL_URL"
   chmod a+x /usr/bin/phpstan
 fi
 
@@ -143,7 +150,12 @@ fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
-  apt-get install --no-install-recommends -qqy nodejs python3 npm
+  nodejspackages=(nodejs python3 npm)
+  if [ "$VERSION_CODENAME" = "jessie" ]; then
+    # On jessie, libssl1.0.0 version needs to be downgraded for nodejs / npm to be installed
+    nodejspackages=("libssl1.0.0=1.0.1t-1+deb8u8" "${nodejspackages[@]}")
+  fi
+  apt-get install --no-install-recommends -qqy --force-yes "${nodejspackages[@]}"
   npm install -g yarn@latest pnpm@latest --force
 fi
 
@@ -163,5 +175,5 @@ LIB_ZIP=$(apt-cache search '^libzip[0-9]+$' | awk 'NR==1{print $1}')
 LIB_ICU=$(apt-cache search '^libicu[0-9]+$' | awk 'NR==1{print $1}')
 LIB_MCRYPT=$(apt-cache search '^libmcrypt[0-9]+$' | awk 'NR==1{print $1}')
 LIB_XML=$(apt-cache search '^libxml[0-9]+$' | awk 'NR==1{print $1}')
-apt-get install -qqy "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML"
+apt-get install -qqy --force-yes "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML"
 rm -rf /var/lib/apt/lists/*
