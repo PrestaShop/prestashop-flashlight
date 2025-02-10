@@ -42,7 +42,7 @@ pear config-set php_ini "$PHP_INI_DIR/php.ini"
 sed -i 's/memory_limit = .*/memory_limit = -1/' "$PHP_INI_DIR/php.ini"
 sed -i 's/upload_max_filesize = .*/upload_max_filesize = 40M/' "$PHP_INI_DIR/php.ini"
 sed -i 's/post_max_size = .*/post_max_size = 40M/' "$PHP_INI_DIR/php.ini"
-sed -i 's/max_input_vars = .*/max_input_vars = 9999/' "$PHP_INI_DIR/php.ini"
+sed -i 's/;max_input_vars = .*/max_input_vars = 99999/' "$PHP_INI_DIR/php.ini"
 
 # Configure Xdebug
 cat <<EOF >  "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
