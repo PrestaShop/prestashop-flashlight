@@ -119,8 +119,7 @@ fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
-  apk add --no-cache sqlite sqlite-dev
-  apk --no-cache add -U python3 nodejs npm yarn
+  apk --no-cache add -U sqlite sqlite-dev python3 nodejs npm yarn
   npm install -g pnpm@latest
 fi
 
