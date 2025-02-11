@@ -2,18 +2,15 @@
 set -eu
 
 # Install base tools, PHP requirements and dev-tools
+PHP_COMMON=$(apk search -a 'php-common' | awk 'NR==1{print $1}')
+PHP_ICONV=$(apk search -a 'php-iconv' | awk 'NR==1{print $1}')
+PHP_GD=$(apk search -a 'php-gd' | awk 'NR==1{print $1}')
 packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
   ca-certificates \
   mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
-  openssh-client libcap shadow"
-
-if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
-  packages="$packages php7-common php7-iconv php7-gd"
-else
-  packages="$packages php-common php-iconv php-gd"
-fi
+  openssh-client libcap shadow $PHP_COMMON $PHP_ICONV $PHP_GD"
 
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   packages="$packages nginx nginx-mod-http-headers-more nginx-mod-http-geoip nginx-mod-stream nginx-mod-stream-geoip"
@@ -131,14 +128,12 @@ fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
-  packagesForNode=python3
+  APK_NODE_JS="nodejs npm yarn"
   if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
-    packagesForNode="$packagesForNode nodejs-npm yarn"
-  else
-    packagesForNode="$packagesForNode nodejs npm yarn"
+    APK_NODE_JS="nodejs-npm yarn"
   fi
   # shellcheck disable=SC2086
-  set -- $packagesForNode
+  set -- $APK_NODE_JS python3 sqlite-dev
   apk --no-cache add -U "$@"
 
   # see https://stackoverflow.com/a/52196681
