@@ -66,13 +66,13 @@ You can check this implementation anytime in [prestashop-version.json](./prestas
 | 8.0~8.1                       | PHP 7.2 - 8.1          |
 | nightly                       | PHP 8.1 - 8.3          |
 
-PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6 with Alpine Linux, 7.1 with Debian, here is why:
+PrestaShop Flashlight **does not support** PHP versions prior to PHP 5.6 with Alpine Linux, 8.0 with Debian, here is why:
 
 - Official PHP docker images are very old for PHP 5.2, 5.3, 5.4... til the point docker images do not comply with current docker engines.
 - Old debian / alpine OS releases do not support arm64 builds and packages
 - Rebuilding legacy PHP environments compatible with moddern docker images is costly, with a low value for Flashlight
 - Migrating from PHP 5.2 to 5.6 might not be a hard task for an agency/merchant.
-- Sury repositories dropped support for Debian Jessie & Stretch
+- Sury repositories dropped support for Debian Jessie, Stretch & Buster
 
 ## Environment variables
 

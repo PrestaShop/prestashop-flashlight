@@ -2,6 +2,7 @@
 set -eu
 EXCLUDED_TAGS='\/1.5|\/1.6.0|alpha|beta|rc|RC|\^'
 PRESTASHOP_TAGS=$(git ls-remote --tags git@github.com:PrestaShop/PrestaShop.git | cut -f2 | grep -Ev $EXCLUDED_TAGS | cut -d '/' -f3 | sort -r -V)
+PRESTASHOP_TAGS_DEBIAN=$(echo "$PRESTASHOP_TAGS" | grep -Ev '^1.7|1.6')
 # PRESTASHOP_MAJOR_TAGS=$(
 #   MAJOR_TAGS=""
 #   for VERSION in $PRESTASHOP_TAGS; do
@@ -52,12 +53,15 @@ publish() {
 }
 
 # Latest
-publish --field ps_version=latest
+publish --field ps_version=latest --field os_flavour=alpine
 publish --field ps_version=latest --field os_flavour=debian
 
 # Build & publish every prestashop version with recommended PHP version
 for PS_VERSION in $PRESTASHOP_TAGS; do
-  publish --field ps_version="$PS_VERSION"
+  publish --field ps_version="$PS_VERSION" --field os_flavour=alpine
+done
+
+for PS_VERSION in $PRESTASHOP_TAGS_DEBIAN; do
   publish --field ps_version="$PS_VERSION" --field os_flavour=debian
 done
 

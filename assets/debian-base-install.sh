@@ -53,7 +53,7 @@ apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" --f
 if [ "$VERSION_CODENAME" = "bookworm" ] || [ "$VERSION_CODENAME" = "bullseye" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
 else
-  echo "[WARNING] The sury repository does not support debian jessie or stretch any more."
+  echo "[WARNING] The sury repository does not support debian jessie, stretch or buster any more."
   echo "This build is likely to fail, please use an alpine build if you can."
   echo "see: https://packages.sury.org/php/dists/"
   exit 6
