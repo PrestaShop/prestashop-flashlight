@@ -50,8 +50,13 @@ fi
 
 apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" --force-yes -qqy "${packages[@]}"
 
-if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ] && [ "$VERSION_CODENAME" != "jessie" ]; then
+if [ "$VERSION_CODENAME" = "bookworm" ] && [ "$VERSION_CODENAME" = "bullseye" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
+else
+  echo "[WARNING] The sury repository does not support debian jessie or stretch any more."
+  echo "This build is likely to fail, please use an alpine build if you can."
+  echo "see: https://packages.sury.org/php/dists/"
+  exit 6
 fi
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update
