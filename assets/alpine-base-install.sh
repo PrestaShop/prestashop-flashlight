@@ -128,12 +128,12 @@ fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
-  APK_NODE_JS="nodejs npm yarn"
+  APK_NODE_JS="nodejs npm"
   if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
-    APK_NODE_JS="nodejs-npm yarn"
+    APK_NODE_JS="nodejs-npm"
   fi
   # shellcheck disable=SC2086
-  set -- $APK_NODE_JS python3 sqlite-dev
+  set -- $APK_NODE_JS yarn python3 sqlite-dev
   apk --no-cache add -U "$@"
 
   # see https://stackoverflow.com/a/52196681
