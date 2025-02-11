@@ -2,9 +2,8 @@
 # Flashlight install and dump SQL
 # --------------------------------
 ARG BASE_DOCKER_IMAGE
-ARG PHP_BASE_IMAGE
 ARG SERVER_FLAVOUR
-FROM ${BASE_DOCKER_IMAGE}:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR} AS build-and-dump
+FROM ${BASE_DOCKER_IMAGE} AS build-and-dump
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG GIT_SHA
@@ -42,9 +41,8 @@ RUN sh /hydrate.sh
 # Flashlight final image
 # -----------------------
 ARG BASE_DOCKER_IMAGE
-ARG PHP_BASE_IMAGE
 ARG SERVER_FLAVOUR
-FROM ${BASE_DOCKER_IMAGE}:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR} AS prestashop-flashlight
+FROM ${BASE_DOCKER_IMAGE} AS prestashop-flashlight
 ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_BASE_IMAGE

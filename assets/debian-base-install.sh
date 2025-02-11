@@ -13,14 +13,19 @@ rm -rf /usr/share/doc \
   /usr/share/locale
 
 # Get debian version and codename
+VERSION_CODENAME=""
 # shellcheck disable=SC1091
 . /etc/os-release
-if [ "$VERSION_ID" = 9 ]; then
+if [ "$VERSION_ID" = 8 ]; then
+  export VERSION_CODENAME="jessie";
+elif [ "$VERSION_ID" = 9 ]; then
   export VERSION_CODENAME="stretch";
 fi
 
 # https://unix.stackexchange.com/a/743874
-if [ "$VERSION_CODENAME" = "stretch"  ]; then
+if [ "$VERSION_CODENAME" = "jessie"  ]; then
+  echo "deb [check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list
+elif [ "$VERSION_CODENAME" = "stretch"  ]; then
   sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
   sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list
   sed -i s/stretch-updates/stretch/g /etc/apt/sources.list
@@ -32,22 +37,26 @@ curl -s -L -H "Content-Type: application/octet-stream" \
   --data-binary "@/etc/apt/trusted.gpg.d/php.gpg" \
   "https://packages.sury.org/php/apt.gpg"
 apt-get update
-apt-get install --no-install-recommends -qqy apt-transport-https ca-certificates
+apt-get install --no-install-recommends --force-yes -qqy apt-transport-https ca-certificates
+LIB_GNUTLS=$(apt-cache search '^libgnutls' | awk 'NR==1{print $1}')
 packages=(bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
-  lsb-release libgnutls30 gnupg libiconv-hook1 libonig-dev libnginx-mod-http-headers-more-filter libnginx-mod-http-geoip \
-  libnginx-mod-http-geoip libnginx-mod-stream openssh-client libcap2-bin)
+  lsb-release "$LIB_GNUTLS" gnupg libiconv-hook1 libonig-dev openssh-client libcap2-bin)
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
-  packages+=(nginx)
+  packages+=(nginx-full)
 else
   packages+=(apache2)
 fi
 
-apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" -qqy "${packages[@]}"
+apt-get install --no-install-recommends -o Dpkg::Options::="--force-confold" --force-yes -qqy "${packages[@]}"
 
-
-if [ "$VERSION_CODENAME" != "stretch" ] && [ "$VERSION_CODENAME" != "buster" ]; then
+if [ "$VERSION_CODENAME" = "bookworm" ] || [ "$VERSION_CODENAME" = "bullseye" ]; then
   echo "deb [trusted=yes] https://packages.sury.org/php/ $VERSION_CODENAME main" > /etc/apt/sources.list.d/php.list
+else
+  echo "[WARNING] The sury repository does not support debian jessie, stretch or buster any more."
+  echo "This build is likely to fail, please use an alpine build if you can."
+  echo "see: https://packages.sury.org/php/dists/"
+  exit 6
 fi
 rm /etc/apt/preferences.d/no-debian-php
 apt-get update

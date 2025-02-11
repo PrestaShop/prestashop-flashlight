@@ -100,8 +100,9 @@ PS_OPT_DIR=/var/opt/prestashop
 mkdir -p "$PS_OPT_DIR"
 if echo "$PS_VERSION" | grep "^1.6" > /dev/null; then
   cp "$PS_FOLDER/config/settings.inc.php" "$PS_OPT_DIR/settings.inc.php"
+elif [ -f "$PS_FOLDER/app/config/parameters.yml.dist" ]; then
+  cp "$PS_FOLDER/app/config/parameters.yml.dist" "$PS_OPT_DIR/parameters.yml"
 else
-  mkdir -p "$PS_OPT_DIR"
   cp "$PS_FOLDER/app/config/parameters.php" "$PS_OPT_DIR/parameters.php"
 fi
 

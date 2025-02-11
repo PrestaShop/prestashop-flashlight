@@ -2,12 +2,15 @@
 set -eu
 
 # Install base tools, PHP requirements and dev-tools
+PHP_COMMON=$(apk search -a 'php-common' | awk 'NR==1{print $1}')
+PHP_ICONV=$(apk search -a 'php-iconv' | awk 'NR==1{print $1}')
+PHP_GD=$(apk search -a 'php-gd' | awk 'NR==1{print $1}')
 packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
   ca-certificates \
-  php-common php-iconv php-gd mariadb-client sudo libjpeg libxml2 \
+  mariadb-client sudo libjpeg libxml2 \
   build-base linux-headers freetype-dev zlib-dev libjpeg-turbo-dev \
   libpng-dev oniguruma-dev libzip-dev icu-dev libmcrypt-dev libxml2-dev \
-  openssh-client libcap shadow"
+  openssh-client libcap shadow $PHP_COMMON $PHP_ICONV $PHP_GD"
 
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   packages="$packages nginx nginx-mod-http-headers-more nginx-mod-http-geoip nginx-mod-stream nginx-mod-stream-geoip"
@@ -99,7 +102,13 @@ fi
 # Install phpstan
 PHPSTAN_VERSION=$(jq -r '."'"${PHP_SHORT_VERSION}"'".phpstan' < /tmp/php-flavours.json)
 if [ "$PHPSTAN_VERSION" != "null" ]; then
-  wget -q -O /usr/bin/phpstan "https://github.com/phpstan/phpstan/raw/${PHPSTAN_VERSION}/phpstan.phar"
+
+  PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/releases/download/${PHPSTAN_VERSION}/phpstan.phar"
+  if [ "$PHPSTAN_VERSION" = "HEAD" ]; then
+    PHP_STAN_DL_URL="https://github.com/phpstan/phpstan/raw/HEAD/phpstan.phar"
+  fi
+
+  wget -q -O /usr/bin/phpstan "$PHP_STAN_DL_URL"
   chmod a+x /usr/bin/phpstan
 fi
 
@@ -119,7 +128,20 @@ fi
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
-  apk --no-cache add -U sqlite sqlite-dev python3 nodejs npm yarn
+  APK_NODE_JS="nodejs npm"
+  if [ "$PHP_VERSION" = "7.0" ] || [ "$PHP_VERSION" = "7.1" ] || [ "$PHP_VERSION" = "7.2" ]; then
+    APK_NODE_JS="nodejs-npm"
+  fi
+  # shellcheck disable=SC2086
+  set -- $APK_NODE_JS yarn python3 sqlite-dev
+  apk --no-cache add -U "$@"
+
+  # see https://stackoverflow.com/a/52196681
+  NODE_MAJOR_VERSION=$(node -v | cut -d '.' -f1 | tr -d 'v')
+  if [ "$NODE_MAJOR_VERSION" -lt 14 ]; then
+    npm config set unsafe-perm true
+  fi
+  
   npm install -g pnpm@latest
 fi
 
