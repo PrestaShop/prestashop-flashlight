@@ -120,7 +120,7 @@ jobs:
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flaslight_test:base-${{ matrix.php_version }}-fpm-alpine-nginx
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight_test:base-${{ matrix.php_version }}-fpm-alpine-nginx
 
   docker_build_base_debian:
     name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} debian"
