@@ -227,11 +227,10 @@ fi
 
 if [ -z "${TARGET_IMAGE:+x}" ]; then
   read -ra TARGET_IMAGES <<<"$(get_target_images "$PHP_BASE_IMAGE" "$PS_VERSION" "$PHP_VERSION" "$OS_FLAVOUR")"
-  BASE_DOCKER_IMAGE="$TARGET_IMAGE_NAME:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}"
 else
   read -ra TARGET_IMAGES <<<"-t $TARGET_IMAGE"
-  BASE_DOCKER_IMAGE="$TARGET_IMAGE"
 fi
+BASE_DOCKER_IMAGE="$TARGET_IMAGE_NAME:base-${PHP_BASE_IMAGE}-${SERVER_FLAVOUR}"
 
 # If ZIP_SOURCE is not defined, set it based on PS_VERSION
 if [ -z "$ZIP_SOURCE" ]; then
@@ -265,7 +264,7 @@ fi
 docker pull "$BASE_DOCKER_IMAGE" 2> /dev/null || REBUILD_BASE='true';
 
 if [ "$REBUILD_BASE" == "true" ]; then
-  echo "building base for $PHP_BASE_IMAGE $SERVER_FLAVOUR ($TARGET_PLATFORM)"
+  echo "building base for $PHP_BASE_IMAGE $SERVER_FLAVOUR ($TARGET_PLATFORM) named $BASE_DOCKER_IMAGE"
   docker buildx build \
     --progress=plain \
     --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
@@ -284,6 +283,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
 fi
 
 if [ "$BASE_ONLY" == "false" ]; then
+  echo "building final based on $BASE_DOCKER_IMAGE named ${TARGET_IMAGES[*]}"
   docker buildx build \
     --progress=plain \
     --file "./docker/flashlight.Dockerfile" \

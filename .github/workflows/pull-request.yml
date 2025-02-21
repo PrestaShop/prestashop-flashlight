@@ -80,7 +80,8 @@ jobs:
         env:
           PS_VERSION: ${{ matrix.ps_version }}
           REBUILD_BASE: "true"
-          TARGET_IMAGE: "flashlight:${{ matrix.ps_version }}"
+          TARGET_IMAGE_NAME: "flashlight"
+          TARGET_IMAGE_TAG: "${{ matrix.ps_version }}"
 
       - name: Test the image with a dry run
         run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' flashlight:${{ matrix.ps_version }}
@@ -115,11 +116,11 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
           OS_FLAVOUR: alpine
-          TARGET_IMAGE: "flashlight:test"
+          TARGET_IMAGE_NAME: "flashlight_test"
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight:test
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight_test:base-${{ matrix.php_version }}-fpm-alpine-nginx
 
   docker_build_base_debian:
     name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} debian"
@@ -139,11 +140,13 @@ jobs:
         env:
           PHP_VERSION: ${{ matrix.php_version }}
           OS_FLAVOUR: debian
-          TARGET_IMAGE: "flashlight:test"
+          TARGET_IMAGE_NAME: "flashlight_test"
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight:test
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight_test:base-${PHP_VERSION}-fpm-$( [ "$PHP_VERSION" == "8.0" ] && echo "bullseye" || echo "bookworm" )-nginx
+        env:
+          PHP_VERSION: ${{ matrix.php_version }}
 
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
