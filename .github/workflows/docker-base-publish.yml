@@ -13,6 +13,15 @@ on:
           - alpine
           - debian
 
+      server_flavour:
+        description: "Server flavour"
+        required: false
+        default: "nginx"
+        type: choice
+        options:
+          - nginx
+          - apache
+
       php_version:
         description: "The target PHP version"
         required: false
@@ -27,8 +36,8 @@ on:
 jobs:
   build_and_publish:
     name: Build and publish docker
-    runs-on: ubuntu-latest
-    # runs-on: self-hosted
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
     timeout-minutes: 60
     permissions:
       contents: read
@@ -60,3 +69,4 @@ jobs:
           OS_FLAVOUR: ${{ inputs.os_flavour }}
           BASE_ONLY: "true"
           PUSH: "true"
+          SERVER_FLAVOUR: ${{ inputs.server_flavour }}

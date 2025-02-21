@@ -144,7 +144,9 @@ jobs:
           BASE_ONLY: "true"
 
       - name: Test the image with a dry run
-        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight_test:base-${{ matrix.php_version }}-fpm-debian-nginx
+        run: docker run --env PS_DOMAIN='localhost:80' --env DRY_RUN='true' --user www-data flashlight_test:base-${PHP_VERSION}-fpm-$( [ "$PHP_VERSION" == "8.0" ] && echo "bullseye" || echo "bookworm" )-nginx
+        env:
+          PHP_VERSION: ${{ matrix.php_version }}
 
   docker_build_debian:
     name: "Docker build: PS ${{ matrix.ps_version }} for debian"
