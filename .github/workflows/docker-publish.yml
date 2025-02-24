@@ -50,11 +50,19 @@ on:
         default: "https://github.com/PrestaShopCorp/prestashop-classic/releases/download/9.0.0-beta.1-classic/prestashop_9.0.0-beta.1-classic.zip"
         type: string
 
+      runner:
+        description: "The runner to use"
+        required: false
+        default: "self-hosted"
+        type: choice
+        options:
+          - self-hosted
+          - ubuntu-latest
+
 jobs:
   build_and_publish:
     name: Build and publish docker
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 60
     permissions:
       contents: read
