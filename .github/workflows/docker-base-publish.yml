@@ -33,11 +33,19 @@ on:
         default: "linux/amd64,linux/arm64"
         type: string
 
+      runner:
+        description: "The runner to use"
+        required: false
+        default: "self-hosted"
+        type: choice
+        options:
+          - self-hosted
+          - ubuntu-latest
+
 jobs:
   build_and_publish:
     name: Build and publish docker
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ${{ inputs.runner }}
     timeout-minutes: 60
     permissions:
       contents: read
