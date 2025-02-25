@@ -155,6 +155,7 @@ END
 
   # If Xdebug is enabled
   if [ "$XDEBUG_ENABLED" = "true" ]; then
+    sed -i 's~;zend_extension="xdebug.so"~zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
     sed -ie 's~^;~~g' "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
     echo "* Xdebug enabled"
   fi
