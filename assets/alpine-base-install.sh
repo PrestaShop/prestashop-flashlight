@@ -125,6 +125,8 @@ if [ "$PHP_XDEBUG" != "null" ]; then
   pecl install "xdebug-$PHP_XDEBUG"
   docker-php-ext-enable xdebug
 fi
+# Disables the xdebug extension from php.ini otherwise it's never really disabled
+sed -i 's~zend_extension="xdebug.so"~;zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
 
 # Install Node.js (shipping yarn and npm) and pnpm
 if [ "0.0.0" != "$NODE_VERSION" ]; then
