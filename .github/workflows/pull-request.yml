@@ -96,7 +96,7 @@ jobs:
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint phpstan flashlight:${{ matrix.ps_version }} --version
 
       - name: Test the image tooling(xdebug)
-        run: docker run --env PS_DOMAIN='localhost:80' --entrypoint bash flashlight:${{ matrix.ps_version }} -c 'php -m -c | grep xdebug'
+        run: docker run --env PS_DOMAIN='localhost:80' --env XDEBUG_ENABLED=true --entrypoint bash flashlight:${{ matrix.ps_version }} -c 'php -m -c | grep xdebug'
 
   docker_build_base_alpine:
     name: "Docker build: PrestaShop with PHP ${{ matrix.php_version }} alpine"

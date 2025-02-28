@@ -51,8 +51,6 @@ cat <<EOF >  "$PHP_INI_DIR/conf.d/docker-php-ext-xdebug.ini"
 ;xdebug.start_with_request = yes
 ;xdebug.discover_client_host = 1
 EOF
-# Disables the xdebug extension from php.ini otherwise it's never really disabled
-sed -i 's~zend_extension="xdebug.so"~;zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
 
 # Remove php assets that might have been installed by package unaware of $PHP_INI_DIR
 rm -rf /etc/php* /usr/lib/php*
