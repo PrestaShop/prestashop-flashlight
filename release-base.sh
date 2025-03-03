@@ -18,5 +18,5 @@ for PHP_VERSION in $PHP_DEBIAN_VERSIONS; do
     --repo prestashop/prestashop-flashlight \
     --field target_platforms=linux/amd64,linux/arm64 \
     --field os_flavour="debian" \
-    --field php_base_image="$PHP_VERSION"
+    --field php_version="$PHP_VERSION"
 done
