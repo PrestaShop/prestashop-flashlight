@@ -102,7 +102,7 @@ jobs:
           chmod +x new_run.sh
           docker run --rm \
             --env PS_DOMAIN='localhost:80' \
-            --env XDEBUG_ENABLED=true
+            --env XDEBUG_ENABLED=true \
             --env DRY_RUN='true' \
             --entrypoint /tmp/new_run.sh \
             -v ./new_run.sh:/tmp/new_run.sh \
