@@ -47,7 +47,6 @@ on:
       zip_source:
         description: "The url where to find the zip that will be used to build the image"
         required: false
-        default: "https://github.com/PrestaShopCorp/prestashop-classic/releases/download/9.0.0-beta.1-classic/prestashop_9.0.0-beta.1-classic.zip"
         type: string
 
       runner:
