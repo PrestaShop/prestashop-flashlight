@@ -92,6 +92,6 @@ jobs:
           PS_VERSION: ${{ inputs.ps_version }}
           PHP_VERSION: ${{ inputs.php_version }}
           OS_FLAVOUR: ${{ inputs.os_flavour }}
-          TAG: ${{ inputs.tag }}
+          TARGET_IMAGE_TAG: ${{ inputs.tag }}
           PUSH: "true"
           ZIP_SOURCE: ${{ inputs.zip_source }}
