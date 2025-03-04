@@ -47,9 +47,9 @@ EOF
 
 publish() {
   echo "Publishing" "$@"
-  # gh workflow run docker-publish.yml \
-  #   --repo prestashop/prestashop-flashlight \
-  #   --field target_platforms=linux/amd64,linux/arm64 "$@"
+  gh workflow run docker-publish.yml \
+    --repo prestashop/prestashop-flashlight \
+    --field target_platforms=linux/amd64,linux/arm64 "$@"
 }
 
 # Latest
