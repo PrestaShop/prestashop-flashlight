@@ -80,6 +80,24 @@ if [ ! -f $INIT_LOCK ] || [ "$INIT_ON_RESTART" = "true" ]; then
     sed -i "s~localhost:80~$PS_DOMAIN~g" "$PS_FOLDER"/.htaccess
   fi
 
+
+  if [ "$ADMIN_PASSWORD_OVERRIDE" != "" ]; then
+    echo "* Overriding admin password with $ADMIN_PASSWORD_OVERRIDE..."
+    PASSWORD_HASH="$(php -r "echo password_hash('$ADMIN_PASSWORD_OVERRIDE', PASSWORD_BCRYPT);")"
+    cat >> /dump.sql << END
+UPDATE ps_employee SET passwd = "$PASSWORD_HASH" WHERE email = "admin@prestashop.com";
+END
+  fi
+
+  if [ "$ADMIN_MAIL_OVERRIDE" != "" ]; then
+    echo "* Overriding admin mail with $ADMIN_MAIL_OVERRIDE..."
+    TMP_FILE=$(mktemp)
+    sed 's~admin@prestashop.com~'"$ADMIN_MAIL_OVERRIDE"'~g' /dump.sql > "$TMP_FILE"
+    cat "$TMP_FILE" > /dump.sql
+    rm -f "$TMP_FILE"
+  fi
+
+
   # Note: use PS_TRUSTED_PROXIES for PrestaShop > 9 since bbdee4b6d07cf4c40787c95b8c948b04506208fd
   # Note: PS_SSL_ENABLED_EVERYWHERE was missing in ps_configuration in 1.7.2.5
   [ "$SSL_REDIRECT" = "true" ] && PS_PROTOCOL="https";
