@@ -33,11 +33,11 @@ PRESTASHOP_MINOR_TAGS=$(
 )
 
 get_compatible_php_version() {
-  REGEXP_LIST=$(cat prestashop-versions.json | jq -r 'keys_unsorted | .[]')
+  REGEXP_LIST=$(< prestashop-versions.json jq -r 'keys_unsorted | .[]')
   while IFS= read -r regExp; do
     # shellcheck disable=SC3010
     if [[ $1 =~ $regExp ]]; then
-      cat prestashop-versions.json | jq -r '."'"${regExp}"'".php.compatible[]'
+      < prestashop-versions.json jq -r '."'"${regExp}"'".php.compatible[]'
       break;
     fi
   done <<EOF
