@@ -25,6 +25,8 @@ export PS_FOLDER="${PS_FOLDER:-/var/www/html}"
 export PS_PROTOCOL="${PS_PROTOCOL:-http}"
 export SSL_REDIRECT="${SSL_REDIRECT:-false}"
 export XDEBUG_ENABLED="${XDEBUG_ENABLED:-false}"
+export ADMIN_PASSWORD_OVERRIDE="${ADMIN_PASSWORD_OVERRIDE:-}"
+export ADMIN_MAIL_OVERRIDE="${ADMIN_MAIL_OVERRIDE:-}"
 
 
 INIT_LOCK=/tmp/flashlight-init.lock
