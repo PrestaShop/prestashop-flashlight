@@ -41,7 +41,8 @@ apt-get install --no-install-recommends --force-yes -qqy apt-transport-https ca-
 LIB_GNUTLS=$(apt-cache search '^libgnutls' | awk 'NR==1{print $1}')
 packages=(bash less vim git sudo mariadb-client \
   tzdata zip unzip curl wget make jq netcat-traditional build-essential \
-  lsb-release "$LIB_GNUTLS" gnupg libiconv-hook1 libonig-dev openssh-client libcap2-bin)
+  lsb-release "$LIB_GNUTLS" gnupg libiconv-hook1 libonig-dev openssh-client \
+  libcap2-bin)
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   packages+=(nginx-full)
 else
@@ -89,7 +90,8 @@ if [ "$SERVER_FLAVOUR" = "nginx" ]; then
 else
   a2enmod proxy \
     && a2enmod proxy_fcgi \
-    && a2enmod rewrite
+    && a2enmod rewrite \
+    && a2enmod ssl
   rm -rf /etc/nginx
 fi
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
