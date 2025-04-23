@@ -16,7 +16,7 @@ export PS_DOMAIN="localhost:80" \
   ADMIN_MAIL=admin@prestashop.com \
   ADMIN_PASSWD=prestashop \
   PS_LANGUAGE=en \
-  PS_COUNTRY=GB \
+  PS_COUNTRY=FR \
   PS_FOLDER_ADMIN=admin-dev \
   DB_SOCKET=/run/mysqld/mysqld.sock
 
