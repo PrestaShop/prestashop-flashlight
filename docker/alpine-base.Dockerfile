@@ -27,7 +27,7 @@ COPY ./assets/php-configuration.sh /tmp/
 COPY ./assets/alpine-base-install.sh /tmp/
 COPY ./assets/ps-console-polyfill.php /tmp/
 COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
-COPY --chmod=640 ./assets/certs /usr/local/certs
+COPY --chmod=644 ./assets/certs /usr/local/certs
 
 RUN /tmp/alpine-base-install.sh \
   && rm -f /tmp/alpine-base-install.sh /tmp/php-configuration.sh
