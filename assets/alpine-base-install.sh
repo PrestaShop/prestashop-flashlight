@@ -58,6 +58,7 @@ else
     && a2enmod proxy_fcgi \
     && a2enmod rewrite \
     && a2enmod mpm_event \
+    && a2enmod ssl \
     && a2dismod mpm_prefork
 
   echo "include /etc/apache2/sites-available/000-default.conf" >> /etc/apache2/httpd.conf
