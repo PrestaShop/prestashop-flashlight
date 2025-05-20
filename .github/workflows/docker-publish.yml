@@ -95,3 +95,4 @@ jobs:
           TARGET_IMAGE_TAG: ${{ inputs.tag }}
           PUSH: "true"
           ZIP_SOURCE: ${{ inputs.zip_source }}
+          SERVER_FLAVOUR: ${{ inputs.server }}
