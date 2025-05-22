@@ -28,9 +28,9 @@ COPY ./assets/alpine-base-install.sh /tmp/
 COPY ./assets/ps-console-polyfill.php /tmp/
 COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
 COPY ./assets/certs /usr/local/certs
-RUN chmod -R 755 /usr/local/certs
 
-RUN /tmp/alpine-base-install.sh \
+RUN chmod -R 755 /usr/local/certs \
+  && /tmp/alpine-base-install.sh \
   && rm -f /tmp/alpine-base-install.sh /tmp/php-configuration.sh
 
 RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
