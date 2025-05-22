@@ -26,7 +26,8 @@ COPY ./assets/php-configuration.sh /tmp/
 COPY ./assets/debian-base-install.sh /tmp/
 COPY ./assets/ps-console-polyfill.php /tmp/
 COPY ./assets/coding-standards /var/opt/prestashop/coding-standards
-COPY --chmod=644 ./assets/certs /usr/local/certs
+COPY ./assets/certs /usr/local/certs
+RUN chmod -R 755 /usr/local/certs
 
 RUN /tmp/debian-base-install.sh \
   && rm -f /tmp/debian-base-install.sh /tmp/php-configuration.sh
