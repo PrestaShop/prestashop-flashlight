@@ -216,7 +216,8 @@ fi
 if [ ! -f $MODULES_INSTALLED_LOCK ] || [ "$INSTALL_MODULES_ON_RESTART" = "true" ]; then
   if [ -d "$INSTALL_MODULES_DIR" ]; then
     for file in "$INSTALL_MODULES_DIR"/*.zip; do
-      module=$(unzip -l "$file" | awk 'NR==4{print $4}' | sed 's/\/$//' | tr "-" "\n" | head -n 1)
+      # module name is not listed by unzip, so we need to extract it to get the module name
+      module=$(unzip -qql "$file" | head -n 1 | awk -F " " '{print $4}' | sed 's/\/$//' | cut -d "/" -f1)
       echo "--> Unzipping and installing $module from $file..."
       rm -rf "/var/www/html/modules/${module:-something-at-least}"
       unzip -qq "$file" -d /var/www/html/modules
