@@ -52,7 +52,7 @@
     "xdebug": "3.3.1"
   },
   "8.1": {
-    "alpine": "8.1-fpm-alpine",
+    "alpine": "8.1-fpm-alpine3.21",
     "debian": "8.1-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
@@ -60,7 +60,7 @@
     "xdebug": "3.3.1"
   },
   "8.2": {
-    "alpine": "8.2-fpm-alpine",
+    "alpine": "8.2-fpm-alpine3.21",
     "debian": "8.2-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
@@ -68,7 +68,7 @@
     "xdebug": "3.3.1"
   },
   "8.3": {
-    "alpine": "8.3-fpm-alpine",
+    "alpine": "8.3-fpm-alpine3.21",
     "debian": "8.3-fpm-bookworm",
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
