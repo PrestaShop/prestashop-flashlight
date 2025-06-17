@@ -1,6 +1,8 @@
 ARG PS_VERSION
 ARG PHP_VERSION
-ARG PHP_BASE_IMAGE=8.3-fpm-alpine
+# PHP extensions compilation is broken with ICU 76.1 in alpine3.22
+# see https://github.com/php/php-src/issues/18831
+ARG PHP_BASE_IMAGE=8.3-fpm-alpine3.21
 ARG GIT_SHA
 ARG NODE_VERSION
 ARG SERVER_FLAVOUR
