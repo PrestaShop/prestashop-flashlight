@@ -87,19 +87,27 @@ chown -R www-data:www-data /var/log/php /var/run/php "$PHP_INI_DIR" /var/opt/pre
 # Configure server
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   rm -rf /etc/apache2
-else
-  a2enmod proxy \
-    && a2enmod proxy_fcgi \
-    && a2enmod rewrite \
-    && a2enmod ssl
-  rm -rf /etc/nginx
-fi
-if [ "$SERVER_FLAVOUR" = "nginx" ]; then
+
+  NGINX_CONF="/etc/nginx/nginx.conf"
+
+  if nginx -t 2>&1 | grep -q 'http2" directive is deprecated'; then
+    sed -i '/listen 443 ssl http2;/d' "$NGINX_CONF"
+    sed -i 's~# listen 443 ssl;~listen 443 ssl;~' "$NGINX_CONF"
+    sed -i 's~# http2 on;~http2 on;~' "$NGINX_CONF"
+  fi
+
   mkdir -p /var/run/nginx /var/log/nginx /var/tmp/nginx
   touch /var/log/nginx/access.log /var/log/nginx/error.log
   chown -R www-data:www-data /var/run/nginx /var/log/nginx /var/tmp/nginx /var/lib/nginx
   setcap cap_net_bind_service=+ep /usr/sbin/nginx
 else
+
+  a2enmod proxy \
+    && a2enmod proxy_fcgi \
+    && a2enmod rewrite \
+    && a2enmod ssl
+  rm -rf /etc/nginx
+
   mkdir -p /var/run/apache2 /var/log/apache2 /var/tmp/apache2
   touch /var/log/apache2/access.log /var/log/apache2/error.log
   chown -R www-data:www-data /var/run/apache2 /var/log/apache2 /var/tmp/apache2 /var/lib/apache2
