@@ -115,7 +115,26 @@ fi
 
 get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
-    'https://api.github.com/repos/prestashop/prestashop/releases/latest' | jq -r '.tag_name'
+    'https://api.github.com/repos/prestashop/prestashop/releases' |
+      jq -r '
+      [.[] 
+        | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$")) 
+        | {
+            tag: .tag_name,
+            major: (.tag_name | capture("(?<n>\\d+)") | .n | tonumber),
+            minor: (.tag_name | capture("^\\d+\\.(?<n>\\d+)") | .n | tonumber),
+            patch: (.tag_name | capture("^\\d+\\.\\d+\\.(?<n>\\d+)") | .n | tonumber),
+            build: (
+              if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$")) 
+              then (.tag_name | capture("^\\d+\\.\\d+\\.\\d+\\.(?<n>\\d+)$") | .n | tonumber)
+              else 0
+              end
+            )
+          }
+      ] 
+      | sort_by(.major, .minor, .patch, .build) 
+      | reverse 
+      | .[0].tag'
 }
 
 get_recommended_php_version() {
@@ -129,6 +148,19 @@ get_recommended_php_version() {
     fi
   done <<<"$REGEXP_LIST"
   echo "$RECOMMENDED_VERSION";
+}
+
+get_recommended_zip_source_if_any() {
+  local PS_VERSION=$1;
+  local RECOMMENDED_ZIP_SOURCE=;
+  REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
+  while IFS= read -r regExp; do
+    if [[ $PS_VERSION =~ $regExp ]]; then
+      RECOMMENDED_ZIP_SOURCE=$(jq -r '."'"${regExp}"'".zip_source' <prestashop-versions.json)
+      break;
+    fi
+  done <<<"$REGEXP_LIST"
+  echo "$RECOMMENDED_ZIP_SOURCE";
 }
 
 get_recommended_nodejs_version() {
@@ -237,7 +269,12 @@ if [ -z "$ZIP_SOURCE" ]; then
   if [ "$PS_VERSION" == "nightly" ]; then
     ZIP_SOURCE="https://storage.googleapis.com/prestashop-core-nightly/nightly.zip"
   else
-    ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+    RECOMMENDED_ZIP_SOURCE=$(get_recommended_zip_source_if_any "$PS_VERSION")
+    if [ "$RECOMMENDED_ZIP_SOURCE" != "" ] && [ "$RECOMMENDED_ZIP_SOURCE" != "null" ]; then
+      ZIP_SOURCE="$RECOMMENDED_ZIP_SOURCE"
+    else
+      ZIP_SOURCE="https://github.com/PrestaShop/PrestaShop/releases/download/${PS_VERSION}/prestashop_${PS_VERSION}.zip"
+    fi
   fi
 fi
 
