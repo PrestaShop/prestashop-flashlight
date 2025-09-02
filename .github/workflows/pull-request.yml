@@ -39,7 +39,26 @@ jobs:
 
       - name: Get the latest PrestaShop version
         id: get_latest_ps_version
-        run: echo "PS_VERSION=$(curl -s -S -f -L -G $API | jq -r '.tag_name')" >> $GITHUB_OUTPUT
+        run: |
+          echo "PS_VERSION=$(curl -s -S -f -L -G $API | jq -r '
+          [.[] 
+            | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$")) 
+            | {
+                tag: .tag_name,
+                major: (.tag_name | capture("(?<n>\\d+)") | .n | tonumber),
+                minor: (.tag_name | capture("^\\d+\\.(?<n>\\d+)") | .n | tonumber),
+                patch: (.tag_name | capture("^\\d+\\.\\d+\\.(?<n>\\d+)") | .n | tonumber),
+                build: (
+                  if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$")) 
+                  then (.tag_name | capture("^\\d+\\.\\d+\\.\\d+\\.(?<n>\\d+)$") | .n | tonumber)
+                  else 0
+                  end
+                )
+              }
+          ] 
+          | sort_by(.major, .minor, .patch, .build) 
+          | reverse 
+          | .[0].tag')" >> $GITHUB_OUTPUT
         env:
           API: https://api.github.com/repos/prestashop/prestashop/releases/latest
 

@@ -69,7 +69,8 @@
     },
     "nodejs": {
       "recommended": "16.16.0"
-    }
+    },
+    "zip_source": "https://assets.prestashop3.com/dst/edition/corporate/9.0.0-1.0/prestashop_edition_basic_version_9.0.0-1.0.zip"
   },
   "nightly": {
     "php": {
