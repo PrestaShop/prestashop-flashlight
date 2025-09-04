@@ -41,32 +41,4 @@ for PHP_VERSION in $PHP_DEBIAN_VERSIONS; do
   RUN_IDS="$RUN_IDS $RUN_ID"
 done
 
-
-# Monitoring loop
-# Can be a workaround for dockerhub's pull rate limit
-# Will rerun failed jobs every 30 minutes, until they succeed
-echo "Monitoring workflow runs..."
-while :; do
-  ALL_DONE=true
-  for RUN_ID in $RUN_IDS; do
-    STATUS=$(gh run view "$RUN_ID" --repo prestashop/prestashop-flashlight --json status,conclusion -q '.status')
-    CONCLUSION=$(gh run view "$RUN_ID" --repo prestashop/prestashop-flashlight --json status,conclusion -q '.conclusion')
-
-    if [ "$STATUS" != "completed" ]; then
-      echo "Run $RUN_ID still in progress..."
-      ALL_DONE=false
-    elif [ "$CONCLUSION" = "failure" ]; then
-      echo "Run $RUN_ID failed, restarting..."
-      gh run rerun "$RUN_ID" --repo prestashop/prestashop-flashlight
-      ALL_DONE=false
-    fi
-  done
-
-  if [ "$ALL_DONE" = true ]; then
-    echo "All workflow runs completed successfully!"
-    break
-  fi
-
-  echo "Waiting 30 minutes before next check..."
-  sleep 1800
-done
+./monitor-workflow-runs.sh --run-ids "$RUN_IDS" --workflow "$WORKFLOW"

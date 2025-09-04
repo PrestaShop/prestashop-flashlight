@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eu
-EXCLUDED_TAGS='\/1.5|\/1.6.0|alpha|beta|rc|RC|\^'
+EXCLUDED_TAGS='\/1.5|\/1.6.0|\/1.6.1.0|\/1.6.1.1|\/1.6.1.2|show|alpha|beta|rc|RC|\^'
 PRESTASHOP_TAGS=$(git ls-remote --tags git@github.com:PrestaShop/PrestaShop.git | cut -f2 | grep -Ev $EXCLUDED_TAGS | cut -d '/' -f3 | sort -r -V)
 PRESTASHOP_TAGS_DEBIAN=$(echo "$PRESTASHOP_TAGS" | grep -Ev '^1.7|1.6')
 # PRESTASHOP_MAJOR_TAGS=$(
@@ -85,32 +85,4 @@ $(get_compatible_php_version "$PS_VERSION")
 EOF
 done
 
-
-# Monitoring loop
-# Can be a workaround for dockerhub's pull rate limit
-# Will rerun failed jobs every 30 minutes, until they succeed
-echo "Monitoring workflow runs..."
-while :; do
-  ALL_DONE=true
-  for RUN_ID in $RUN_IDS; do
-    STATUS=$(gh run view "$RUN_ID" --repo prestashop/prestashop-flashlight --json status,conclusion -q '.status')
-    CONCLUSION=$(gh run view "$RUN_ID" --repo prestashop/prestashop-flashlight --json status,conclusion -q '.conclusion')
-
-    if [ "$STATUS" != "completed" ]; then
-      echo "Run $RUN_ID still in progress..."
-      ALL_DONE=false
-    elif [ "$CONCLUSION" = "failure" ]; then
-      echo "Run $RUN_ID failed, restarting..."
-      gh run rerun "$RUN_ID" --repo prestashop/prestashop-flashlight
-      ALL_DONE=false
-    fi
-  done
-
-  if [ "$ALL_DONE" = true ]; then
-    echo "All workflow runs completed successfully!"
-    break
-  fi
-
-  echo "Waiting 30 minutes before next check..."
-  sleep 1800
-done
+./monitor-workflow-runs.sh --run-ids "$RUN_IDS" --workflow "$WORKFLOW"
