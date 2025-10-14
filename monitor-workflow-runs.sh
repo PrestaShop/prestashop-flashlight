@@ -31,9 +31,11 @@ while [ $# -gt 0 ]; do
       SINCE="$1"
       ;;
     --cancel)
+      shift
       CANCEL=true
       ;;
     --delay-between-checks)
+      shift
       DELAY_BETWEEN_CHECKS_IN_MIN="$1"
       ;;
     *)
