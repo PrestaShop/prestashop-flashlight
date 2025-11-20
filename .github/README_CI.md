@@ -4,7 +4,7 @@
 
 ### Github
 
-- [actions/checkout@v4](https://github.com/actions/checkout)
+- [actions/checkout@v5](https://github.com/actions/checkout)
 
 ### Docker
 
@@ -15,7 +15,7 @@
 ### Others
 
 - [ludeeus/action-shellcheck@master](https://github.com/ludeeus/action-shellcheck)
-- [hadolint/hadolint-action@v3.1.0](https://github.com/hadolint/hadolint-action)
+- [hadolint/hadolint-action@v3.3.0](https://github.com/hadolint/hadolint-action)
 
 ## Runners
 

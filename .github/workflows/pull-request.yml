@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
 
@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
-      - uses: hadolint/hadolint-action@v3.1.0
+      - uses: actions/checkout@v5
+      - uses: hadolint/hadolint-action@v3.3.0
         with:
           recursive: true
           dockerfile: "*.Dockerfile"
@@ -32,7 +32,7 @@ jobs:
     needs: [lint_shell, lint_dockerfile]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install jq
         run: sudo apt-get install -y jq
@@ -41,23 +41,23 @@ jobs:
         id: get_latest_ps_version
         run: |
           echo "PS_VERSION=$(curl -s -S -f -L -G $API | jq -r '
-          [.[] 
-            | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$")) 
+          [.[]
+            | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$"))
             | {
                 tag: .tag_name,
                 major: (.tag_name | capture("(?<n>\\d+)") | .n | tonumber),
                 minor: (.tag_name | capture("^\\d+\\.(?<n>\\d+)") | .n | tonumber),
                 patch: (.tag_name | capture("^\\d+\\.\\d+\\.(?<n>\\d+)") | .n | tonumber),
                 build: (
-                  if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$")) 
+                  if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$"))
                   then (.tag_name | capture("^\\d+\\.\\d+\\.\\d+\\.(?<n>\\d+)$") | .n | tonumber)
                   else 0
                   end
                 )
               }
-          ] 
-          | sort_by(.major, .minor, .patch, .build) 
-          | reverse 
+          ]
+          | sort_by(.major, .minor, .patch, .build)
+          | reverse
           | .[0].tag')" >> $GITHUB_OUTPUT
         env:
           API: https://api.github.com/repos/prestashop/prestashop/releases/latest
@@ -92,7 +92,7 @@ jobs:
         ps_version: ["1.6.1.24", "1.7.6.9", "1.7.7.8", "1.7.8.11", "8.1.7"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -150,7 +150,7 @@ jobs:
     needs: [docker_dry_build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -181,7 +181,7 @@ jobs:
     needs: [docker_dry_build]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -207,7 +207,7 @@ jobs:
         ps_version: ["8.1.7"]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -229,7 +229,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -244,7 +244,7 @@ jobs:
     timeout-minutes: 60
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
