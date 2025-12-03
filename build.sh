@@ -44,7 +44,7 @@ help() {
   echo "  --target-image-name  Docker image name, defaults to \"prestashop/prestashop-flashlight\""
   echo "  --target-image-tag   Docker image tag, defaults to automatic tags based on the os flavour, php and prestashop versions"
   echo "  --target-platform    A comma separated list of target platforms, defaults to 'linux/amd64'"
-  echo "  --zip-source         The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
+  echo "  --zip-source         The zip containing the PrestaShop release to build a docker image upon. Can either be a url or a file in 'assets' (defaults to PrestaShop source code)"
   echo ""
   echo "$(tput bold)Environment variables:$(tput sgr0)"
   echo "  BASE_ONLY          Only build the base image (OS_FLAVOUR) without shipping PrestaShop"
@@ -60,7 +60,7 @@ help() {
   echo "  TARGET_IMAGE_NAME  Docker image name, defaults to \"prestashop/prestashop-flashlight\""
   echo "  TARGET_IMAGE_TAG   Docker image tag, defaults to automatic tags based on the os flavour, php and prestashop versions"
   echo "  TARGET_PLATFORM    A comma separated list of target platforms, defaults to 'linux/amd64'"
-  echo "  ZIP_SOURCE         The zip containing the PrestaShop release to build a docker image upon (defaults to PrestaShop source code)"
+  echo "  ZIP_SOURCE         The zip containing the PrestaShop release to build a docker image upon. Can either be a url or a file in 'assets' (defaults to PrestaShop source code)"
 }
 
 # Parsing input arguments
@@ -117,23 +117,23 @@ get_latest_prestashop_version() {
   curl --silent --show-error --fail --location --request GET \
     'https://api.github.com/repos/prestashop/prestashop/releases' |
       jq -r '
-      [.[] 
-        | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$")) 
+      [.[]
+        | select(.tag_name | test("^\\d+\\.\\d+\\.\\d+(\\.\\d+)?$"))
         | {
             tag: .tag_name,
             major: (.tag_name | capture("(?<n>\\d+)") | .n | tonumber),
             minor: (.tag_name | capture("^\\d+\\.(?<n>\\d+)") | .n | tonumber),
             patch: (.tag_name | capture("^\\d+\\.\\d+\\.(?<n>\\d+)") | .n | tonumber),
             build: (
-              if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$")) 
+              if (.tag_name | test("^\\d+\\.\\d+\\.\\d+\\.\\d+$"))
               then (.tag_name | capture("^\\d+\\.\\d+\\.\\d+\\.(?<n>\\d+)$") | .n | tonumber)
               else 0
               end
             )
           }
-      ] 
-      | sort_by(.major, .minor, .patch, .build) 
-      | reverse 
+      ]
+      | sort_by(.major, .minor, .patch, .build)
+      | reverse
       | .[0].tag'
 }
 
@@ -219,7 +219,7 @@ get_target_images() {
   if [ "$PS_VERSION" == "nightly" ]; then
     if [ "$OS_FLAVOUR" = "$DEFAULT_OS" ]; then
       RES="-t ${TARGET_IMAGE_NAME}:nightly-${SERVER_FLAVOUR}";
-    else 
+    else
       RES="-t ${TARGET_IMAGE_NAME}:nightly-${OS_FLAVOUR}-${SERVER_FLAVOUR}";
     fi
   else
