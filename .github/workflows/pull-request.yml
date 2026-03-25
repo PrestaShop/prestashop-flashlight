@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v5
 
       - name: Install jq
-        run: sudo apt-get install -y jq
+        run: command -v jq || sudo apt-get install -y jq
 
       - name: Get the latest PrestaShop version
         id: get_latest_ps_version
