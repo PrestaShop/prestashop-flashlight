@@ -14,3 +14,5 @@ vendor/
 
 # cloudflared credentials
 credentials.json
+
+CLAUDE.local.md

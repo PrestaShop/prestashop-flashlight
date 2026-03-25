@@ -62,15 +62,37 @@
       "recommended": "16.16.0"
     }
   },
-  "^9": {
+  "^9.0": {
     "php": {
-      "recommended": "8.1",
-      "compatible": ["8.1", "8.2", "8.3"]
+      "recommended": "8.4",
+      "compatible": ["8.1", "8.2", "8.3", "8.4"]
     },
     "nodejs": {
       "recommended": "16.16.0"
     },
-    "zip_source": "https://assets.prestashop3.com/dst/edition/corporate/9.0.0-1.0/prestashop_edition_basic_version_9.0.0-1.0.zip"
+    "zip_sources": {
+      "9.0.0-1.0": "https://assets.prestashop3.com/dst/edition/corporate/9.0.0-1.0/prestashop_edition_basic_version_9.0.0-1.0.zip",
+      "9.0.0-1.0-beta.1": "https://assets.prestashop3.com/dst/edition/corporate/9.0.0-1.0-beta.1/prestashop_edition_basic_version_9.0.0-1.0-beta.1.zip",
+      "9.0.0-1.0-rc.1": "https://assets.prestashop3.com/dst/edition/corporate/9.0.0-1.0-rc.1/prestashop_edition_basic_version_9.0.0-1.0-rc.1.zip",
+      "9.0.1-1.0": "https://assets.prestashop3.com/dst/edition/corporate/9.0.1-1.0/prestashop_edition_basic_version_9.0.1-1.0.zip",
+      "9.0.2-2.0": "https://assets.prestashop3.com/dst/edition/corporate/9.0.2-2.0/prestashop_edition_basic_version_9.0.2-2.0.zip",
+      "9.0.2-2.1": "https://assets.prestashop3.com/dst/edition/corporate/9.0.2-2.1/prestashop_edition_basic_version_9.0.2-2.1.zip",
+      "9.0.3-3.0": "https://assets.prestashop3.com/dst/edition/corporate/9.0.3-3.0/prestashop_edition_basic_version_9.0.3-3.0.zip"
+    }
+  },
+  "^9.1": {
+    "php": {
+      "recommended": "8.5",
+      "compatible": ["8.1", "8.2", "8.3", "8.4", "8.5"]
+    },
+    "nodejs": {
+      "recommended": "16.16.0"
+    },
+    "zip_sources": {
+      "9.1.0-3.0-beta.1": "https://assets.prestashop3.com/dst/edition/corporate/9.1.0-3.0-beta.1/prestashop_edition_basic_version_9.1.0-3.0-beta.1.zip",
+      "9.1.0-4.0-rc.1": "https://assets.prestashop3.com/dst/edition/corporate/9.1.0-4.0-rc.1/prestashop_edition_basic_version_9.1.0-4.0-rc.1.zip",
+      "9.1.0-4.0": "https://assets.prestashop3.com/dst/edition/corporate/9.1.0-4.0/prestashop_edition_basic_version_9.1.0-4.0.zip"
+    }
   },
   "nightly": {
     "php": {

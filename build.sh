@@ -156,7 +156,20 @@ get_recommended_zip_source_if_any() {
   REGEXP_LIST=$(jq -r 'keys_unsorted | .[]' <prestashop-versions.json)
   while IFS= read -r regExp; do
     if [[ $PS_VERSION =~ $regExp ]]; then
-      RECOMMENDED_ZIP_SOURCE=$(jq -r '."'"${regExp}"'".zip_source' <prestashop-versions.json)
+      RECOMMENDED_ZIP_SOURCE=$(jq -r --arg version "$PS_VERSION" '
+        ."'"${regExp}"'".zip_sources // {} as $sources |
+        if $sources | has($version) then
+          $sources[$version]
+        else
+          $sources | to_entries |
+          map(select(.key | startswith($version + "-"))) as $candidates |
+          (
+            ($candidates | map(select(.key | test("-beta|-rc") | not)) | sort_by(.key) | last) //
+            ($candidates | map(select(.key | test("-rc"))) | sort_by(.key) | last) //
+            ($candidates | map(select(.key | test("-beta"))) | sort_by(.key) | last)
+          ) | .value // "null"
+        end
+      ' <prestashop-versions.json)
       break;
     fi
   done <<<"$REGEXP_LIST"
