@@ -72,6 +72,7 @@ apt-get install --no-install-recommends -qqy \
   libzip-dev \
   libicu-dev \
   libmcrypt-dev \
+  libwebp-dev \
   "$LIB_XML_DEV"
 
 # Help mapping to Linux users' host
@@ -169,7 +170,7 @@ apt-get install --no-install-recommends -qqy gh || curl -sS https://webi.sh/gh |
 
 # Cleanup dev packages, keep libraries
 apt-get clean
-apt-get purge -qqy build-essential gcc g++ ghc "$LIB_FREETYPE_DEV" linux-libc-dev libncurses-dev \
+apt-get purge -qqy build-essential gcc g++ ghc "$LIB_FREETYPE_DEV" linux-libc-dev libncurses-dev libwebp-dev \
   libghc-zlib-dev libjpeg-dev libpng-dev libzip-dev libicu-dev libmcrypt-dev "$LIB_XML_DEV"
 apt-get autoremove -qqy
 
@@ -180,5 +181,6 @@ LIB_ZIP=$(apt-cache search '^libzip[0-9]+$' | awk 'NR==1{print $1}')
 LIB_ICU=$(apt-cache search '^libicu[0-9]+$' | awk 'NR==1{print $1}')
 LIB_MCRYPT=$(apt-cache search '^libmcrypt[0-9]+$' | awk 'NR==1{print $1}')
 LIB_XML=$(apt-cache search '^libxml[0-9]+$' | awk 'NR==1{print $1}')
-apt-get install -qqy "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML"
+LIB_WEBP=$(apt-cache search '^libwebp[0-9]+$' | awk 'NR==1{print $1}')
+apt-get install -qqy "$LIB_FREETYPE" "$LIB_JPEG" "$LIB_PNG" "$LIB_ZIP" "$LIB_ICU" "$LIB_MCRYPT" "$LIB_XML" "$LIB_WEBP"
 rm -rf /var/lib/apt/lists/*

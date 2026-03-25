@@ -244,7 +244,11 @@ get_target_images() {
 
 # Applying configuration
 # ----------------------
-PS_VERSION=$(get_ps_version "$PS_VERSION");
+if [ "$BASE_ONLY" == "true" ] && [ -n "$PHP_VERSION" ]; then
+  PS_VERSION="${PS_VERSION:-0.0.0}"
+else
+  PS_VERSION=$(get_ps_version "$PS_VERSION");
+fi
 PHP_VERSION=$(get_php_version "$PHP_VERSION" "$PS_VERSION");
 if [ -z "$PHP_VERSION" ]; then
   error "Could not find a recommended PHP version for PS_VERSION: $PS_VERSION" 2
