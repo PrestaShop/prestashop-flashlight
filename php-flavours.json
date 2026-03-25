@@ -73,6 +73,6 @@
     "php_cs_fixer": "v3.40.0",
     "phpstan": "HEAD",
     "phpunit": "10.4.2",
-    "xdebug": "3.4"
+    "xdebug": "3.5.1"
   }
 }

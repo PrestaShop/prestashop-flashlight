@@ -21,7 +21,7 @@ if [ "5.5" = "$PHP_VERSION" ] || [ "5.6" = "$PHP_VERSION" ] || [ "7.0" = "$PHP_V
   PS_PHP_EXT="$PS_PHP_EXT mcrypt";
   PHP_GD_CONFIG="--with-gd --with-jpeg --with-jpeg-dir --with-zlib-dir --with-freetype-dir --with-webp";
 elif [ "7.2" = "$PHP_VERSION" ] || [ "7.3" = "$PHP_VERSION" ]; then
-  PHP_GD_CONFIG="--with-jpeg-dir --with-zlib-dir --with-freetype-dir --with-webp";
+  PHP_GD_CONFIG="--with-jpeg-dir --with-zlib-dir --with-freetype-dir --with-webp-dir";
 fi
 
 # shellcheck disable=SC2086
