@@ -2,7 +2,7 @@
 set -eu
 
 PS_FOLDER=${PS_FOLDER:?missing PS_FOLDER}
-PS_VERSION=$(awk 'NR==1{print $2}' "$PS_FOLDER/VERSION")
+PS_VERSION=${1:?missing PS_VERSION}
 
 add_polyfill_console () {
   mkdir -p "$PS_FOLDER/bin"

@@ -23,15 +23,9 @@ RUN mkdir -p "$PS_FOLDER" /tmp/unzip-ps \
   && chown -R www-data:www-data "$PS_FOLDER" \
   && rm -rf /tmp/prestashop.zip /tmp/unzip-ps
 
-# Ship a VERSION file
-RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
-  && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
-  && echo "PHP Base image $PHP_BASE_IMAGE" >> "$PS_FOLDER/VERSION" \
-  && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION"
-
 # Extra patches to the PrestaShop sources
 COPY ./assets/patch.sh /patch.sh
-RUN sh /patch.sh
+RUN sh /patch.sh ${PS_VERSION}
 
 # Hydrate the SQL dump
 COPY ./assets/hydrate.sh /hydrate.sh
@@ -47,14 +41,24 @@ ARG PS_VERSION
 ARG PHP_VERSION
 ARG PHP_BASE_IMAGE
 ARG SERVER_FLAVOUR
+ARG GIT_SHA
+ARG ZIP_SOURCE
 ARG PS_FOLDER=/var/www/html
-WORKDIR $PS_FOLDER
 
 ENV PHP_BASE_IMAGE=$PHP_BASE_IMAGE
 ENV PHP_VERSION=$PHP_VERSION
 ENV PS_VERSION=$PS_VERSION
 ENV PS_FOLDER=$PS_FOLDER
 ENV SERVER_FLAVOUR=$SERVER_FLAVOUR
+
+# Ship a VERSION file
+RUN echo "PrestaShop $PS_VERSION" > "$PS_FOLDER/VERSION" \
+  && echo "PHP $PHP_VERSION" >> "$PS_FOLDER/VERSION" \
+  && echo "PHP Base image $PHP_BASE_IMAGE" >> "$PS_FOLDER/VERSION" \
+  && echo "Flashlight $GIT_SHA" >> "$PS_FOLDER/VERSION" \
+  && echo "Zip source $ZIP_SOURCE" >> "$PS_FOLDER/VERSION"
+
+WORKDIR $PS_FOLDER
 
 RUN mkdir -p "$COMPOSER_HOME" \
   && chown -R www-data:www-data "$COMPOSER_HOME"

@@ -157,7 +157,7 @@ get_recommended_zip_source_if_any() {
   while IFS= read -r regExp; do
     if [[ $PS_VERSION =~ $regExp ]]; then
       RECOMMENDED_ZIP_SOURCE=$(jq -r --arg version "$PS_VERSION" '
-        ."'"${regExp}"'".zip_sources // {} as $sources |
+        (."'"${regExp}"'".zip_sources // {}) as $sources |
         if $sources | has($version) then
           $sources[$version]
         else
@@ -308,22 +308,58 @@ fi
 
 # Build the docker image
 # ----------------------
+
+# Detect the active buildx driver before the DRY_RUN mock so the introspection
+# call hits real docker. Falls back to "docker" (current behaviour) on failure.
+BUILDX_DRIVER=$(docker buildx inspect 2>/dev/null | awk '/^Driver:/{print $2}')
+BUILDX_DRIVER=${BUILDX_DRIVER:-docker}
+OCI_BASE_DIR=""
+trap '[ -n "$OCI_BASE_DIR" ] && rm -rf "$OCI_BASE_DIR"' EXIT
+
 if [ "$DRY_RUN" == "true" ]; then
   docker() {
     echo docker "$@"
   }
 fi
 
-# acts as a cache if available
-docker pull "$BASE_DOCKER_IMAGE" 2> /dev/null || REBUILD_BASE='true';
+# acts as a cache if available; track whether the image exists in the registry
+# (used later to skip --cache-from on the flashlight build when it doesn't — a
+# missing image causes an async 404 that corrupts the BuildKit followpaths gRPC
+# header on Docker 28.0.x + Buildx 0.32.x)
+BASE_IN_REGISTRY=false
+if docker pull "$BASE_DOCKER_IMAGE" 2> /dev/null; then
+  BASE_IN_REGISTRY=true
+else
+  REBUILD_BASE='true'
+fi
 
 if [ "$REBUILD_BASE" == "true" ]; then
+  # Pick the right output strategy for the base build:
+  #   PUSH=true              → push to registry (works with any driver)
+  #   docker-container driver → OCI dir (BuildKit can't see the local daemon)
+  #   docker driver          → --load into the local daemon (default behaviour)
+  if [ "$PUSH" == "true" ]; then
+    BASE_BUILD_OUTPUT=("--push")
+  elif [ "$BUILDX_DRIVER" == "docker-container" ]; then
+    OCI_BASE_DIR=$(mktemp -d)
+    BASE_BUILD_OUTPUT=("--output" "type=oci,dest=$OCI_BASE_DIR/base.tar")
+  else
+    BASE_BUILD_OUTPUT=("--load")
+  fi
+  # Only use registry cache when the base image exists — a missing image causes
+  # an async 404 that corrupts the BuildKit followpaths gRPC header on
+  # Docker 28.0.x + Buildx 0.32.x.
+  if [ "$BASE_IN_REGISTRY" = "true" ]; then
+    BASE_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
+  else
+    BASE_CACHE_FROM=()
+  fi
   echo "building base for $PHP_BASE_IMAGE $SERVER_FLAVOUR ($TARGET_PLATFORM) named $BASE_DOCKER_IMAGE"
   docker buildx build \
     --progress=plain \
     --file "./docker/$OS_FLAVOUR-base.Dockerfile" \
     --platform "$TARGET_PLATFORM" \
-    --cache-from type=registry,ref="$BASE_DOCKER_IMAGE" \
+    "${BASE_CACHE_FROM[@]}" \
     --cache-to type=inline \
     --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
     --build-arg PHP_VERSION="$PHP_VERSION" \
@@ -332,28 +368,56 @@ if [ "$REBUILD_BASE" == "true" ]; then
     --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
     "${LABELS[@]}" \
     -t "$BASE_DOCKER_IMAGE" \
-    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
+    "${BASE_BUILD_OUTPUT[@]}" \
     .
 fi
 
 if [ "$BASE_ONLY" == "false" ]; then
+  # When the base was exported as an OCI tar, extract it to a dir so oci-layout:// can
+  # read the index.json. The oci-layout:// scheme requires a directory, not a tar file.
+  if [ -n "$OCI_BASE_DIR" ]; then
+    mkdir -p "$OCI_BASE_DIR/base"
+    tar -xf "$OCI_BASE_DIR/base.tar" -C "$OCI_BASE_DIR/base"
+    BASE_CONTEXT_ARG=("--build-context" "$BASE_DOCKER_IMAGE=oci-layout://$OCI_BASE_DIR/base")
+  else
+    BASE_CONTEXT_ARG=()
+  fi
+  # Only use registry cache when the base image exists — a missing image causes
+  # an async 404 that corrupts the BuildKit followpaths gRPC header on
+  # Docker 28.0.x + Buildx 0.32.x.
+  if [ "$BASE_IN_REGISTRY" = "true" ]; then
+    FLASHLIGHT_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
+  else
+    FLASHLIGHT_CACHE_FROM=()
+  fi
   echo "building final based on $BASE_DOCKER_IMAGE named ${TARGET_IMAGES[*]}"
-  docker buildx build \
-    --progress=plain \
-    --file "./docker/flashlight.Dockerfile" \
-    --platform "$TARGET_PLATFORM" \
-    --cache-from type=registry,ref="$BASE_DOCKER_IMAGE" \
-    --cache-to type=inline \
-    --build-arg BASE_DOCKER_IMAGE="$BASE_DOCKER_IMAGE" \
-    --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE" \
-    --build-arg PS_VERSION="$PS_VERSION" \
-    --build-arg PHP_VERSION="$PHP_VERSION" \
-    --build-arg GIT_SHA="$GIT_SHA" \
-    --build-arg ZIP_SOURCE="$ZIP_SOURCE" \
-    --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR" \
-    --build-arg TARGET_IMAGE_NAME="$TARGET_IMAGE_NAME" \
-    "${LABELS[@]}" \
-    "${TARGET_IMAGES[@]}" \
-    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")" \
-    .
+  FLASHLIGHT_BUILD_ARGS=(
+    --progress=plain
+    --file "./docker/flashlight.Dockerfile"
+    --platform "$TARGET_PLATFORM"
+    "${FLASHLIGHT_CACHE_FROM[@]}"
+    --cache-to type=inline
+    --build-arg BASE_DOCKER_IMAGE="$BASE_DOCKER_IMAGE"
+    --build-arg PHP_BASE_IMAGE="$PHP_BASE_IMAGE"
+    --build-arg PS_VERSION="$PS_VERSION"
+    --build-arg PHP_VERSION="$PHP_VERSION"
+    --build-arg GIT_SHA="$GIT_SHA"
+    --build-arg ZIP_SOURCE="$ZIP_SOURCE"
+    --build-arg SERVER_FLAVOUR="$SERVER_FLAVOUR"
+    --build-arg TARGET_IMAGE_NAME="$TARGET_IMAGE_NAME"
+    "${LABELS[@]}"
+    "${TARGET_IMAGES[@]}"
+    "${BASE_CONTEXT_ARG[@]}"
+    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")"
+  )
+  # Pipe the build context as a tar archive to bypass the "followpaths" gRPC
+  # header bug in Buildx ≤0.32.x + grpc-go ≥1.64. When context is streamed via
+  # stdin, BuildKit receives the full tar without the followpaths optimisation,
+  # avoiding the non-printable ASCII rejection. In DRY_RUN the docker function
+  # is a mock that doesn't read stdin, so use the regular "." context.
+  if [ "$DRY_RUN" == "true" ]; then
+    docker buildx build "${FLASHLIGHT_BUILD_ARGS[@]}" .
+  else
+    tar -cf - . | docker buildx build "${FLASHLIGHT_BUILD_ARGS[@]}" -
+  fi
 fi

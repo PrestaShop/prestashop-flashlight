@@ -60,7 +60,7 @@ jobs:
           | reverse
           | .[0].tag')" >> $GITHUB_OUTPUT
         env:
-          API: https://api.github.com/repos/prestashop/prestashop/releases/latest
+          API: https://api.github.com/repos/prestashop/prestashop/releases
 
       - name: Should give the "latest" tag for the latest version available
         run: ./build.sh | grep "prestashop/prestashop-flashlight:latest"
@@ -93,6 +93,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -152,6 +157,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
+          driver: docker
+
       - name: Call the docker build chain
         run: ./build.sh
         env:
@@ -183,6 +194,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v6
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
+          driver: docker
+
       - name: Call the docker build chain
         run: ./build.sh
         env:
@@ -204,10 +221,15 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        ps_version: ["8.1.7", "9.0.3", "9.1.0"]
+        ps_version: ["8.1.7", "9.0.2", "9.1.0"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -223,6 +245,14 @@ jobs:
       - name: The image has a PrestaShop console CLI
         run: docker run --env PS_DOMAIN='localhost:80' --entrypoint /bin/ls flashlight:${{ matrix.ps_version }}-debian bin/console
 
+      - name: The image used the correct zip
+        if: ${{ matrix.ps_version == '9.0.2' }}
+        run: docker run --entrypoint grep flashlight:${{ matrix.ps_version }}-debian "9.0.2-2.1" VERSION
+
+      - name: The image used the correct zip
+        if: ${{ matrix.ps_version == '9.1.0' }}
+        run: docker run --entrypoint grep flashlight:${{ matrix.ps_version }}-debian "9.1.0-4.0" VERSION
+
   docker_build_nightly:
     name: "Docker build: PS nightly"
     runs-on: ubuntu-latest
@@ -230,6 +260,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
 
       - name: Call the docker build chain
         run: ./build.sh
@@ -245,6 +280,11 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+        with:
+          buildkitd-config: .github/buildkitd.toml
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v4
