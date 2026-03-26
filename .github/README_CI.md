@@ -4,17 +4,17 @@
 
 ### Github
 
-- [actions/checkout@v5](https://github.com/actions/checkout)
+- [actions/checkout@v6](https://github.com/actions/checkout)
 
 ### Docker
 
-- [docker/setup-qemu-action@v3](https://github.com/docker/setup-qemu-action)
-- [docker/setup-buildx-action@v3](https://github.com/docker/setup-buildx-action)
-- [docker/login-action@v3](https://github.com/docker/login-action)
+- [docker/setup-qemu-action@v4](https://github.com/docker/setup-qemu-action)
+- [docker/setup-buildx-action@v4](https://github.com/docker/setup-buildx-action)
+- [docker/login-action@v4](https://github.com/docker/login-action)
 
 ### Others
 
-- [ludeeus/action-shellcheck@master](https://github.com/ludeeus/action-shellcheck)
+- [ludeeus/action-shellcheck@2.0.0](https://github.com/ludeeus/action-shellcheck)
 - [hadolint/hadolint-action@v3.3.0](https://github.com/hadolint/hadolint-action)
 
 ## Runners
@@ -35,14 +35,15 @@
       A --> C[lint_dockerfile]
       B --> D[Run ShellCheck]
       C --> E[Run Hadolint]
-      A --> F[docker_dry_build]
+      B --> F[docker_dry_build]
+      C --> F
       F --> G[Checkout repository]
       F --> H[Install jq]
       F --> I[Get the latest PrestaShop version]
       F --> J[Should give the 'latest' tag for the latest version available]
       F --> K[Should not give the 'latest' tag to 8.1.2]
       F --> L[Should not give the 'latest' tag if PHP version is not recommended]
-      A --> M[docker_build]
+      F --> M[docker_build]
       M --> N[Checkout repository]
       M --> O[Call the docker build chain]
       M --> P[Test the image with a dry run]
@@ -50,11 +51,15 @@
       M --> R[Test the image tooling phpunit]
       M --> S[Test the image tooling phpstan]
       M --> T[Test the image tooling xdebug]
-      A --> U[docker_build_old_php]
-      U --> V[Checkout repository]
-      U --> W[Call the docker build chain]
-      U --> X[Test the image with a dry run]
-      A --> Y[docker_build_debian]
+      F --> BA[docker_build_base_alpine]
+      BA --> BB[Checkout repository]
+      BA --> BC[Call the docker build chain]
+      BA --> BD[Test the image with a dry run]
+      F --> BE[docker_build_base_debian]
+      BE --> BF[Checkout repository]
+      BE --> BG[Call the docker build chain]
+      BE --> BH[Test the image with a dry run]
+      F --> Y[docker_build_debian]
       Y --> Z[Checkout repository]
       Y --> AA[Call the docker build chain]
       Y --> AB[Test the image with a dry run]
