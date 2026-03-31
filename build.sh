@@ -338,9 +338,9 @@ if [ "$REBUILD_BASE" == "true" ]; then
   #   PUSH=true              → push to registry (works with any driver)
   #   docker-container driver → OCI dir (BuildKit can't see the local daemon)
   #   docker driver          → --load into the local daemon (default behaviour)
-  if [ "$PUSH" == "true" ]; then
+  if [[ "$PUSH" == "true" ]]; then
     BASE_BUILD_OUTPUT=("--push")
-  elif [ "$BUILDX_DRIVER" == "docker-container" ]; then
+  elif [[ "$BUILDX_DRIVER" == "docker-container" ]]; then
     OCI_BASE_DIR=$(mktemp -d)
     BASE_BUILD_OUTPUT=("--output" "type=oci,dest=$OCI_BASE_DIR/base.tar")
   else
@@ -349,7 +349,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
   # Only use registry cache when the base image exists — a missing image causes
   # an async 404 that corrupts the BuildKit followpaths gRPC header on
   # Docker 28.0.x + Buildx 0.32.x.
-  if [ "$BASE_IN_REGISTRY" = "true" ]; then
+  if [[ "$BASE_IN_REGISTRY" = "true" ]]; then
     BASE_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
   else
     BASE_CACHE_FROM=()
@@ -372,10 +372,10 @@ if [ "$REBUILD_BASE" == "true" ]; then
     .
 fi
 
-if [ "$BASE_ONLY" == "false" ]; then
+if [[ "$BASE_ONLY" == "false" ]]; then
   # When the base was exported as an OCI tar, extract it to a dir so oci-layout:// can
   # read the index.json. The oci-layout:// scheme requires a directory, not a tar file.
-  if [ -n "$OCI_BASE_DIR" ]; then
+  if [[ -n "$OCI_BASE_DIR" ]]; then
     mkdir -p "$OCI_BASE_DIR/base"
     tar -xf "$OCI_BASE_DIR/base.tar" -C "$OCI_BASE_DIR/base"
     BASE_CONTEXT_ARG=("--build-context" "$BASE_DOCKER_IMAGE=oci-layout://$OCI_BASE_DIR/base")
@@ -385,7 +385,7 @@ if [ "$BASE_ONLY" == "false" ]; then
   # Only use registry cache when the base image exists — a missing image causes
   # an async 404 that corrupts the BuildKit followpaths gRPC header on
   # Docker 28.0.x + Buildx 0.32.x.
-  if [ "$BASE_IN_REGISTRY" = "true" ]; then
+  if [[ "$BASE_IN_REGISTRY" = "true" ]]; then
     FLASHLIGHT_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
   else
     FLASHLIGHT_CACHE_FROM=()
@@ -408,14 +408,14 @@ if [ "$BASE_ONLY" == "false" ]; then
     "${LABELS[@]}"
     "${TARGET_IMAGES[@]}"
     "${BASE_CONTEXT_ARG[@]}"
-    "$([ "${PUSH}" == "true" ] && echo "--push" || echo "--load")"
+    "$([[ "${PUSH}" == "true" ]] && echo "--push" || echo "--load")"
   )
   # Pipe the build context as a tar archive to bypass the "followpaths" gRPC
   # header bug in Buildx ≤0.32.x + grpc-go ≥1.64. When context is streamed via
   # stdin, BuildKit receives the full tar without the followpaths optimisation,
   # avoiding the non-printable ASCII rejection. In DRY_RUN the docker function
   # is a mock that doesn't read stdin, so use the regular "." context.
-  if [ "$DRY_RUN" == "true" ]; then
+  if [[ "$DRY_RUN" == "true" ]]; then
     docker buildx build "${FLASHLIGHT_BUILD_ARGS[@]}" .
   else
     tar -cf - . | docker buildx build "${FLASHLIGHT_BUILD_ARGS[@]}" -
