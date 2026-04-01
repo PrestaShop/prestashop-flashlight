@@ -221,7 +221,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        ps_version: ["8.1.7", "9.0.2", "9.1.0"]
+        ps_version: ["8.1.7", "9.0.2", "9.1.0", "9.0.0-1.0-beta.1"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -252,6 +252,10 @@ jobs:
       - name: The image used the correct zip
         if: ${{ matrix.ps_version == '9.1.0' }}
         run: docker run --entrypoint grep flashlight:${{ matrix.ps_version }}-debian "9.1.0-4.0" VERSION
+
+      - name: The image used the correct zip
+        if: ${{ matrix.ps_version == '9.0.0-1.0-beta.1' }}
+        run: docker run --entrypoint grep flashlight:${{ matrix.ps_version }}-debian "9.0.0-1.0-beta.1" VERSION
 
   docker_build_nightly:
     name: "Docker build: PS nightly"
