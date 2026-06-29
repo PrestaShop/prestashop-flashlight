@@ -1,3 +1,5 @@
+Test
+
 ![PrestaShop Flashlight logo](./assets/prestashop_flashlight_logo.png)
 
 Spin up a PrestaShop testing instance in seconds!
