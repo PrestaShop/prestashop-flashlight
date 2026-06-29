@@ -152,7 +152,7 @@ END
         -e "s~host' => '127.0.0.1'~host' => '$MYSQL_HOST'~" \
         -e "s~port' => ''~port' => '$MYSQL_PORT'~" \
         -e "s~name' => 'prestashop'~name' => '$MYSQL_DATABASE'~" \
-        -e "s~user' => 'root'~user' => '$MYSQL_USER'~" \
+        -e "s~user' => 'prestashop'~user' => '$MYSQL_USER'~" \
         -e "s~password' => 'prestashop'~password' => '$MYSQL_PASSWORD'~" \
         -e "s~database_engine' => 'InnoDB',~database_engine' => 'InnoDB',\n    'server_version' => '$MYSQL_VERSION',~" \
       "$PS_FOLDER/app/config/parameters.php"
@@ -161,7 +161,7 @@ END
     sed -i \
         -e "s~127.0.0.1:3306~$MYSQL_HOST:$MYSQL_PORT~" \
         -e "s~_DB_NAME_', 'prestashop~_DB_NAME_', '$MYSQL_DATABASE~" \
-        -e "s~_DB_USER_', 'root~_DB_USER_', '$MYSQL_USER~" \
+        -e "s~_DB_USER_', 'prestashop~_DB_USER_', '$MYSQL_USER~" \
         -e "s~_DB_PASSWD_', 'prestashop~_DB_PASSWD_', '$MYSQL_PASSWORD~" \
       "$PS_16_CONFIG_PARAMETERS"
   fi
