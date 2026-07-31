@@ -1,0 +1,76 @@
+---
+name: Detect new PrestaShop versions
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Only report what would change, do not open a pull request"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+env:
+  BRANCH: chore/auto-update-prestashop-versions
+  BASE_BRANCH: main
+  PR_TITLE: "chore: add newly published PrestaShop versions"
+
+jobs:
+  detect:
+    runs-on: ubuntu-latest
+    steps:
+      # A personal access token is only needed so that the pull request triggers
+      # the other workflows: pull requests opened with GITHUB_TOKEN do not.
+      - name: Checkout
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.FLASHLIGHT_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+
+      # Any pending pull request is updated in place, so that already reported
+      # versions are not reported twice and manual fixups are preserved.
+      - name: Resume the pending pull request, if any
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null; then
+            echo "Reusing the pending $BRANCH branch"
+            git fetch --depth 1 origin "$BRANCH"
+            git checkout -B "$BRANCH" FETCH_HEAD
+          fi
+
+      - name: Look for newly published PrestaShop versions
+        id: detect
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            ./find-new-prestashop-versions.sh --dry-run
+          else
+            ./find-new-prestashop-versions.sh
+          fi
+
+      - name: Report
+        if: steps.detect.outputs.changed == 'true'
+        run: cat "${{ steps.detect.outputs.body_file }}" >>"$GITHUB_STEP_SUMMARY"
+
+      - name: Open or update the pull request
+        if: steps.detect.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.FLASHLIGHT_BOT_TOKEN || secrets.GITHUB_TOKEN }}
+          BODY_FILE: ${{ steps.detect.outputs.body_file }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git commit --message "$PR_TITLE" -- prestashop-versions.json
+          git push origin "$BRANCH"
+          if [ -z "$(gh pr list --head "$BRANCH" --state open --json number --jq '.[0].number')" ]; then
+            gh pr create \
+              --base "$BASE_BRANCH" \
+              --head "$BRANCH" \
+              --title "$PR_TITLE" \
+              --body-file "$BODY_FILE"
+          else
+            gh pr comment "$BRANCH" --body-file "$BODY_FILE"
+          fi
