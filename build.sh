@@ -313,6 +313,18 @@ fi
 # call hits real docker. Falls back to "docker" (current behaviour) on failure.
 BUILDX_DRIVER=$(docker buildx inspect 2>/dev/null | awk '/^Driver:/{print $2}')
 BUILDX_DRIVER=${BUILDX_DRIVER:-docker}
+
+# dockerd's built-in BuildKit worker (the "docker" driver) runs on the overlay2
+# graphdriver and has no applier, so it cannot materialise the lazy refs that a
+# registry cache import creates: any cache hit on such a record aborts the build
+# with "failed to compute cache key: unlazy requires an applier". Only import
+# registry cache on drivers that can unlazy (docker-container & friends); the
+# docker driver still reuses the local BuildKit cache and the pulled base image.
+REGISTRY_CACHE_SUPPORTED=true
+if [[ "$BUILDX_DRIVER" == "docker" ]]; then
+  REGISTRY_CACHE_SUPPORTED=false
+fi
+
 OCI_BASE_DIR=""
 trap '[ -n "$OCI_BASE_DIR" ] && rm -rf "$OCI_BASE_DIR"' EXIT
 
@@ -349,7 +361,7 @@ if [ "$REBUILD_BASE" == "true" ]; then
   # Only use registry cache when the base image exists — a missing image causes
   # an async 404 that corrupts the BuildKit followpaths gRPC header on
   # Docker 28.0.x + Buildx 0.32.x.
-  if [[ "$BASE_IN_REGISTRY" = "true" ]]; then
+  if [[ "$BASE_IN_REGISTRY" = "true" && "$REGISTRY_CACHE_SUPPORTED" = "true" ]]; then
     BASE_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
   else
     BASE_CACHE_FROM=()
@@ -385,7 +397,7 @@ if [[ "$BASE_ONLY" == "false" ]]; then
   # Only use registry cache when the base image exists — a missing image causes
   # an async 404 that corrupts the BuildKit followpaths gRPC header on
   # Docker 28.0.x + Buildx 0.32.x.
-  if [[ "$BASE_IN_REGISTRY" = "true" ]]; then
+  if [[ "$BASE_IN_REGISTRY" = "true" && "$REGISTRY_CACHE_SUPPORTED" = "true" ]]; then
     FLASHLIGHT_CACHE_FROM=("--cache-from" "type=registry,ref=$BASE_DOCKER_IMAGE")
   else
     FLASHLIGHT_CACHE_FROM=()
