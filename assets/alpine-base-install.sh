@@ -39,9 +39,10 @@ if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   NGINX_CONF="/etc/nginx/nginx.conf"
 
   if nginx -t 2>&1 | grep -q 'http2" directive is deprecated'; then
-    sed -i '/listen 443 ssl http2;/d' "$NGINX_CONF"
-    sed -i 's~# listen 443 ssl;~listen 443 ssl;~' "$NGINX_CONF"
-    sed -i 's~# http2 on;~http2 on;~' "$NGINX_CONF"
+    sed -i -E \
+      -e '/listen (\[::\]:)?443 ssl http2;/d' \
+      -e 's~# listen (\[::\]:)?443 ssl;~listen \1443 ssl;~' \
+      -e 's~# http2 on;~http2 on;~' "$NGINX_CONF"
   fi
 
   mkdir -p /var/run/nginx /var/log/nginx /var/tmp/nginx
