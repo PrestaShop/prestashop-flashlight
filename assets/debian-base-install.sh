@@ -25,7 +25,7 @@ fi
 # EOL releases are dropped from the regular mirrors, only the archive serves them
 case "$VERSION_CODENAME" in
   jessie | stretch | bullseye)
-    echo "deb [check-valid-until=no] http://archive.debian.org/debian/ $VERSION_CODENAME main contrib non-free" > /etc/apt/sources.list
+    echo "deb [check-valid-until=no] https://archive.debian.org/debian/ $VERSION_CODENAME main contrib non-free" > /etc/apt/sources.list
     ;;
   *) : ;;
 esac
