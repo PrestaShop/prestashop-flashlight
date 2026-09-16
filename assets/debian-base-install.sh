@@ -27,6 +27,7 @@ case "$VERSION_CODENAME" in
   jessie | stretch | bullseye)
     echo "deb [check-valid-until=no] http://archive.debian.org/debian/ $VERSION_CODENAME main contrib non-free" > /etc/apt/sources.list
     ;;
+  *) : ;;
 esac
 
 # Update certificates and install base deps
