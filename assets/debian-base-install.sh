@@ -22,14 +22,13 @@ elif [ "$VERSION_ID" = 9 ]; then
   export VERSION_CODENAME="stretch";
 fi
 
-# https://unix.stackexchange.com/a/743874
-if [ "$VERSION_CODENAME" = "jessie"  ]; then
-  echo "deb [check-valid-until=no] http://archive.debian.org/debian/ jessie main contrib non-free" > /etc/apt/sources.list
-elif [ "$VERSION_CODENAME" = "stretch"  ]; then
-  sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
-  sed -i s/security.debian.org/archive.debian.org/g /etc/apt/sources.list
-  sed -i s/stretch-updates/stretch/g /etc/apt/sources.list
-fi
+# EOL releases are dropped from the regular mirrors, only the archive serves them
+case "$VERSION_CODENAME" in
+  jessie | stretch | bullseye)
+    echo "deb [check-valid-until=no] https://archive.debian.org/debian/ $VERSION_CODENAME main contrib non-free" > /etc/apt/sources.list
+    ;;
+  *) : ;;
+esac
 
 # Update certificates and install base deps
 export DEBIAN_FRONTEND=noninteractive
@@ -158,12 +157,6 @@ if [ "$PHP_XDEBUG" != "null" ]; then
 fi
 # Disables the xdebug extension from php.ini otherwise it's never really disabled
 sed -i 's~zend_extension="xdebug.so"~;zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
-
-# Install Node.js (shipping yarn and npm) and pnpm
-if [ "0.0.0" != "$NODE_VERSION" ]; then
-  apt-get install --no-install-recommends -qqy nodejs python3 npm
-  npm install -g yarn@latest pnpm@latest --force
-fi
 
 # Install github-cli
 apt-get install --no-install-recommends -qqy gh || curl -sS https://webi.sh/gh | sh
