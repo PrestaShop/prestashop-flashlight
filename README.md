@@ -25,7 +25,7 @@ You may browse a wide variety of tags, including:
 - `1.7.8.11-7.4` PrestaShop version 1.7.8.11 with PHP 7.4 and Alpine Linux
 - `php-8.1` to get the latest PrestaShop version recommending PHP 8.1
 
-Some tags may not be built yet, feel free to [fill an issue](./issues) to request it.
+Some tags may not be built yet, feel free to [open an issue](https://github.com/PrestaShop/prestashop-flashlight/issues) to request it.
 
 # Use
 
