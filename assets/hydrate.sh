@@ -21,11 +21,16 @@ export PS_DOMAIN="localhost:80" \
   DB_SOCKET=/run/mysqld/mysqld.sock
 
 # 2. Start a MySQL server
+# MariaDB >= 11.4.12 defaults innodb_buffer_pool_size_max to ~8TB of reserved
+# virtual memory, which makes mysqld hang for hours under QEMU (arm64 builds).
+# The "loose-" prefix keeps older MariaDB versions from failing on the option.
+MYSQLD_OPTS="--loose-innodb-buffer-pool-size-max=128M"
 mkdir -p /run/mysqld /var/lib/mysql/;
 mysql_install_db \
   --user=root \
-  --ldata=/var/lib/mysql/ > /dev/null;
-nohup mysqld --user=root --bind-address="$DB_SERVER" --port="$DB_PORT" --socket="$DB_SOCKET" &
+  --ldata=/var/lib/mysql/ \
+  "$MYSQLD_OPTS" > /dev/null;
+nohup mysqld --user=root --bind-address="$DB_SERVER" --port="$DB_PORT" --socket="$DB_SOCKET" "$MYSQLD_OPTS" &
 
 while [ ! -S "$DB_SOCKET" ]; do sleep 0.1; done
 while ! nc -z "$DB_SERVER" "$DB_PORT"; do sleep 0.1; done
