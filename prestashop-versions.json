@@ -109,7 +109,8 @@
     },
     "zip_sources": {
       "9.2.0-6.0-beta.1": "https://assets.prestashop3.com/dst/edition/corporate/9.2.0-6.0-beta.1/prestashop_edition_basic_version_9.2.0-6.0-beta.1.zip",
-      "9.2.0-6.0-rc.1": "https://assets.prestashop3.com/dst/edition/corporate/9.2.0-6.0-rc.1/prestashop_edition_basic_version_9.2.0-6.0-rc.1.zip"
+      "9.2.0-6.0-rc.1": "https://assets.prestashop3.com/dst/edition/corporate/9.2.0-6.0-rc.1/prestashop_edition_basic_version_9.2.0-6.0-rc.1.zip",
+      "9.2.0-6.0": "https://assets.prestashop3.com/dst/edition/corporate/9.2.0-6.0/prestashop_edition_basic_version_9.2.0-6.0.zip"
     }
   },
   "nightly": {
