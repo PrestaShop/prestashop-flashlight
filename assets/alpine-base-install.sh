@@ -15,7 +15,7 @@ packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
 if [ "$SERVER_FLAVOUR" = "nginx" ]; then
   packages="$packages nginx nginx-mod-http-headers-more nginx-mod-http-geoip nginx-mod-stream nginx-mod-stream-geoip"
 else
-  packages="$packages apache2 apache2-proxy"
+  packages="$packages apache2 apache2-proxy apache2-ssl"
 fi
 
 # shellcheck disable=SC2086
@@ -55,6 +55,9 @@ else
       MODULE="$1"
       echo "Enabling module $MODULE"
       sed -i "/^#LoadModule ${MODULE}_module/s/^#//g" /etc/apache2/httpd.conf
+      # Some modules are loaded by the conf.d of their package (apache2-proxy, apache2-ssl): a module found
+      # nowhere would silently stay disabled and only fail at startup
+      grep -q "^LoadModule ${MODULE}_module" /etc/apache2/httpd.conf /etc/apache2/conf.d/*.conf || { echo "Module $MODULE not found in the apache configuration"; exit 1; }
       shift
     done
   }
@@ -72,8 +75,15 @@ else
     && a2enmod proxy_fcgi \
     && a2enmod rewrite \
     && a2enmod mpm_event \
-    && a2enmod ssl \
     && a2dismod mpm_prefork
+
+  # mod_ssl is loaded by the conf.d/ssl.conf of apache2-ssl, which also adds a default vhost on the wrong
+  # document root: keep the module and the 443 listener only, the https vhost is in 000-default.conf
+  rm -f /etc/apache2/conf.d/ssl.conf
+  {
+    echo "LoadModule ssl_module modules/mod_ssl.so"
+    echo "Listen 443"
+  } >> /etc/apache2/httpd.conf
 
   echo "include /etc/apache2/sites-available/000-default.conf" >> /etc/apache2/httpd.conf
   rm -rf /etc/nginx
