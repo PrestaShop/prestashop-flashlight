@@ -77,6 +77,10 @@ else
     && a2enmod mpm_event \
     && a2dismod mpm_prefork
 
+  # The stock httpd.conf only serves index.html: without index.php the docroot falls back to a directory listing
+  sed -i 's/^\(\s*\)DirectoryIndex index.html$/\1DirectoryIndex index.php index.html/' /etc/apache2/httpd.conf
+  grep -q '^\s*DirectoryIndex index.php' /etc/apache2/httpd.conf || { echo "DirectoryIndex not patched"; exit 1; }
+
   # mod_ssl is loaded by the conf.d/ssl.conf of apache2-ssl, which also adds a default vhost on the wrong
   # document root: keep the module and the 443 listener only, the https vhost is in 000-default.conf
   rm -f /etc/apache2/conf.d/ssl.conf
