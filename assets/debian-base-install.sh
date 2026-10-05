@@ -152,7 +152,13 @@ fi
 # Install xdebug
 PHP_XDEBUG=$(jq -r '."'"${PHP_SHORT_VERSION}"'".xdebug' < /tmp/php-flavours.json)
 if [ "$PHP_XDEBUG" != "null" ]; then
-  pecl install "xdebug-$PHP_XDEBUG"
+  # pecl.php.net is flaky (503/504), retry a few times
+  for attempt in 1 2 3 4 5; do
+    pecl install "xdebug-$PHP_XDEBUG" && break
+    if [ "$attempt" = 5 ]; then exit 1; fi
+    echo "pecl install failed (attempt $attempt/5), retrying in $((attempt * 10))s..."
+    sleep $((attempt * 10))
+  done
   docker-php-ext-enable xdebug
 fi
 # Disables the xdebug extension from php.ini otherwise it's never really disabled
