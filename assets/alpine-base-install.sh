@@ -77,6 +77,10 @@ else
     && a2enmod mpm_event \
     && a2dismod mpm_prefork
 
+  # The stock httpd.conf only serves index.html: without index.php the docroot falls back to a directory listing
+  sed -i 's/^\(\s*\)DirectoryIndex index.html$/\1DirectoryIndex index.php index.html/' /etc/apache2/httpd.conf
+  grep -q '^\s*DirectoryIndex index.php' /etc/apache2/httpd.conf || { echo "DirectoryIndex not patched"; exit 1; }
+
   # mod_ssl is loaded by the conf.d/ssl.conf of apache2-ssl, which also adds a default vhost on the wrong
   # document root: keep the module and the 443 listener only, the https vhost is in 000-default.conf
   rm -f /etc/apache2/conf.d/ssl.conf
@@ -139,7 +143,13 @@ fi
 # Install xdebug
 PHP_XDEBUG=$(jq -r '."'"${PHP_SHORT_VERSION}"'".xdebug' < /tmp/php-flavours.json)
 if [ "$PHP_XDEBUG" != "null" ]; then
-  pecl install "xdebug-$PHP_XDEBUG"
+  # pecl.php.net is flaky (503/504), retry a few times
+  for attempt in 1 2 3 4 5; do
+    pecl install "xdebug-$PHP_XDEBUG" && break
+    if [ "$attempt" = 5 ]; then exit 1; fi
+    echo "pecl install failed (attempt $attempt/5), retrying in $((attempt * 10))s..."
+    sleep $((attempt * 10))
+  done
   docker-php-ext-enable xdebug
 fi
 # Disables the xdebug extension from php.ini otherwise it's never really disabled
