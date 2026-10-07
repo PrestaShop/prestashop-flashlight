@@ -4,7 +4,7 @@ set -eu
 usage() {
   cat <<EOF
 Usage: $0 [--dry-run] [--ps-version <version>] [--php-version <version>] [--os-flavour <alpine|debian>] [--server <nginx|apache>]
-       [--runner <self-hosted|ubuntu-latest>]
+       [--runner <self-hosted|ubuntu-latest>] [--run-ids-file <file>]
 
 Dispatch the docker-publish workflow for PrestaShop Flashlight images.
 
@@ -18,6 +18,8 @@ Options:
   --os-flavour <flavour>     Only release images for this OS flavour (alpine or debian)
   --server <flavour>         Only release images for this server flavour (nginx or apache)
   --runner <runner>          Runner executing the workflow (self-hosted or ubuntu-latest, default: self-hosted)
+  --run-ids-file <file>      Write the dispatched run IDs to this file (one per line, overwritten),
+                             so they can be given to monitor-workflow-runs.sh --run-ids-file
   -h, --help                 Show this help
 
 Filters can be combined, each one narrows the set of released images.
@@ -36,10 +38,11 @@ PHP_FILTER=""
 OS_FILTER=""
 SERVER_FILTER=""
 RUNNER="self-hosted"
+RUN_IDS_FILE=""
 while [ $# -gt 0 ]; do
   case "$1" in
     --dry-run) DRY_RUN=true; shift ;;
-    --ps-version|--php-version|--os-flavour|--server|--runner)
+    --ps-version|--php-version|--os-flavour|--server|--runner|--run-ids-file)
       [ $# -ge 2 ] || { usage >&2; die "$1 requires a value"; }
       case "$1" in
         --ps-version) TARGET_PS_VERSION="$2" ;;
@@ -47,6 +50,7 @@ while [ $# -gt 0 ]; do
         --os-flavour) OS_FILTER="$2" ;;
         --server) SERVER_FILTER="$2" ;;
         --runner) RUNNER="$2" ;;
+        --run-ids-file) RUN_IDS_FILE="$2" ;;
       esac
       shift 2 ;;
     --ps-version=*) TARGET_PS_VERSION="${1#*=}"; shift ;;
@@ -54,6 +58,7 @@ while [ $# -gt 0 ]; do
     --os-flavour=*) OS_FILTER="${1#*=}"; shift ;;
     --server=*) SERVER_FILTER="${1#*=}"; shift ;;
     --runner=*) RUNNER="${1#*=}"; shift ;;
+    --run-ids-file=*) RUN_IDS_FILE="${1#*=}"; shift ;;
     -h|--help) usage; exit 0 ;;
     *) usage >&2; die "unknown option $1" ;;
   esac
@@ -73,6 +78,10 @@ case "$RUNNER" in
 esac
 if [ -n "$PHP_FILTER" ] && ! jq -e --arg v "$PHP_FILTER" 'has($v)' php-flavours.json > /dev/null; then
   die "unknown PHP version '$PHP_FILTER' (see php-flavours.json)"
+fi
+# Truncate the file now, run IDs are then appended as soon as each run is dispatched
+if [ -n "$RUN_IDS_FILE" ] && [ "$DRY_RUN" != true ]; then
+  : > "$RUN_IDS_FILE" || die "cannot write to '$RUN_IDS_FILE'"
 fi
 
 # get_php_versions <ps_version> <compatible|recommended>
@@ -136,6 +145,7 @@ publish() {
 
   RUN_ID=$(gh run list --repo "$REPO" --workflow "$WORKFLOW" --json databaseId,headBranch -q '.[0].databaseId')
   RUN_IDS="$RUN_IDS $RUN_ID"
+  if [ -n "$RUN_IDS_FILE" ]; then echo "$RUN_ID" >> "$RUN_IDS_FILE"; fi
 }
 
 monitor() {

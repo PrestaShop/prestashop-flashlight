@@ -4,11 +4,13 @@ set -eu
 usage() {
   echo "Usage:"
   echo "  $0 --workflow <workflow.yml> --run-ids \"<id1> <id2> ...\" [--cancel|--revive-expired] [--delay-between-checks <minutes>]"
+  echo "  $0 --workflow <workflow.yml> --run-ids-file <file> [--cancel|--revive-expired] [--delay-between-checks <minutes>]"
   echo "  $0 --workflow <workflow.yml> --since \"2025-09-01T00:00:00Z\" [--cancel|--revive-expired] [--delay-between-checks <minutes>]"
   exit 1
 }
 
 RUN_IDS=""
+RUN_IDS_FILE=""
 SINCE=""
 CANCEL=false
 REVIVE_EXPIRED=false
@@ -29,6 +31,10 @@ while [ $# -gt 0 ]; do
     --run-ids)
       shift
       RUN_IDS="$1"
+      ;;
+    --run-ids-file)
+      shift
+      RUN_IDS_FILE="$1"
       ;;
     --since)
       shift
@@ -56,12 +62,28 @@ if [ -z "$WORKFLOW" ]; then
   usage
 fi
 
+if [ -n "$RUN_IDS_FILE" ]; then
+  if [ -n "$RUN_IDS" ]; then
+    echo "❌ --run-ids and --run-ids-file cannot be provided together"
+    usage
+  fi
+  if [ ! -r "$RUN_IDS_FILE" ]; then
+    echo "❌ Cannot read run IDs file: $RUN_IDS_FILE"
+    exit 1
+  fi
+  RUN_IDS=$(cat "$RUN_IDS_FILE")
+  if [ -z "$RUN_IDS" ]; then
+    echo "❌ Run IDs file is empty: $RUN_IDS_FILE"
+    exit 1
+  fi
+fi
+
 if [ -z "$RUN_IDS" ] && [ -z "$SINCE" ]; then
   usage
 fi
 
 if [ -n "$RUN_IDS" ] && [ -n "$SINCE" ]; then
-  echo "❌ --run-ids and --since cannot be provided together"
+  echo "❌ --run-ids/--run-ids-file and --since cannot be provided together"
   usage
 fi
 
