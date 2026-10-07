@@ -38,7 +38,7 @@ RUN chmod -R 755 /usr/local/certs \
 RUN version="$(php -r "echo PHP_MAJOR_VERSION.PHP_MINOR_VERSION;")" \
   && architecture=$(uname -m) \
   && for attempt in 1 2 3 4 5; do \
-       curl -A "Docker" -o /tmp/blackfire-probe.tar.gz -fsSL "https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version" && break; \
+       curl -A "Docker" --proto "=https" --proto-redir "=https" -o /tmp/blackfire-probe.tar.gz -fsSL "https://blackfire.io/api/v1/releases/probe/php/linux/$architecture/$version" && break; \
        [ "$attempt" -lt 5 ] || exit 1; \
        echo "blackfire probe download failed (attempt $attempt/5), retrying in 3s..."; \
        sleep 3; \
