@@ -155,7 +155,8 @@ if [ "$PHP_XDEBUG" != "null" ]; then
   tar -xzf /tmp/xdebug.tar.gz -C /tmp/xdebug --strip-components=1
   (cd /tmp/xdebug && phpize && ./configure --enable-xdebug && make -j"$(nproc)" && make install)
   rm -rf /tmp/xdebug /tmp/xdebug.tar.gz
-  docker-php-ext-enable xdebug
+  # Register in php.ini like pecl did (not docker-php-ext-enable): run.sh toggles this line
+  echo 'zend_extension="xdebug.so"' >> "$PHP_INI_DIR/php.ini"
 fi
 # Disables the xdebug extension from php.ini otherwise it's never really disabled
 sed -i 's~zend_extension="xdebug.so"~;zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
