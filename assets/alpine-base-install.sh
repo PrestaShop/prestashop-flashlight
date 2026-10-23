@@ -2,9 +2,9 @@
 set -eu
 
 # Install base tools, PHP requirements and dev-tools
-PHP_COMMON=$(apk search -a 'php-common' | awk 'NR==1{print $1}')
-PHP_ICONV=$(apk search -a 'php-iconv' | awk 'NR==1{print $1}')
-PHP_GD=$(apk search -a 'php-gd' | awk 'NR==1{print $1}')
+PHP_COMMON=$(apk search -a -q 'php-common' | awk 'NR==1{print $1}')
+PHP_ICONV=$(apk search -a -q 'php-iconv' | awk 'NR==1{print $1}')
+PHP_GD=$(apk search -a -q 'php-gd' | awk 'NR==1{print $1}')
 packages="bash less vim geoip git tzdata zip curl jq autoconf findutils \
   ca-certificates \
   mariadb-client sudo libjpeg libxml2 \
