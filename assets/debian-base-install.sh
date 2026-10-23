@@ -150,16 +150,22 @@ if [ "$PHP_CS_FIXER" != "null" ]; then
 fi
 
 # Install xdebug
+# Built from the GitHub tag tarball: pecl.php.net rate-limits CI runners
+# ("No releases available for package pecl.php.net/xdebug")
 PHP_XDEBUG=$(jq -r '."'"${PHP_SHORT_VERSION}"'".xdebug' < /tmp/php-flavours.json)
 if [ "$PHP_XDEBUG" != "null" ]; then
-  # pecl.php.net is flaky (503/504), retry a few times
   for attempt in 1 2 3 4 5; do
-    pecl install "xdebug-$PHP_XDEBUG" && break
+    curl -fsSL -o /tmp/xdebug.tar.gz "https://github.com/xdebug/xdebug/archive/refs/tags/${PHP_XDEBUG}.tar.gz" && break
     if [ "$attempt" = 5 ]; then exit 1; fi
-    echo "pecl install failed (attempt $attempt/5), retrying in $((attempt * 10))s..."
+    echo "xdebug download failed (attempt $attempt/5), retrying in $((attempt * 10))s..."
     sleep $((attempt * 10))
   done
-  docker-php-ext-enable xdebug
+  mkdir -p /tmp/xdebug
+  tar -xzf /tmp/xdebug.tar.gz -C /tmp/xdebug --strip-components=1
+  (cd /tmp/xdebug && phpize && ./configure --enable-xdebug && make -j"$(nproc)" && make install)
+  rm -rf /tmp/xdebug /tmp/xdebug.tar.gz
+  # Register in php.ini like pecl did (not docker-php-ext-enable): run.sh toggles this line
+  echo 'zend_extension="xdebug.so"' >> "$PHP_INI_DIR/php.ini"
 fi
 # Disables the xdebug extension from php.ini otherwise it's never really disabled
 sed -i 's~zend_extension="xdebug.so"~;zend_extension="xdebug.so"~' "$PHP_INI_DIR/php.ini"
