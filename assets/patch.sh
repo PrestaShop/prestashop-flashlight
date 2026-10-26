@@ -21,7 +21,12 @@ patch_1_6 () {
 patch_1_7_6 () {
   echo "✅ Patch PrestaShop Faceted Search for version <= 1.7.6 and > 1.6"
   mkdir -p "$PS_FOLDER/var/cache/dev/sandbox"
-  PS_FACETEDSEARCH_VERSION="v3.15.1"
+  # PHP 5.6 cannot load recent releases: v3.4+ import \Configuration redundantly (fatal error)
+  # and v3.15+ use PHP 7.1 return types
+  PS_FACETEDSEARCH_VERSION="v3.14.1"
+  if [ "$(php -r 'echo PHP_MAJOR_VERSION . PHP_MINOR_VERSION;')" = "56" ]; then
+    PS_FACETEDSEARCH_VERSION="v3.3.0"
+  fi
   rm -rf "$PS_FOLDER/modules/ps_facetedsearch"
   curl -f -sL -o "/tmp/ps_facetedsearch.zip" "https://github.com/PrestaShop/ps_facetedsearch/releases/download/$PS_FACETEDSEARCH_VERSION/ps_facetedsearch.zip"
   # the archive holds the ps_facetedsearch/ folder itself
