@@ -149,7 +149,7 @@ monitor() {
   ./monitor-workflow-runs.sh --run-ids "$RUN_IDS" --workflow "$WORKFLOW" --revive-expired
 }
 
-EXCLUDED_TAGS='\/1.5|\/1.6.0|\/1.6.1.0|\/1.6.1.1|\/1.6.1.2|show|alpha|beta|rc|RC|\^|refs\/tags\/.*\/'
+EXCLUDED_TAGS='\/1.5|\/1.6.0|\/1.6.1.0|\/1.6.1.1|\/1.6.1.2|\/1.6.1.5$|show|alpha|beta|rc|RC|\^|refs\/tags\/.*\/'
 
 # Stable PrestaShop release tags, newest first
 get_prestashop_tags() {
